@@ -31,6 +31,10 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'django_otp',
+    'django_otp.plugins.otp_static',
+    'django_otp.plugins.otp_totp',
+    'two_factor',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -38,8 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'user_app',
-    'django_otp',
-    'django_otp.plugins.otp_totp',  # For TOTP support
+    # For TOTP support
     
 ]
 
@@ -54,6 +57,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+TWO_FACTOR_FORCE_OTP_ADMIN = True
+LOGIN_URL = 'two_factor:login'
+LOGIN_REDIRECT_URL = '/admin'  # Redirect admin dashboard
+
 
 ROOT_URLCONF = 'cvDetect.urls'
 
