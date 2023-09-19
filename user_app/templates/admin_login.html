@@ -1,0 +1,23 @@
+{% extends "admin/login.html" %}
+
+{% load i18n %}
+
+{% block content %}
+<div class="login-box">
+    <h2>{% trans 'Log in' %}</h2>
+    <form method="post" action="{% if app_path %}{% url 'admin:login' %}{% else %}{% url 'login' %}{% endif %}">
+        {% csrf_token %}
+        {{ form.username.label_tag }}
+        {{ form.username }}
+        {{ form.password.label_tag }}
+        {{ form.password }}
+        {% block otp_code %}
+            {{ form.otp_code.label_tag }}
+            {{ form.otp_code }}
+        {% endblock %}
+        <div class="submit-row">
+            <input type="submit" value="{% trans 'Log in' %}" class="btn btn-primary">
+        </div>
+    </form>
+</div>
+{% endblock %}
