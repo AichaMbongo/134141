@@ -67,4 +67,5 @@ urlpatterns = [
     path('', include('user_app.urls')),
     path('admin/', admin.site.urls),
     path('', include(tf_urls, "two_factor")),
+    
 ]
