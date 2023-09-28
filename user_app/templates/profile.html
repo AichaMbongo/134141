@@ -1,0 +1,58 @@
+{% extends 'base.html' %} 
+
+{% block title %}
+  CV - detect
+{% endblock %}
+
+
+{% block content %}
+  <!-- <h1>CV-Detect</h1>
+
+  <h3>Profile</h3> -->
+  {% if profile %}
+  
+<div class="container text-center">
+    <div class="row">
+        <div class="col-8"><h1>{{profile.user.username}}'s Profile</h1></div>
+
+    
+<div class="col-4">
+
+    <div class="card">
+        <h5 class="card-header">Treats</h5>
+        <div class="card-body">
+          <p class="card-text">
+            {% for treating in profile.treats.all %}
+            <a href="{% url 'profile' treating.user.id %}">@{{ treating }}</a><br/>
+          
+            {% endfor %}
+          </p>
+        </div>
+      </div>
+
+ 
+
+  <br/><br/>
+  <div class="card">
+    <h5 class="card-header">Treated By</h5>
+    <div class="card-body">
+      <p class="card-text">
+        {% for treating in profile.treated_by.all %}
+        <a href="{% url 'profile' treating.user.id %}">@{{ treating }}</a><br/>
+      
+        {% endfor %}
+      </p>
+    </div>
+  </div>
+
+
+  </div>
+</div>
+</div>
+
+  
+
+{% endif %}
+  
+  
+{% endblock %}
