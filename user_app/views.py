@@ -51,7 +51,25 @@ def logout_user(request):
     return redirect('home')
 
 def register_user(request):
-   return render(request, 'authenticate/register_user.html', {})
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password1']
+            user = authenticate(username=username, password=password)
+            login(request, user)
+            messages.success(request, "Registration Successful!")
+            return redirect('home')
+        # The else block should be at the same indentation level as the 'if form.is_valid():'
+        else:
+            form = UserCreationForm()
+    else:
+        form = UserCreationForm()
+
+    return render(request, 'register_user.html', {'form': form})
+
+  
 
    
 
