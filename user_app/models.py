@@ -4,6 +4,21 @@ from django.db.models.signals import post_save
 
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+# customusers/models.py
+from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.db import models
+
+class CustomUser(AbstractUser):
+    # Additional fields
+    first_name = models.CharField(max_length=50, blank=True)
+    last_name = models.CharField(max_length=50, blank=True)
+    phone_number = models.CharField(max_length=13, blank=True)
+
+    # Add related names to avoid clashes
+    groups = models.ManyToManyField(Group, related_name='customuser_set', blank=True)
+    user_permissions = models.ManyToManyField(Permission, related_name='customuser_set', blank=True)
+
+    # ... other fields as needed
 
 
 class Profile(models.Model):
@@ -26,3 +41,9 @@ def create_profile(sender, instance, created, **kwargs):
         # user_profile.save()
 post_save.connect(create_profile, sender=User)
 
+# customusers/models.py
+
+
+
+
+    # ... other fields as needed

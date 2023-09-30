@@ -5,6 +5,8 @@ from django.template import loader
 from .models import Profile
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
+from .forms import RegisterUserForm
+
 def home(request):
     template = loader.get_template('home.html')
     return HttpResponse(template.render())
@@ -52,7 +54,7 @@ def logout_user(request):
 
 def register_user(request):
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = RegisterUserForm(request.POST)
         if form.is_valid():
             form.save()
             username = form.cleaned_data['username']
@@ -62,10 +64,9 @@ def register_user(request):
             messages.success(request, "Registration Successful!")
             return redirect('home')
         # The else block should be at the same indentation level as the 'if form.is_valid():'
-        else:
-            form = UserCreationForm()
     else:
-        form = UserCreationForm()
+            form = RegisterUserForm()
+    
 
     return render(request, 'register_user.html', {'form': form})
 
