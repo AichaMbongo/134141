@@ -1,0 +1,36 @@
+{% extends 'base.html' %} 
+
+{% block title %}
+  CV - detect
+{% endblock %}
+
+
+{% block content %}
+<center>
+  <h1>CV-Detect</h1>
+
+  <h3>{{patient}}</h3>
+  <br/>
+  
+
+</center>
+
+<div class="card">
+    <h5 class="card-header">Patient</h5>
+    <div class="card-body">
+      <h5 class="card-title">{{patient}}</h5>
+      <p class="card-text">
+        <ul>
+            <li><strong>First Name</strong> - {{patient.firstName }}</li>
+            <li><strong>Last Name</strong> - {{patient.lastName }}</li>
+            <li><strong>Email Address</strong> - {{patient.email }}</li>
+            <li><strong>Phone Number</strong> - {{patient.phoneNo }}</li>
+            <li><strong>Gender</strong> - {{patient.sex }}</li>
+            
+    </p>
+
+    </ul>
+    </div>
+  </div>
+  
+{% endblock %}

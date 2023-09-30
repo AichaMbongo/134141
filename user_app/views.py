@@ -2,10 +2,11 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import HttpResponse
 from django.template import loader
-from .models import Profile
+from .models import Profile, Patient
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
-from .forms import RegisterUserForm
+from .forms import RegisterUserForm, PatientForm
+from django.http import HttpResponseRedirect
 
 def home(request):
     template = loader.get_template('home.html')
@@ -31,20 +32,19 @@ def profile (request, pk):
    
 def login_user(request):
     if request.method == "POST":
-       username = request.POST['username']
-       password = request.POST['password']
-       user = authenticate(request, username=username, password=password)
-       if user is not None:
-          login(request, user)
-          messages.success(request, ("You have been logged in!"))
-          return redirect('home')
-       else:
-           messages.success(request, ("There was an error logging in, please try again"))
-           return redirect('login')
-          
-       
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            messages.success(request, "You have been logged in!")
+            return redirect('home')
+        else:
+            messages.error(request, "There was an error logging in, please try again")
+            return redirect('login')
     else:
-        return render(request, 'login.html', {}) 
+        return render(request, 'login.html', {})
     
 
 def logout_user(request):
@@ -70,8 +70,27 @@ def register_user(request):
 
     return render(request, 'register_user.html', {'form': form})
 
-  
+def addPatient(request):
+    submitted = False
+    if request.method == "POST":
+       form = PatientForm(request.POST)
+       if form.is_valid():
+          form.save()
+          return HttpResponseRedirect('/addPatient?submitted=True')
+    else:
+          form = PatientForm
+          if 'submitted' in  request.GET:
+             submitted = True
+    return render(request, 'addPatient.html', {'form': form, 'submitted': submitted})
 
-   
+
+def listPatient(request):
+    patientList = Patient.objects.all()
+    return render(request, 'patient.html', {'patientList': patientList})
+
+def showPatient(request, patient_id):
+    patient = Patient.objects.get(pk=patient_id)
+    return render(request, 'showPatient.html', {'patient': patient})
+    
 
       

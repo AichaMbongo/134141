@@ -43,7 +43,24 @@ post_save.connect(create_profile, sender=User)
 
 # customusers/models.py
 
+class Patient(models.Model):
+    GENDER_CHOICES = (
+        ('M', 'Male'),
+        ('F', 'Female'),
+    )
+    
+    firstName = models.CharField(max_length=30)
+    lastName = models.CharField(max_length=30)
+    email = models.EmailField(max_length=60)
+    phoneNo = models.CharField(max_length=20)
+    sex = models.CharField(max_length=1, choices=GENDER_CHOICES)
+
+    def get_sex_display(self):
+        return dict(self.GENDER_CHOICES).get(self.sex, '')
+
+    required = {'sex', 'email', 'firstName'}
+    def __str__(self):
+        return self.firstName
 
 
 
-    # ... other fields as needed

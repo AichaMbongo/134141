@@ -1,10 +1,17 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User, Group
-from .models import Profile, CustomUser
+from .models import Profile, CustomUser, Patient
 admin.site.unregister(Group)
 
 admin.site.unregister(User)
+
+class PatientAdmin(admin.ModelAdmin):
+    list_display = [ 'firstName', 'lastName', 'email', 'phoneNo', 'sex']
+    search_fields = ['firstName', 'lastName', 'email']
+
+admin.site.register(Patient, PatientAdmin)
+
 class ProfileInline(admin.StackedInline):
     model = Profile
 

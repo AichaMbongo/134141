@@ -9,20 +9,30 @@
           <!-- <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="#">Home</a>
           </li> -->
-          <li class="nav-item">
-            <a class="nav-link" 
-            href="{% url 'profile_list' %}">Profile_list</a>
-          </li>
-
           
+        
+          
+{% if user.is_authenticated %}
+  <li class="nav-item">
+              <a class="nav-link" 
+              href="{% url 'profile_list' %}">Profile_list</a>
+            </li>
+    
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'profile' request.user.id %}">My Profile</a>
+    </li>
 
-          {% if user.is_authenticated %}
-  <li class="nav-item">
-    <a class="nav-link" href="{% url 'profile' request.user.id %}">My Profile</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-  </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'addPatient'  %}">Add Patient</a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'listPatient'  %}">Patient List</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+    </li>
+    
 {% else %}
   <li class="nav-item">
     <a class="nav-link" href="{% url 'register_user' %}">Register</a>
@@ -34,10 +44,7 @@
 
 
 
-
-
-
-          
+       
         </ul>
         <form class="d-flex" role="search">
           <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
