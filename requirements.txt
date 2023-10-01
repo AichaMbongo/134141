@@ -1,0 +1,14 @@
+asgiref==3.7.2
+colorama==0.4.6
+Django==4.2.5
+django-formtools==2.4.1
+django-otp==1.2.3
+django-phonenumber-field==7.1.0
+django-two-factor-auth==1.15.5
+phonenumbers==8.13.21
+Pillow==10.0.1
+pypng==0.20220715.0
+qrcode==7.4.2
+sqlparse==0.4.4
+typing_extensions==4.8.0
+tzdata==2023.3

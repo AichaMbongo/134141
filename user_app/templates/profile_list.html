@@ -4,32 +4,41 @@
   CV - detect
 {% endblock %}
 {% block content %}
-  <h1>CV-Detect</h1>
+ 
 
-  <h3>Profile List</h3>
+  <center>
+  <h1>Doctor's Profile List</h1>
+</center>
   
-  <p>Check out all our <a href="members/">Start here</a></p>
   <br/>
 
-{% if profiles %}
-    {% for profile in profiles %}
-    <div class="card mb-3" style="max-width: 540px;">
-        <div class="row g-0">
-          <div class="col-md-4">
-            <img src="{% static 'images/doctor.png' %}" class="img-fluid rounded-start" alt="Profile Image">
+  {% if profiles %}
+  <div class="row">
+      {% for profile in profiles %}
+          <div class="col-md-6 mb-3">
+              <div class="card">
+                  <div class="row g-0">
+                      <div class="col-md-4">
+                          {% if profile.profile_image %}
+                              <img src="{{ profile.profile_image.url }}" class="img-fluid rounded img-thumbnail" alt="Profile Image">
+                          {% else %}
+                              <!-- Placeholder image -->
+                              <img src="{% static 'images/doctor2.png' %}" class="img-fluid rounded img-thumbnail" alt="Placeholder Image">
+                          {% endif %}
+                      </div>
+                      <div class="col-md-8">
+                          <div class="card-body">
+                              <h5 class="card-title">{{ profile.user.username }}</h5>
+                              <p class="card-text"><a href="{% url 'profile' profile.user.id %}">@{{ profile.user.username|lower }}</a></p>
+                              <p class="card-text"><small class="text-muted">Last Updated: {{ profile.date_modified }}</small></p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
           </div>
-          <div class="col-md-8">
-            <div class="card-body">
-              <h5 class="card-title">{{profile.user.username}}</h5>
-              <p class="card-text"><a href="{% url 'profile' profile.user.id %}">@{{profile.user.username|lower}}</a></p><br/><br/>
-              <p class="card-text"><small class="text-body-secondary">Last Udated: {{profile.date_modified}}</small></p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <br/><br/>
-       
-        {% endfor %}
+      {% endfor %}
+  </div>
 {% endif %}
+
 
 {% endblock %}

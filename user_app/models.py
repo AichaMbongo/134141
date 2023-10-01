@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
+from django.conf import settings
 
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
@@ -12,7 +13,6 @@ class CustomUser(AbstractUser):
     # Additional fields
     first_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
-    phone_number = models.CharField(max_length=13, blank=True)
 
     # Add related names to avoid clashes
     groups = models.ManyToManyField(Group, related_name='customuser_set', blank=True)
@@ -23,12 +23,20 @@ class CustomUser(AbstractUser):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    
+    phone_number = models.CharField(max_length=13, blank=True)
+    specialization = models.CharField(max_length=100, blank=True, null=True)
+
+    # user = models.OneToOneField(settings.AUTH_USER_MODEL,  on_delete=models.CASCADE)
+    # Other fields...
+
     treats = models.ManyToManyField("self", 
                                     related_name="treated_by",
                                     blank = True,
                                     symmetrical=False)
     
     date_modified = models.DateTimeField(User, auto_now=True)
+    profile_image = models.ImageField(null=True, blank=True, upload_to="images/")
     def __str__(self):
         return self.user.username
     

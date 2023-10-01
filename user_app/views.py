@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import HttpResponse
 from django.template import loader
-from .models import Profile, Patient
+from .models import Profile, Patient,CustomUser 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from .forms import RegisterUserForm, PatientForm
@@ -92,5 +92,8 @@ def showPatient(request, patient_id):
     patient = Patient.objects.get(pk=patient_id)
     return render(request, 'showPatient.html', {'patient': patient})
     
-
+def showStaff(request):
+    
+    user = CustomUser.objects.get(pk=user_id)
+    return render(request, 'profile.html', {'user': user})
       

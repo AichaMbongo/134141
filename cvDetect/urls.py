@@ -30,7 +30,8 @@ from django.shortcuts import resolve_url
 from django.urls import reverse
 
 from two_factor.admin import AdminSiteOTPRequired, AdminSiteOTPRequiredMixin
-
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 class AdminSiteOTPRequiredMixinRedirSetup(AdminSiteOTPRequired):
@@ -67,5 +68,5 @@ urlpatterns = [
     path('', include('user_app.urls')),
     path('admin/', admin.site.urls),
     path('', include(tf_urls, "two_factor")),
-    
-]
+
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
