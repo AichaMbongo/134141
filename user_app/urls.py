@@ -8,10 +8,10 @@ urlpatterns = [
     path('login/', views.login_user, name='login'),
     path('logout/', views.logout_user, name='logout'),
     path('register_user/', views.register_user, name='register_user'),
-    path('addPatient/', views.addPatient, name='addPatient'),
     path('Patient/', views.listPatient, name='listPatient'),
     path('showPatient/<patient_id>', views.showPatient, name='showPatient'),
     path('profile/<user_id>', views.showStaff, name='showStaff'),
+    path('addPatient/', views.addPatient, name='addPatient'),
 
 
 ]

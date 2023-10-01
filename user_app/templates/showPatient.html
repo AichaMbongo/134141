@@ -1,36 +1,26 @@
 {% extends 'base.html' %} 
 
 {% block title %}
-  CV - detect
+  CV - Detect
 {% endblock %}
 
-
 {% block content %}
-<center>
-  <h1>CV-Detect</h1>
+<div class="container mt-5">
+  <div class="text-center">
+    <h3 class="display-4 mb-4 shadow">{{ patient }}</h3>
+  </div>
 
-  <h3>{{patient}}</h3>
-  <br/>
-  
-
-</center>
-
-<div class="card">
-    <h5 class="card-header">Patient</h5>
+  <div class="card shadow">
+    <h5 class="card-header bg-secondary text-white">Patient Details</h5>
     <div class="card-body">
-      <h5 class="card-title">{{patient}}</h5>
-      <p class="card-text">
-        <ul>
-            <li><strong>First Name</strong> - {{patient.firstName }}</li>
-            <li><strong>Last Name</strong> - {{patient.lastName }}</li>
-            <li><strong>Email Address</strong> - {{patient.email }}</li>
-            <li><strong>Phone Number</strong> - {{patient.phoneNo }}</li>
-            <li><strong>Gender</strong> - {{patient.sex }}</li>
-            
-    </p>
-
-    </ul>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item"><strong>First Name:</strong> {{ patient.firstName }}</li>
+        <li class="list-group-item"><strong>Last Name:</strong> {{ patient.lastName }}</li>
+        <li class="list-group-item"><strong>Email Address:</strong> {{ patient.email }}</li>
+        <li class="list-group-item"><strong>Phone Number:</strong> {{ patient.phoneNo }}</li>
+        <li class="list-group-item"><strong>Gender:</strong> {{ patient.sex }}</li>
+      </ul>
     </div>
   </div>
-  
+</div>
 {% endblock %}

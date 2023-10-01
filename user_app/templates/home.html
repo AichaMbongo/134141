@@ -1,15 +1,94 @@
 {% extends 'base.html' %} 
+{% load static %}
 
 {% block title %}
-  CV - detect
+  CV - Detect
 {% endblock %}
 
-
 {% block content %}
-  <h1>CV-Detect</h1>
+<style>
+  body {
+    background-color: #fcf6f6; /* Light grey background color */
+  }
+</style>
 
-  <h3>Cardiovascular disease prediction</h3>
+<div class="container-fluid p-1 shadow" style="background-color: #1e145a; ">
+  <div class="row g-1">
+    <div class="col-md-6 hero-section">
+      <div class="hero-content text-center text-white">
+        <div class="container p-4 bg-dark bg-opacity-75 rounded">
+          <h1 class="display-4">CV-Detect</h1>
+          <p class="lead">Predicting Cardiovascular Diseases</p>
+          <hr class="my-4">
+          <p>Explore our features and start your journey towards a healthier life.</p>
+          <a class="btn btn-primary btn-lg" href="members/" role="button">Get Started</a>
+        </div>
+      </div>
+    </div><br/>
+    <div class="col-md-3">
+      <!-- Add other content in the right column if needed -->
+      <div class="card shadow">
+        <img src="{% static 'images/heart5.jpg' %}" class="card-img-top img-fluid" style="height: 150px;" alt="Placeholder Image">
+        <div class="card-body">
+            <h5 class="card-title">Additional Content</h5>
+            <p class="card-text">This is some additional content in the right column. You can customize it as needed.</p>
+        </div>
+        
+    </div>
+    
+
+  </div><br/>
+  <div class="col-md-3 shadow">
+    <!-- Add other content in the right column if needed -->
+    <div class="card">
+      <img src="{% static 'images/heart3.jpg' %}" class="card-img-top img-fluid" style="height: 150px;" alt="Placeholder Image">
+      <div class="card-body">
+          <h5 class="card-title">Additional Content</h5>
+          <p class="card-text">This is some additional content in the right column. You can customize it as needed.</p>
+      </div>
+      
+  </div>
   
-  <p>Check out all our <a href="members/">Start here</a></p>
-  
+
+</div>
+  </div>
+</div>
+
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 shadow animate__animated animate__bounce infinite">
+        <img src="{% static 'images/health.jpg' %}" class="card-img-top img-fluid" style="height: 200px;" alt="Feature 1">
+        <div class="card-body">
+          <h5 class="card-title">Feature 1</h5>
+          <p class="card-text">Description of the feature. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 shadow animate__animated animate__bounce">
+        <img src="{% static 'images/health2.png' %}" class="card-img-top img-fluid" style="height: 200px;" alt="Feature 2">
+        <div class="card-body">
+          <h5 class="card-title">Feature 2</h5>
+          <p class="card-text">Description of the feature. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 shadow">
+        <img src="{% static 'images/health3.jpg' %}" class="card-img-top img-fluid" style="height: 200px;" alt="Feature 3">
+        <div class="card-body">
+          <h5 class="card-title">Feature 3</h5>
+          <p class="card-text">Description of the feature. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 {% endblock %}

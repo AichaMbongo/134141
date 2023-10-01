@@ -71,4 +71,22 @@ class Patient(models.Model):
         return self.firstName
 
 
+class PatientDetails(models.Model):
+    patientID = models.OneToOneField(Patient, on_delete=models.CASCADE)
+    dob = models.DateField()
+    cp = models.IntegerField()
+    trestbps = models.IntegerField()
+    chol = models.IntegerField()
+    fps = models.BooleanField()
+    restech = models.IntegerField()
+    thalach = models.IntegerField()
+    exang = models.BooleanField()
+    oldpeak = models.DecimalField(max_digits=5, decimal_places=2)
+    slope = models.IntegerField()
+    ca = models.IntegerField()
+    thal = models.IntegerField()
+    target = models.BooleanField()
+    dateModified = models.DateTimeField()
+
+
 

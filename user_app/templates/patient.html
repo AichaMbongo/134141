@@ -1,27 +1,30 @@
 {% extends 'base.html' %} 
 
 {% block title %}
-  CV - detect
+  CV - Detect
 {% endblock %}
 
-
 {% block content %}
-  <h1>CV-Detect</h1>
+  <div class="container mt-5">
+   
 
-  <h3>Patients</h3><br/>
-  <table class="table table-hover table-striped table-bordered">
+    <h1 class="display-6 mb-4 text-center shadow">Registered Patients</h1>
 
-  {% for patient in patientList %}
-
-  <tr>
-    <td>
-    <a href="{% url 'showPatient' patient.id %}">{{ patient }}</a><br/>
-    </td>
-  </tr>
-    {% endfor%}
-
-</table>
-
-  
-  
+    <table class="table table-hover table-striped table-bordered shadow">
+      <thead class="thead-dark">
+        <tr >
+          <th class="bg-secondary text-white" scope="col ">Patient Name</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for patient in patientList %}
+          <tr>
+            <td>
+              <a href="{% url 'showPatient' patient.id %}" class="text-decoration-none">{{ patient }}</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 {% endblock %}

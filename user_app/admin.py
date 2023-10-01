@@ -1,14 +1,30 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User, Group
-from .models import Profile, CustomUser, Patient
+from .models import Profile, CustomUser, Patient, PatientDetails
 admin.site.unregister(Group)
 
 admin.site.unregister(User)
 
+
+class PatientInline(admin.StackedInline):
+    model = PatientDetails
+
+class PatientDetailsInline(admin.StackedInline):  # Use TabularInline for a more compact display
+    model = PatientDetails
+
 class PatientAdmin(admin.ModelAdmin):
-    list_display = [ 'firstName', 'lastName', 'email', 'phoneNo', 'sex']
+    list_display = ['firstName', 'lastName', 'email', 'phoneNo', 'sex']
     search_fields = ['firstName', 'lastName', 'email']
+    inlines = [PatientDetailsInline]  # Use the modified inline
+
+# class PatientInline(admin.StackedInline):
+#     model = PatientDetails
+
+# class PatientAdmin(admin.ModelAdmin):
+#     list_display = [ 'firstName', 'lastName', 'email', 'phoneNo', 'sex']
+#     search_fields = ['firstName', 'lastName', 'email']
+#     inlines= [PatientDetails]
 
 admin.site.register(Patient, PatientAdmin)
 

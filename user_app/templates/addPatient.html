@@ -1,33 +1,31 @@
-{% extends 'base.html' %} 
+{% extends 'base.html' %}
 
 {% block title %}
   CV - detect
 {% endblock %}
 
-
 {% block content %}
-  <h1>CV-Detect</h1>
+<div class="container mt-5 ">
+    
 
-  <h3>Patient Details</h3>
+    <h3 class="mb-4">Patient Details</h3>
 
-  {% if submitted %}
+    {% if submitted %}
+      <div class="alert alert-success" role="alert">
+        Patient saved successfully!
+      </div>
+    {% else %}
+    
+      <form action="{% url 'addPatient' %}" method="POST" class="border p-3 rounded shadow   "style="background-color: #f2f2f2;">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+          {{ form.label_tag }}
+          {{ form }}
+        </div>
 
-  Patient Saved successfully!
-
-  {% else %}
-
-  
-  <form action="{% url 'addPatient' %}" method=POST>
-    {% csrf_token %}
-
-    {{form.as_p}}
-    <input type="submit"
-    value="Submit" class="btn btn-secondary">
-
-
-  </form>
-  {% endif %}
-
-  
-  
+        <button type="submit" class="btn btn-secondary">Submit</button>
+      </form>
+    {% endif %}
+  </div>
 {% endblock %}
