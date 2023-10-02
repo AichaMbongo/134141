@@ -98,7 +98,7 @@ def addPatient(request):
 
 
 def listPatient(request):
-    patientList = Patient.objects.all()
+    patientList = Patient.objects.all().order_by('-id')
     return render(request, 'patient.html', {'patientList': patientList})
 
 def showPatient(request, patient_id):

@@ -97,7 +97,7 @@
         <div class="card-body">
             <p class="card-text">
                 {% for treating in profile.treats.all %}
-                    <a href="{% url 'showPatient' treating.id %}">@{{ treating.firstName }} {{ treating.lastName }}</a><br/>
+                    <a href="{% url 'showPatient' treating.id %}">AKUH{{ treating.id }}PK - {{ treating.firstName }} {{ treating.lastName }}</a><br/>
                     <!-- Add other patient attributes as needed -->
                 {% endfor %}
             </p>
