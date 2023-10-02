@@ -1,36 +1,48 @@
-{% extends 'base.html' %} 
-
+{% extends 'base.html' %}
+{% load static %}
 {% block title %}
-  Login
+  CV - detect
 {% endblock %}
 
 {% block content %}
-{% if user.is_authenticated %}
-<h1>You are already logged in</h1>
+<div class="container mt-5">
 
-{% else %}
-  <h1>CV-Detect</h1>
+  <h3 class="custom-h1">Login</h3>
 
-  <div class="col-md-6 offset-md-3">
-  <h3>Login</h3>
-  <br/>
-
-  <form method="POST" action="{% url 'login' %}">
-    {% csrf_token %}
-    <div class="mb-3">
-      <input type="text" class="form-control" name="username" placeholder="Enter Your Username">
-      
-    <div class="mb-3">
-        <br/>
-      <input type="password" class="form-control" name="password" placeholder="Enter Your Password">
+  {% if user.is_authenticated %}
+    <div class="alert alert-warning" role="alert">
+      You are already logged in.
     </div>
-    <br/>
-    <button type="submit" class="btn btn-secondary">Submit</button>
-  </form>
+  {% else %}
+    <div class="row col-md-12 g-2 rounded" style="background-color: #f2f2f2;">
+      <div class="col-md-6">
+        <form method="POST" action="{% url 'login' %}" class="border p-3 rounded shadow">
+          {% csrf_token %}
 
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" name="username" id="username" placeholder="Enter Your Username">
+          </div>
 
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" name="password" id="password" placeholder="Enter Your Password">
+          </div>
 
-  </div>
+          <button type="submit" class="btn btn-secondary">Login</button>
+        </form>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card shadow rounded">
+          <img src="{% static 'images/heart3.jpg' %}" style="height: 150px;" class="card-img-top" alt="Image">
+          <div class="card-body bg-dark text-white ">
+            <h5 class="card-title">CVDetect</h5>
+            <p class="card-text">Healthy Heart, Healthy Life!</p>
+          </div>
+        </div>
+      </div>
+    </div>
   {% endif %}
-  
+</div>
 {% endblock %}

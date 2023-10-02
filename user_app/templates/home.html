@@ -21,11 +21,19 @@
           <h1 class="display-4">CV-Detect</h1>
           <p class="lead">Predicting Cardiovascular Diseases</p>
           <hr class="my-4">
-          <p>Explore our features and start your journey towards a healthier life.</p>
-          <a class="btn btn-primary btn-lg" href="members/" role="button">Get Started</a>
+          {% if user.is_authenticated %}
+            <p>You have logged in successfully.</p>
+            <a class="btn btn-primary btn-lg" href="profile.html" role="button">Click here to get started</a>
+          {% else %}
+            <p>Explore our features and start your journey towards a healthier life.</p>
+            <a class="btn btn-primary btn-lg" href="profile/" role="button">Get Started</a>
+          {% endif %}
         </div>
       </div>
-    </div><br/>
+    </div>
+  
+
+<br/>
     <div class="col-md-3">
       <!-- Add other content in the right column if needed -->
       <div class="card shadow">

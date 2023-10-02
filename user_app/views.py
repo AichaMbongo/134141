@@ -16,8 +16,10 @@ def home1(request):
     return HttpResponse(template.render())
 
 def home(request):
-    template = loader.get_template('home.html')
-    return HttpResponse(template.render())
+    user = request.user
+    message = "You have logged in successfully." if user.is_authenticated else "Explore our features and start your journey towards a healthier life."
+    context = {'user': user, 'message': message}
+    return render(request, 'home.html', context)
 
 def profile_list(request):
    if request.user.is_authenticated:
