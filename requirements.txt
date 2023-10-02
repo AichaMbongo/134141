@@ -7,9 +7,12 @@ django-phonenumber-field==7.1.0
 django-two-factor-auth==1.15.5
 phonenumbers==8.13.21
 <<<<<<< HEAD
+<<<<<<< HEAD
 Pillow==10.0.1
 =======
 >>>>>>> 4fbfe2d (added requirements.txt)
+=======
+>>>>>>> 6ceb9c5a45679d20d9f6137c8ab6f5373134ce66
 pypng==0.20220715.0
 qrcode==7.4.2
 sqlparse==0.4.4

@@ -32,4 +32,8 @@ cd cv-detect
 python -m venv venv
 source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
 pip install -r requirements.txt
+<<<<<<< HEAD
 
+=======
+# Additional steps if any
+>>>>>>> 6ceb9c5a45679d20d9f6137c8ab6f5373134ce66
