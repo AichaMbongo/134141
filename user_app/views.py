@@ -5,8 +5,15 @@ from django.template import loader
 from .models import Profile, Patient,CustomUser 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
-from .forms import RegisterUserForm, PatientForm
+from .forms import RegisterUserForm, PatientForm, UpdateUserForm
 from django.http import HttpResponseRedirect
+from django import forms
+from django.contrib.auth.models import User
+
+
+def home1(request):
+    template = loader.get_template('home1.html')
+    return HttpResponse(template.render())
 
 def home(request):
     template = loader.get_template('home.html')
@@ -31,28 +38,32 @@ def profile (request, pk):
       
    
 def login_user(request):
-    if request.method == "POST":
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
+	if request.method == "POST":
+		username = request.POST['username']
+		password = request.POST['password']
+		user = authenticate(request, username=username, password=password)
+		if user is not None:
+			login(request, user)
+			messages.success(request, ("You Have Been Logged In!  Get MEEPING!"))
+			return redirect('home')
+		else:
+			messages.success(request, ("There was an error logging in. Please Try Again..."))
+			return redirect('login')
 
-        if user is not None:
-            login(request, user)
-            messages.success(request, "You have been logged in!")
-            return redirect('home')
-        else:
-            messages.error(request, "There was an error logging in, please try again")
-            return redirect('login')
-    else:
-        return render(request, 'login.html', {})
-    
+	else:
+		return render(request, "login.html", {})
+
 
 def logout_user(request):
-    logout(request)
-    messages.success(request, ("You have been logged out"))
-    return redirect('home')
+	logout(request)
+	messages.success(request, ("You Have Been Logged Out. Sorry to Meep You Go..."))
+	return redirect('home')
 
 def register_user(request):
+
+      # If the user is already authenticated, redirect to the home page
+    if request.user.is_authenticated:
+        return redirect('login')
     if request.method == "POST":
         form = RegisterUserForm(request.POST)
         if form.is_valid():
@@ -97,3 +108,22 @@ def showStaff(request):
     user = CustomUser.objects.get(pk=user_id)
     return render(request, 'profile.html', {'user': user})
       
+def updateUser(request):
+    if request.user.is_authenticated:
+        current_user = User.objects.get(id=request.user.id)
+        form = UpdateUserForm(request.POST or None, instance=current_user)
+
+        if request.method == 'POST':
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Your Profile has been updated")
+                return redirect('home')
+
+        return render(request, 'updateUser.html', {'form': form})
+    else:
+        messages.success(request, "You Must Be Logged in to See This Page")
+
+        # Update the phone_number in the Profile model
+        profile.phone_number = user_form.cleaned_data['phone_number']
+        profile.save()
+        return redirect('home')   

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}
   CV - detect
 {% endblock %}
@@ -8,7 +8,7 @@
 <div class="container mt-5 ">
     
 
-    <h3 class="mb-4">Patient Details</h3>
+    <h3 class="custom-h1">Register Patient</h3>
 
     {% if submitted %}
       <div class="alert alert-success" role="alert">
@@ -16,16 +16,35 @@
       </div>
     {% else %}
     
-      <form action="{% url 'addPatient' %}" method="POST" class="border p-3 rounded shadow   "style="background-color: #f2f2f2;">
-        {% csrf_token %}
-        
-        <div class="mb-3">
-          {{ form.label_tag }}
-          {{ form }}
-        </div>
+    <div class="row col-md-12 g-2 rounded" style="background-color: #f2f2f2;">
+        <div class="col-md-6" >
+          <form action="{% url 'addPatient' %}" method="POST" class="border p-3 rounded shadow">
+            {% csrf_token %}
+      
+            {{ form.label_tag }}
+            {{ form }}
+      
+            <br/><button type="submit" class="btn btn-secondary">Submit</button>
+          </form>
 
-        <button type="submit" class="btn btn-secondary">Submit</button>
-      </form>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card shadow">
+              <img src="{% static 'images/heart.webp' %}" style="height: 320px;" class="card-img-top " alt="Image">
+              <div class="card-body">
+                <h5 class="card-title">CVDetaect</h5>
+                <p class="card-text">Healthy Heart, Healthy Life!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      
+       
+      
+    
     {% endif %}
   </div>
 {% endblock %}
+
+

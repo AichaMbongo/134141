@@ -32,10 +32,10 @@
                 {% endif %} -->
 
             {% if profile.profile_image %}
-                <img src="{{ profile.profile_image.url }}" class="img-fluid rounded img-thumbnail shadow" alt="Profile Image"><br/><br/>
+                <img src="{{ profile.profile_image.url }}" class="img-fluid rounded img-thumbnail shadow " alt="Profile Image"><br/><br/>
             {% else %}
                 <!-- Placeholder image -->
-                <img src="{% static 'images/doctor2.png' %}" class="img-fluid rounded img-thumbnail shadow" alt="Placeholder Image"><br/><br/>
+                <img src="{% static 'images/doctor2.png' %}" class="img-fluid rounded img-thumbnail shadow"style="height: 250px;"  alt="Placeholder Image"><br/><br/>
             {% endif %}
 
 
@@ -69,9 +69,12 @@
                         <!-- Add more rows for other profile information -->
                     </tbody>
                 </table>
+                {% if request.user.id == profile.user.id %}
+                <a href="{% url 'updateUser' %}" class ="btn btn-secondary">Update Profile</a>
+                {% endif %}
             </div>
         </div>
-        
+       
 
     
 <div class="col-4">
@@ -105,6 +108,7 @@
     </div>
   </div> -->
 
+  
 
   </div>
 </div>

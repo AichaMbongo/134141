@@ -20,15 +20,15 @@
         <div class="col-md-6">
             <div class="card shadow">
                 <div class="card-body">
-                    <h3 class="card-title text-center mb-4">Register</h3>
+                    <h3 class="card-title text-center mb-4">Update Profile</h3>
 
-                    <form action="{% url 'register_user' %}" method="POST">
+                    <form action="{% url 'updateUser' %}" method="POST">
                         {% csrf_token %}
 
                         {{ form.as_p }}
 
                         <div class="text-center mt-4">
-                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <button type="submit" class="btn btn-primary">Update</button>
                         </div>
                     </form>
                 </div>
