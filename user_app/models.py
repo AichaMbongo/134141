@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.conf import settings
-
+from django.dispatch import receiver
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 # customusers/models.py
@@ -19,37 +19,6 @@ class CustomUser(AbstractUser):
     user_permissions = models.ManyToManyField(Permission, related_name='customuser_set', blank=True)
 
     # ... other fields as needed
-
-
-class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    
-    phone_number = models.CharField(max_length=13, blank=True)
-    specialization = models.CharField(max_length=100, blank=True, null=True)
-
-    # user = models.OneToOneField(settings.AUTH_USER_MODEL,  on_delete=models.CASCADE)
-    # Other fields...
-
-    treats = models.ManyToManyField("self", 
-                                    related_name="treated_by",
-                                    blank = True,
-                                    symmetrical=False)
-    
-    date_modified = models.DateTimeField(User, auto_now=True)
-    profile_image = models.ImageField(null=True, blank=True, upload_to="images/")
-    def __str__(self):
-        return self.user.username
-    
-def create_profile(sender, instance, created, **kwargs):
-    if created:
-        user_profile = Profile(user=instance)
-        user_profile.save()
-
-        # user_profile.treats.set([instance.profile.id])
-        # user_profile.save()
-post_save.connect(create_profile, sender=User)
-
-# customusers/models.py
 
 class Patient(models.Model):
     GENDER_CHOICES = (
@@ -90,3 +59,48 @@ class PatientDetails(models.Model):
 
 
 
+
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    
+    phone_number = models.CharField(max_length=13, blank=True)
+    specialization = models.CharField(max_length=100, blank=True, null=True)
+
+    treats = models.ManyToManyField(Patient, 
+                                    related_name="treated_by",
+                                    blank=True,
+                                    symmetrical=False)
+    
+    date_modified = models.DateTimeField(auto_now=True)
+    profile_image = models.ImageField(null=True, blank=True, upload_to="images/")
+
+    def __str__(self):
+        return self.user.username
+
+@receiver(post_save, sender=User)
+def create_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+        Patient.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_profile(sender, instance, **kwargs):
+    try:
+        profile = instance.profile
+        profile.save()
+        
+        # Check if there are any treats (patients) associated with the profile
+        if profile.treats.exists():
+            # Save each associated patient
+            for patient in profile.treats.all():
+                patient.save()
+    except Profile.DoesNotExist:
+        # Create a Profile object if it doesn't exist
+        profile = Profile.objects.create(user=instance)
+        
+        # Create a Patient object if it doesn't exist
+        Patient.objects.create(user=instance)
+
+# Note: Make sure to remove the duplicate @receiver(post_save, sender=User) decorator.

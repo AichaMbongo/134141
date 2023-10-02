@@ -81,17 +81,29 @@
     <!-- {% if profile.profile_image %}
     <img src="{{ profile.profile_image.url }}" class="img-fluid rounded-circle" ><br/><br/>
     {% endif %} -->
-    <div class="card shadow" >
-        <h5 class="card-header">Treats</h5>
-        <div class="card-body">
-          <p class="card-text">
-            {% for treating in profile.treats.all %}
-            <a href="{% url 'profile' treating.user.id %}">@{{ treating }}</a><br/>
-          
-            {% endfor %}
-          </p>
+    {% if user.is_authenticated and user.profile == profile %}
+    <div class="card shadow">
+        <div class="card-header">
+            <h5 class="d-inline">Currently Treating:</h5>
+            <form class="float-end">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search patients">
+                    <button class="btn btn-outline-secondary" type="button">Search</button>
+                </div>
+                <br/>
+            </form>
+            <a href="{% url 'addPatient' %}" class="btn btn-sm btn-secondary float-end mx-2">Create New Patient</a>
         </div>
-      </div>
+        <div class="card-body">
+            <p class="card-text">
+                {% for treating in profile.treats.all %}
+                    <a href="{% url 'showPatient' treating.id %}">@{{ treating.firstName }} {{ treating.lastName }}</a><br/>
+                    <!-- Add other patient attributes as needed -->
+                {% endfor %}
+            </p>
+        </div>
+    </div>
+{% endif %}
 
  
 

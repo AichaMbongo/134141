@@ -22,12 +22,14 @@
           <p class="lead">Predicting Cardiovascular Diseases</p>
           <hr class="my-4">
           {% if user.is_authenticated %}
-            <p>You have logged in successfully.</p>
-            <a class="btn btn-primary btn-lg" href="profile.html" role="button">Click here to get started</a>
-          {% else %}
-            <p>Explore our features and start your journey towards a healthier life.</p>
-            <a class="btn btn-primary btn-lg" href="profile/" role="button">Get Started</a>
-          {% endif %}
+    {% with profile=user.profile %}
+    <p>Hello Dr {{ user.username }}!</p>
+        <a class="btn btn-primary btn-lg" href="{% url 'profile' pk=user.pk %}" role="button">Click here to get started</a>
+    {% endwith %}
+    {% else %}
+    <p>Explore our features and start your journey towards a healthier life.</p>
+    <a class="btn btn-primary btn-lg" href="{% url 'login' %}" role="button">Log in to Get Started</a>
+    {% endif %}
         </div>
       </div>
     </div>
