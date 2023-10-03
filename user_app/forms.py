@@ -5,7 +5,7 @@ from django.contrib.auth.forms import UserChangeForm
 from django.contrib.auth.models import User
 from django import forms
 from django.forms import ModelForm
-from .models import Patient
+from .models import Patient, Profile
 
 class OTPAuthenticationForm(AuthenticationForm):
     otp_code = forms.CharField(
@@ -57,7 +57,13 @@ class UpdateUserForm(forms.ModelForm):
         model = User
         fields = ('username', 'first_name', 'last_name', 'phone_number', 'email')       
 
+
+class ProfilePicForm(forms.ModelForm):
+    profile_image = forms.ImageField(label="Profile Picture")
     
+    class Meta:
+        model = Profile
+        fields = ('profile_image', )
 # class SignUpForm(UserCreationForm):
 #     first_name = forms.CharField(max_length=30, required=True, help_text='Required. Enter your first name.')
 #     last_name = forms.CharField(max_length=30, required=True, help_text='Required. Enter your last name.')

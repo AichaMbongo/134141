@@ -5,7 +5,7 @@ from django.template import loader
 from .models import Profile, Patient,CustomUser 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
-from .forms import RegisterUserForm, PatientForm, UpdateUserForm
+from .forms import RegisterUserForm, PatientForm, UpdateUserForm, ProfilePicForm
 from django.http import HttpResponseRedirect
 from django import forms
 from django.contrib.auth.models import User
@@ -46,7 +46,7 @@ def login_user(request):
 		user = authenticate(request, username=username, password=password)
 		if user is not None:
 			login(request, user)
-			messages.success(request, ("You Have Been Logged In!  Get MEEPING!"))
+			messages.success(request, ("You Have Been Logged In!  "))
 			return redirect('home')
 		else:
 			messages.success(request, ("There was an error logging in. Please Try Again..."))
@@ -58,7 +58,7 @@ def login_user(request):
 
 def logout_user(request):
 	logout(request)
-	messages.success(request, ("You Have Been Logged Out. Sorry to Meep You Go..."))
+	messages.success(request, ("You Have Been Logged Out. "))
 	return redirect('home')
 
 def register_user(request):
@@ -113,15 +113,18 @@ def showStaff(request):
 def updateUser(request):
     if request.user.is_authenticated:
         current_user = User.objects.get(id=request.user.id)
-        form = UpdateUserForm(request.POST or None, instance=current_user)
+        profile_user = Profile.objects.get(user__id=request.user.id)
+        user_form = UpdateUserForm(request.POST or None, request.FILES or None, instance=current_user)
+        profile_form = ProfilePicForm(request.POST or None,request.FILES or None, instance=profile_user)
 
         if request.method == 'POST':
-            if form.is_valid():
-                form.save()
+            if user_form.is_valid() and profile_form.is_valid():
+                user_form.save()
+                profile_form.save()
                 messages.success(request, "Your Profile has been updated")
                 return redirect('home')
 
-        return render(request, 'updateUser.html', {'form': form})
+        return render(request, 'updateUser.html', {'user_form': user_form, 'profile_form': profile_form})
     else:
         messages.success(request, "You Must Be Logged in to See This Page")
 
