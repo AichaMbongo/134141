@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+  CV - detect
+{% endblock %}
+
+{% block content %}
+<div class="col-8">
+    <div class="card shadow">
+        <div class="card-header">
+            <h5 class="card-title">{{ patient.firstName}}'s Patient Details</h5>
+        </div>
+        <div class="card-body">
+            <!-- Display PatientDetails fields -->
+            <dl class="row">
+                <dt class="col-sm-4">Date of Birth</dt>
+                <dd class="col-sm-8">{{ patient.patientdetails.dob }}</dd>
+
+                <dt class="col-sm-4">Chest Pain Type</dt>
+                <dd class="col-sm-8">{{ patient.patientdetails.cp }}</dd>
+
+                <dt class="col-sm-4">Resting Blood Pressure</dt>
+                <dd class="col-sm-8">{{ patient.patientdetails.trestbps }}</dd>
+
+                <dt class="col-sm-4">Serum Cholesterol</dt>
+                <dd class="col-sm-8">{{ patient.patientdetails.chol }}</dd>
+
+                <dt class="col-sm-4">Fasting Blood Sugar</dt>
+                <dd class="col-sm-8">{{ patient.patientdetails.fps }}</dd>
+
+                <dt class="col-sm-4">Resting Electrocardiographic Results</dt>
+                <dd class="col-sm-8">{{ patient.patientdetails.restech }}</dd>
+
+                <dt class="col-sm-4">Maximum Heart Rate Achieved</dt>
+                <dd class="col-sm-8">{{ patient.patientdetails.thalach }}</dd>
+
+                <dt class="col-sm-4">Exercise Induced Angina</dt>
+                <dd class="col-sm-8">{{ patient.patientdetails.exang }}</dd>
+
+                <dt class="col-sm-4">Oldpeak</dt>
+                <dd class="col-sm-8">{{ patient.patientdetails.oldpeak }}</dd>
+
+                <dt class="col-sm-4">Slope</dt>
+                <dd class="col-sm-8">{{ patient.patientdetails.slope }}</dd>
+
+                <dt class="col-sm-4">Number of Major Vessels Colored by Fluoroscopy</dt>
+                <dd class="col-sm-8">{{ patient.patientdetails.ca }}</dd>
+
+                <dt class="col-sm-4">Thalassemia</dt>
+                <dd class="col-sm-8">{{ patient.patientdetails.thal }}</dd>
+
+                <dt class="col-sm-4">Target</dt>
+                <dd class="col-sm-8">{{ patient.patientdetails.target }}</dd>
+
+                <dt class="col-sm-4">Date Modified</dt>
+                <dd class="col-sm-8">{{ patient.patientdetails.dateModified }}</dd>
+            </dl>
+        </div>
+        <div class="card-footer">
+            <a href="{% url 'updatePatientDetails' patient.id %}" class="btn btn-secondary">Update Patient Details</a>
+            {% if request.user.id == patient.patientdetails.patient.id %}
+            <a href="{% url 'updatePatientDetails' patient.id %}" class="btn btn-secondary">Update Patient Details</a>
+        {% endif %}
+        <a href="{% url 'showPatient' patient.id %}" class="btn btn-primary">Back to Patient Details</a>
+
+        </div>
+       
+        
+        
+    </div>
+</div>
+{% endblock %}

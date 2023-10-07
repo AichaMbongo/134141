@@ -14,34 +14,21 @@
     </div>
   {% endif %}
 
-  <h1 class="custom-h1">Registration</h1>
+  <h1 class="display-4 text-center mb-4">CV-Detect</h1>
 
-  <div class="row justify-content-center g-2"style="background-color: #f2f2f2;">
+  <div class="row justify-content-center">
     <div class="col-md-6">
       <div class="card shadow">
-        <div class="card-body" style="background-color: #f2f2f2;">
-         
+        <div class="card-body">
+          <h3 class="card-title text-center mb-4">Register</h3>
 
           <form action="{% url 'register_user' %}" method="POST">
             {% csrf_token %}
 
-            {% for field in form %}
-              <div class="mb-3">
-                {{ field.label_tag }}
-                {{ field }}
-                {% if field.name == 'password1' %}
-                  <small class="form-text text-muted">
-                    Your password can’t be too similar to your other personal information.<br>
-                    Your password must contain at least 8 characters.<br>
-                    Your password can’t be a commonly used password.<br>
-                    Your password can’t be entirely numeric.
-                  </small>
-                {% endif %}
-              </div>
-            {% endfor %}
+            {{ form.as_p }}
 
-            <div class=" mt-4">
-              <button type="submit" class="btn btn-secondary">Register</button>
+            <div class="text-center mt-4">
+              <button type="submit" class="btn btn-primary">Submit</button>
             </div>
           </form>
         </div>
@@ -49,11 +36,11 @@
     </div>
 
     <div class="col-md-6">
-      <div class="card shadow role">
-        <img src="{% static 'images/heart2.png' %}" class="card-img-top" style="height: 400px;" alt="Image">
-        <div class="card-body bg-dark text-white">
+      <div class="card shadow">
+        <img src="{% static 'images/your_image.jpg' %}" class="card-img-top" alt="Image">
+        <div class="card-body">
           <h5 class="card-title">CV-Detect</h5>
-          <p class="card-text">Healthy heart,Healthy Life! </p>
+          <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
         </div>
       </div>
     </div>

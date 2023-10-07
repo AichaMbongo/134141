@@ -7,24 +7,19 @@ admin.site.unregister(Group)
 admin.site.unregister(User)
 
 
-class PatientInline(admin.StackedInline):
-    model = PatientDetails
+# class PatientInline(admin.StackedInline):
+#     model = PatientDetails
 
 class PatientDetailsInline(admin.StackedInline):  # Use TabularInline for a more compact display
     model = PatientDetails
 
 class PatientAdmin(admin.ModelAdmin):
+    model = Patient
+    inlines = [PatientDetailsInline]  # Use the modified inline
     list_display = ['firstName', 'lastName', 'email', 'phoneNo', 'sex']
     search_fields = ['firstName', 'lastName', 'email']
-    inlines = [PatientDetailsInline]  # Use the modified inline
+    
 
-# class PatientInline(admin.StackedInline):
-#     model = PatientDetails
-
-# class PatientAdmin(admin.ModelAdmin):
-#     list_display = [ 'firstName', 'lastName', 'email', 'phoneNo', 'sex']
-#     search_fields = ['firstName', 'lastName', 'email']
-#     inlines= [PatientDetails]
 
 admin.site.register(Patient, PatientAdmin)
 

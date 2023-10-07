@@ -11,7 +11,22 @@
   </div>
 
   <div class="card shadow">
-    <h5 class="card-header bg-secondary text-white">Patient Details</h5>
+    <h5 class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+        Patient Details
+        <form method="POST" id="treatForm">
+            {% csrf_token %}
+            {% if is_treated %}
+            <button class="btn btn-danger" name="treat" value="untreat" type="submit">
+                Conclude Treatment of: {{ patient.firstName|lower }}
+            </button>
+            {% else %}
+            <button class="btn btn-success" name="treat" value="treat" type="submit">
+                Begin Treatment of: {{ patient.firstName|lower }}
+            </button>
+            {% endif %}
+        </form>
+    </h5>
+    
     <div class="card-body">
       <ul class="list-group list-group-flush">
         <li class="list-group-item"><strong>Identification:</strong> AKUH{{ patient.id }}PK</li>
@@ -22,6 +37,18 @@
         <li class="list-group-item"><strong>Gender:</strong> {{ patient.sex }}</li>
       </ul>
     </div>
+    {% if is_treated %}
+    <form method="POST" action="{% url 'addPatientDetails' patient.id %}">
+        {% csrf_token %}
+        <button class="btn btn-success" name="treat" value="treat" type="submit">
+            Patient Records
+        </button>
+    </form>
+{% endif %}
+
   </div>
 </div>
+
+
+
 {% endblock %}

@@ -1,20 +1,35 @@
 asgiref==3.7.2
+blinker==1.6.2
+certifi==2022.12.7
+click==8.1.7
 colorama==0.4.6
+distlib==0.3.6
 Django==4.2.5
+django-admin-interface==0.26.1
+django-colorfield==0.10.1
 django-formtools==2.4.1
 django-otp==1.2.3
 django-phonenumber-field==7.1.0
+django-tempus-dominus==5.1.2.17
 django-two-factor-auth==1.15.5
+filelock==3.9.0
+Flask==2.3.3
+Flask-Login==0.6.2
+itsdangerous==2.1.2
+Jinja2==3.1.2
+MarkupSafe==2.1.3
 phonenumbers==8.13.21
-<<<<<<< HEAD
-<<<<<<< HEAD
 Pillow==10.0.1
-=======
->>>>>>> 4fbfe2d (added requirements.txt)
-=======
->>>>>>> 6ceb9c5a45679d20d9f6137c8ab6f5373134ce66
+pipenv==2023.2.18
+platformdirs==2.6.2
+pyotp==2.9.0
 pypng==0.20220715.0
+python-slugify==8.0.1
 qrcode==7.4.2
 sqlparse==0.4.4
+text-unidecode==1.3
 typing_extensions==4.8.0
 tzdata==2023.3
+virtualenv==20.17.1
+virtualenv-clone==0.5.7
+Werkzeug==2.3.7

@@ -11,21 +11,21 @@
           <a class="nav-link" href="{% url 'profile_list' %}">CVdoctors</a>
         </li>
         {% if user.is_authenticated %}
-          
-
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'addPatient'  %}">Add Patient</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'listPatient'  %}">Patients</a>
+          </li>
+          <li class="nav-item" id="logout-link">
+            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+          </li>
+          {% if user.is_superuser %}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'addPatient'  %}">Add Patient</a>
+              <a class="nav-link" href="{% url 'admin:index' %}">Admin</a>
             </li>
-    
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'listPatient'  %}">Patients</a>
-            </li>
-            <li class="nav-item" id="logout-link">
-              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-           
-            </li>
+          {% endif %}
         {% else %}
-        
           <li class="nav-item" id="register-link">
             <a class="nav-link" href="{% url 'register_user' %}">Register</a>
           </li>
@@ -51,4 +51,3 @@
     </div>
   </div>
 </nav>
-

@@ -11,9 +11,11 @@ urlpatterns = [
     path('register_user/', views.register_user, name='register_user'),
     path('Patient/', views.listPatient, name='listPatient'),
     path('showPatient/<patient_id>', views.showPatient, name='showPatient'),
+    path('addPatientDetails/<patient_id>', views.addPatientDetails, name='addPatientDetails'),
     path('profile/<user_id>', views.showStaff, name='showStaff'),
     path('addPatient/', views.addPatient, name='addPatient'),
     path('updateUser/', views.updateUser, name='updateUser'),
-
+    path('updatePatientDetails/<int:patient_id>/', views.updatePatientDetails, name='updatePatientDetails'),
+    
 
 ]

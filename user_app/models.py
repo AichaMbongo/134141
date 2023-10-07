@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import date
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.conf import settings
@@ -36,28 +37,51 @@ class Patient(models.Model):
         return dict(self.GENDER_CHOICES).get(self.sex, '')
 
     required = {'sex', 'email', 'firstName'}
+
     def __str__(self):
-        return self.firstName
+        return f"{self.firstName} {self.lastName}"
 
 
 class PatientDetails(models.Model):
-    patientID = models.OneToOneField(Patient, on_delete=models.CASCADE)
-    dob = models.DateField()
-    cp = models.IntegerField()
-    trestbps = models.IntegerField()
-    chol = models.IntegerField()
-    fps = models.BooleanField()
-    restech = models.IntegerField()
-    thalach = models.IntegerField()
-    exang = models.BooleanField()
-    oldpeak = models.DecimalField(max_digits=5, decimal_places=2)
-    slope = models.IntegerField()
-    ca = models.IntegerField()
-    thal = models.IntegerField()
-    target = models.BooleanField()
-    dateModified = models.DateTimeField()
+    patient = models.OneToOneField(Patient, on_delete=models.CASCADE)
+    dob = models.DateField(null=True, blank=True)
+    cp = models.IntegerField(null=True, blank=True)
+    trestbps = models.IntegerField(null=True, blank=True)
+    chol = models.IntegerField(null=True, blank=True)
+    fps = models.BooleanField(null=True, blank=True)
+    restech = models.IntegerField(null=True, blank=True)
+    thalach = models.IntegerField(null=True, blank=True)
+    exang = models.BooleanField(null=True, blank=True)
+    oldpeak = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    slope = models.IntegerField(null=True, blank=True)
+    ca = models.IntegerField(null=True, blank=True)
+    thal = models.IntegerField(null=True, blank=True)
+    target = models.BooleanField(null=True, blank=True)
+    dateModified = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.patient.firstName} {self.patient.lastName} Details"
+    
 
 
+@receiver(post_save, sender=Patient)
+def create_or_update_patient_details(sender, instance, created, **kwargs):
+    """
+    Signal receiver function to create or update PatientDetails when a Patient is saved.
+
+    Args:
+        sender: The sender model class (Patient in this case).
+        instance: The instance of the sender model being saved.
+        created: A boolean indicating whether the instance was just created.
+    """
+    # Get or create the associated PatientDetails instance
+    patient_details, created = PatientDetails.objects.get_or_create(patient=instance)
+
+    # Provide a default value for dob if it's not set
+
+
+    # Save the PatientDetails instance
+    patient_details.save()
 
 
 
@@ -83,7 +107,7 @@ class Profile(models.Model):
 def create_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
-        Patient.objects.create(user=instance)
+        
 
 @receiver(post_save, sender=User)
 def save_profile(sender, instance, **kwargs):

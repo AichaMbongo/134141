@@ -32,16 +32,22 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    
     'django_otp',
     'django_otp.plugins.otp_static',
     'django_otp.plugins.otp_totp',
     'two_factor',
+    
+    # # 'admin_interface',
+    # 'flat_responsive', 
+    # 'colorfield',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
     'user_app',
     # For TOTP support
     
@@ -156,3 +162,12 @@ STATICFILES_DIRS = [
     # Add more directories if needed
 ]
 
+# settings.py
+
+# ... (other settings)
+
+# Custom settings for the Django admin interface
+ADMIN_INTERFACE_COLOR = 'white'  # 'blue', 'green', 'red', 'yellow', 'purple', 'aero', 'black', 'white'
+ADMIN_INTERFACE_DEVELOPMENT_MODE = True  # Set this to False in production
+
+# ... (other settings)

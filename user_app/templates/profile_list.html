@@ -20,10 +20,10 @@
                   <div class="row g-0">
                       <div class="col-md-4">
                           {% if profile.profile_image %}
-                              <img src="{{ profile.profile_image.url }}" class="img-fluid rounded img-thumbnail" alt="Profile Image">
+                              <img src="{{ profile.profile_image.url }}" class="img-fluid rounded img-thumbnail" style="height: 130px;" alt="Profile Image">
                           {% else %}
                               <!-- Placeholder image -->
-                              <img src="{% static 'images/doctor2.png' %}" class="img-fluid rounded img-thumbnail" alt="Placeholder Image">
+                              <img src="{% static 'images/doctor2.png' %}" class="img-fluid rounded img-thumbnail" style="height: 130px;" alt="Placeholder Image">
                           {% endif %}
                       </div>
                       <div class="col-md-8">

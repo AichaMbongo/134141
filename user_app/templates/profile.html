@@ -32,7 +32,7 @@
                 {% endif %} -->
 
             {% if profile.profile_image %}
-                <img src="{{ profile.profile_image.url }}" class="img-fluid rounded img-thumbnail shadow " alt="Profile Image"><br/><br/>
+                <img src="{{ profile.profile_image.url }}" class="img-fluid rounded img-thumbnail shadow " style="height: 220px;" alt="Profile Image"><br/><br/>
             {% else %}
                 <!-- Placeholder image -->
                 <img src="{% static 'images/doctor2.png' %}" class="img-fluid rounded img-thumbnail shadow"style="height: 250px;"  alt="Placeholder Image"><br/><br/>
