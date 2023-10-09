@@ -14,13 +14,13 @@
     </div>
   {% endif %}
 
-  <h1 class="display-4 text-center mb-4">CV-Detect</h1>
+  <h1 class="custom-h1">Register</h1>
 
-  <div class="row justify-content-center">
+  <div class="row justify-content-center g-1" style="background-color: #f2f2f2;">
     <div class="col-md-6">
       <div class="card shadow">
-        <div class="card-body">
-          <h3 class="card-title text-center mb-4">Register</h3>
+        <div class="card-body" style="background-color: #f2f2f2;">
+          
 
           <form action="{% url 'register_user' %}" method="POST">
             {% csrf_token %}
@@ -37,7 +37,7 @@
 
     <div class="col-md-6">
       <div class="card shadow">
-        <img src="{% static 'images/your_image.jpg' %}" class="card-img-top" alt="Image">
+        <img src="{% static 'images/heart7.jpg' %}" class="card-img-top" alt="Image">
         <div class="card-body">
           <h5 class="card-title">CV-Detect</h5>
           <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>

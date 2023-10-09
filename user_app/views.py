@@ -5,15 +5,15 @@ from django.template import loader
 from .models import Profile, Patient,CustomUser 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
-from .forms import RegisterUserForm, PatientForm, UpdateUserForm, ProfilePicForm, PatientDetailsForm
+from .forms import RegisterUserForm, PatientForm, UpdateUserForm, ProfilePicForm, PatientDetailsForm, DoctorPatientRelForm
 from django.http import HttpResponseRedirect
 from django import forms
 from django.contrib.auth.models import User
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 
 
-def home1(request):
-    template = loader.get_template('home1.html')
-    return HttpResponse(template.render())
+
 
 def home(request):
     user = request.user
@@ -88,6 +88,7 @@ def register_user(request):
 	
 	return render(request, "register_user.html", {'form':form})
 
+@login_required(login_url='login')
 def addPatient(request):
     submitted = False
     if request.method == "POST":
@@ -107,6 +108,8 @@ def addPatient(request):
              submitted = True
     return render(request, 'addPatient.html', {'form': form, 'submitted': submitted})
 
+
+@login_required(login_url='login')
 def addPatientDetails(request, patient_id):
     submitted = False
     patient = get_object_or_404(Patient, id=patient_id)
@@ -134,6 +137,8 @@ def addPatientDetails(request, patient_id):
     return render(request, 'addPatientDetails.html', {'form': form, 'submitted': submitted, 'patient': patient})
 
 
+
+@login_required(login_url='login')
 def updatePatientDetails(request, patient_id):
     patient = get_object_or_404(Patient, id=patient_id)
     patient_details = patient.patientdetails
@@ -151,10 +156,13 @@ def updatePatientDetails(request, patient_id):
 
     return render(request, 'updatePatientDetails.html', {'form': form, 'patient': patient})
 
+
+@login_required(login_url='login')
 def listPatient(request):
     patientList = Patient.objects.all().order_by('-id')
     return render(request, 'patient.html', {'patientList': patientList})
 
+@login_required(login_url='login')
 def showPatient(request, patient_id):
     patient = get_object_or_404(Patient, pk=patient_id)
     
@@ -170,12 +178,18 @@ def showPatient(request, patient_id):
 
     is_treated = patient in request.user.profile.treats.all()
 
-    return render(request, 'showPatient.html', {'patient': patient, 'is_treated': is_treated})    
+    return render(request, 'showPatient.html', {'patient': patient, 'is_treated': is_treated})   
+
+
+@login_required(login_url='login')
 def showStaff(request):
     
     user = CustomUser.objects.get(pk=user_id)
     return render(request, 'profile.html', {'user': user})
-      
+
+
+
+@login_required(login_url='login')
 def updateUser(request):
     if request.user.is_authenticated:
         current_user = User.objects.get(id=request.user.id)
@@ -197,4 +211,53 @@ def updateUser(request):
         messages.success(request, "You Must Be Logged in to See This Page")
 
         # Update the phone_number in the Profile model
-        return redirect('home')   
+        return redirect('home') 
+
+
+# def ConfirmTreatment(request, patient_id):
+#     if request.method == 'POST':
+#         # Assuming you have a DoctorPatientRelForm that includes 'user' and 'patient' fields
+#         form = DoctorPatientRelForm(request.POST)
+#         if form.is_valid():
+#             # Set the current user (doctor) in the form before saving
+#             form.instance.user = request.user  # Assuming your user model is used for doctors
+#             form.instance.patient_id = patient_id
+#             form.save()
+#             return redirect('showPatient')  # Redirect to a success page
+#     else:
+#         form = DoctorPatientRelForm()
+
+#     return render(request, 'confirmTreatment.html', {'form': form})
+
+
+# def ConfirmTreatment(request, patient_id):
+#     patient = get_object_or_404(Patient, id=patient_id)
+
+#     if request.method == 'POST':
+#         form = DoctorPatientRelForm(request.POST)
+#         if form.is_valid():
+#             instance = form.save(commit=False)
+#             instance.doctor = request.user
+#             instance.patient = patient
+#             instance.start_date = timezone.now()
+#             instance.save()
+#             return redirect('showPatient')  
+#     else:
+#         initial_data = {'start_date': timezone.now().date()}  # Set initial data for start_date
+#         form = DoctorPatientRelForm(initial=initial_data)
+
+#     return render(request, 'confirmTreatment.html', {'form': form, 'patient': patient})
+
+@login_required(login_url='login')
+def ConfirmTreatment(request, patient_id):
+    patient = get_object_or_404(Patient, id=patient_id)
+
+    if request.method == 'POST':
+        form = DoctorPatientRelForm(request.POST, user=request.user, patient=patient)
+        if form.is_valid():
+            form.save()
+            return redirect('showPatient', patient_id=patient.id)  # Redirect to a success page
+    else:
+        form = DoctorPatientRelForm(user=request.user, patient=patient)
+
+    return render(request, 'confirmTreatment.html', {'form': form})

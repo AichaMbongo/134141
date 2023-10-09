@@ -127,4 +127,10 @@ def save_profile(sender, instance, **kwargs):
         # Create a Patient object if it doesn't exist
         Patient.objects.create(user=instance)
 
-# Note: Make sure to remove the duplicate @receiver(post_save, sender=User) decorator.
+
+
+class DoctorPatientRel(models.Model):
+    doctor = models.ForeignKey(User, on_delete=models.CASCADE)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    start_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)

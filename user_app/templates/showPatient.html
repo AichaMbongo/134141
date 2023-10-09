@@ -23,6 +23,8 @@
             <button class="btn btn-success" name="treat" value="treat" type="submit">
                 Begin Treatment of: {{ patient.firstName|lower }}
             </button>
+
+           
             {% endif %}
         </form>
     </h5>
@@ -36,15 +38,16 @@
         <li class="list-group-item"><strong>Phone Number:</strong> {{ patient.phoneNo }}</li>
         <li class="list-group-item"><strong>Gender:</strong> {{ patient.sex }}</li>
       </ul>
-    </div>
-    {% if is_treated %}
+      {% if is_treated %}
     <form method="POST" action="{% url 'addPatientDetails' patient.id %}">
         {% csrf_token %}
-        <button class="btn btn-success" name="treat" value="treat" type="submit">
-            Patient Records
+        <button class="btn btn-success float-end" name="treat" value="treat" type="submit">
+            Health Records
         </button>
     </form>
 {% endif %}
+    </div>
+    
 
   </div>
 </div>

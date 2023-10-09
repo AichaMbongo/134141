@@ -5,7 +5,7 @@ from django.contrib.auth.forms import UserChangeForm
 from django.contrib.auth.models import User
 from django import forms
 from django.forms import ModelForm
-from .models import Patient, Profile, PatientDetails
+from .models import Patient, Profile, PatientDetails, DoctorPatientRel
 from django.utils import timezone
 from django.contrib.admin.widgets import AdminDateWidget
 
@@ -119,15 +119,51 @@ class ProfilePicForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ('phone_number', 'specialization' ,'profile_image', )
-# class SignUpForm(UserCreationForm):
-#     first_name = forms.CharField(max_length=30, required=True, help_text='Required. Enter your first name.')
-#     last_name = forms.CharField(max_length=30, required=True, help_text='Required. Enter your last name.')
-#     email = forms.EmailField(max_length=254, required=True, help_text='Required. Enter a valid email address.')
-#     phone = forms.CharField(max_length=15, required=True, help_text='Required. Enter your phone number.')
-#     specialization = forms.CharField(max_length=100, required=True, help_text='Required. Enter your specialization.')
 
+
+# class DoctorPatientRelForm(forms.ModelForm):
 #     class Meta:
-#         model = User
-#         fields = ['username', 'first_name', 'last_name', 'email', 'phone', 'specialization', 'password1', 'password2']
+#         model = DoctorPatientRel
+#         fields = ['user', 'patient', 'start_date', 'end_date']
 
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
 
+# class DoctorPatientRelForm(forms.ModelForm):
+#     class Meta:
+#         model = DoctorPatientRel
+#         fields = ['start_date', 'end_date']
+
+#     def save(self, commit=True):
+#         instance = super().save(commit=False)
+#         instance.user = self.initial['user']  # Set the user from the form's initial data
+#         instance.patient = self.initial['patient']  # Set the patient from the form's initial data
+
+#         if commit:
+#             instance.save()
+
+#         return instance
+
+class DoctorPatientRelForm(forms.ModelForm):
+    class Meta:
+        model = DoctorPatientRel
+        fields = ['doctor', 'patient', 'start_date', 'end_date']
+
+    def __init__(self, *args, user=None, patient=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if user:
+            self.fields['doctor'].initial = user
+        if patient:
+            self.fields['patient'].initial = patient
+
+        # Set initial value for start_date
+        self.fields['start_date'].initial = timezone.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+
+        if commit:
+            instance.save()
+
+        return instance
