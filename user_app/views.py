@@ -11,6 +11,8 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
+from allauth.account.decorators import verified_email_required
+from allauth.account.models import EmailAddress
 
 
 
@@ -39,21 +41,41 @@ def profile(request, pk):
         messages.success(request, "You must be logged in to view this page.")
         return redirect('home')
    
-def login_user(request):
-	if request.method == "POST":
-		username = request.POST['username']
-		password = request.POST['password']
-		user = authenticate(request, username=username, password=password)
-		if user is not None:
-			login(request, user)
-			messages.success(request, ("You Have Been Logged In!  "))
-			return redirect('home')
-		else:
-			messages.success(request, ("There was an error logging in. Please Try Again..."))
-			return redirect('login')
+# @login_required(login_url='login')
+# @verified_email_required
+# def login_user(request):
+    # user = request.user
+    # email_addresses = EmailAddress.objects.filter(user=user, verified=True)
 
-	else:
-		return render(request, "login.html", {})
+    # # Check if the user has at least one verified email address
+    # if not email_addresses.exists():
+    #     # Redirect to the email verification page if no verified email
+    #     return redirect('account_email_verification_sent')
+
+    # # Check if the user has set up two-factor authentication
+    # if not user.is_verified():
+    #     # Redirect to the 2FA setup page if not set up
+    #     return redirect('two_factor:setup')
+
+
+def login_user(request):
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            messages.success(request, "You Have Been Logged In!")
+            return redirect('home')
+        else:
+            messages.error(request, "There was an error logging in. Please Try Again...")
+            return redirect('login')
+    else:
+        return render(request, "login.html", {})
+    
+
+
+
 
 
 def logout_user(request):

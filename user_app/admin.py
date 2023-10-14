@@ -2,9 +2,20 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User, Group
 from .models import Profile, CustomUser, Patient, PatientDetails, DoctorPatientRel
+# from django.contrib.admin import AdminSite
+# from two_factor.admin import AdminSiteOTPRequiredMixin
+
+
+
 admin.site.unregister(Group)
 
 admin.site.unregister(User)
+
+
+# class CustomAdminSite(AdminSiteOTPRequiredMixin, AdminSite):
+#     pass
+
+# custom_admin_site = CustomAdminSite(name='custom_admin')
 
 
 # class PatientInline(admin.StackedInline):

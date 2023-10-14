@@ -37,12 +37,16 @@ INSTALLED_APPS = [
     'django_otp.plugins.otp_static',
     'django_otp.plugins.otp_totp',
     'two_factor',
-    
     # # 'admin_interface',
     # 'flat_responsive', 
     # 'colorfield',
     'django.contrib.admin',
     'django.contrib.auth',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -51,6 +55,15 @@ INSTALLED_APPS = [
     'user_app',
     # For TOTP support
     
+]
+
+AUTHENTICATION_BACKENDS = [
+    # ...
+     # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by email
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
 MIDDLEWARE = [
@@ -64,11 +77,37 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
 
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
+    # Add the allauth account middleware:
+    "allauth.account.middleware.AccountMiddleware",
 ]
+
+SITE_ID = 1
+
+
+
+
+# # Provider specific settings
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google': {
+#         # For each OAuth based provider, either add a ``SocialApp``
+#         # (``socialaccount`` app) containing the required client
+#         # credentials, or list them here:
+#         'APP': {
+#             'client_id': '123',
+#             'secret': '456',
+#             'key': ''
+#         }
+#     }
+# }
 
 TWO_FACTOR_FORCE_OTP_ADMIN = True
 LOGIN_URL = 'two_factor:login'
 LOGIN_REDIRECT_URL = '/admin'  # Redirect admin dashboard
+
+
+
+
 
 
 ROOT_URLCONF = 'cvDetect.urls'

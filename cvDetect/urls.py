@@ -67,6 +67,10 @@ admin.site.__class__ = AdminSiteOTPRequiredMixinRedirSetup
 urlpatterns = [
     path('', include('user_app.urls')),
     path('admin/', admin.site.urls),
+    # path('custom_admin/', include('user_app.urls')),
+    path('accounts/', include('allauth.urls')),
+    # path('accounts/google/login/callback/', google_callback, name='google_callback'),
+
     path('', include(tf_urls, "two_factor")),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
