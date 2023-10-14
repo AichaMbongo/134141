@@ -37,9 +37,9 @@ INSTALLED_APPS = [
     'django_otp.plugins.otp_static',
     'django_otp.plugins.otp_totp',
     'two_factor',
-    # # 'admin_interface',
-    # 'flat_responsive', 
-    # 'colorfield',
+    'admin_interface',
+    'flat_responsive', 
+    'colorfield',
     'django.contrib.admin',
     'django.contrib.auth',
     'allauth',
@@ -113,7 +113,9 @@ LOGIN_REDIRECT_URL = '/admin'  # Redirect admin dashboard
 ROOT_URLCONF = 'cvDetect.urls'
 
 TEMPLATES = [
+    
     {
+
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],
         'APP_DIRS': True,
@@ -206,7 +208,10 @@ STATICFILES_DIRS = [
 # ... (other settings)
 
 # Custom settings for the Django admin interface
-ADMIN_INTERFACE_COLOR = 'white'  # 'blue', 'green', 'red', 'yellow', 'purple', 'aero', 'black', 'white'
+ADMIN_INTERFACE_COLOR = 'blue'  # 'blue', 'green', 'red', 'yellow', 'purple', 'aero', 'black', 'white'
 ADMIN_INTERFACE_DEVELOPMENT_MODE = True  # Set this to False in production
 
-# ... (other settings)
+# # ... (other settings)
+# ADMIN_INTERFACE_MENU = True
+# ADMIN_INTERFACE_THEME = 'flat'
+# ADMIN_INTERFACE_INDEX = 'dashboard'

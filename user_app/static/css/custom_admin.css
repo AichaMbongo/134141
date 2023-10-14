@@ -1,0 +1,7 @@
+/* custom_admin.css */
+
+body {
+    background-image: url('hospital1.jpg');
+    background-size: cover; /* Adjust as needed */
+    background-repeat: no-repeat;
+}

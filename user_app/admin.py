@@ -7,6 +7,9 @@ from .models import Profile, CustomUser, Patient, PatientDetails, DoctorPatientR
 
 
 
+# Include your custom CSS
+
+
 admin.site.unregister(Group)
 
 admin.site.unregister(User)
