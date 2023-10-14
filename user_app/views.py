@@ -35,8 +35,13 @@ def profile_list(request):
 def profile(request, pk):
     if request.user.is_authenticated:
         profile = Profile.objects.get(user_id=pk)
+        treats = profile.treats.all().order_by('-id')  # Reverse the queryset
         
-        return render(request, "profile.html", {"profile": profile})
+        
+                
+        
+        
+        return render(request, "profile.html", {"profile": profile, "treats": treats})
     else:
         messages.success(request, "You must be logged in to view this page.")
         return redirect('home')
