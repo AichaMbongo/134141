@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  CV - Detect
+{% endblock %}
+
+{% block content %}
+
+
+
+<div class="container-fluid mt-5">
+    <h1 class="custom-h1">{{patient.firstName}}'s Prediction Analysis</h1>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card"  style="overflow-x:auto; height: 100vh;">
+        
+        <div class="card-body p-0"> 
+          <table class="table table-bordered table-striped table-hover table-responsive mb-0 " style="height: 300px;">
+            <thead>
+              <tr>
+                <th scope="col">Feature</th>
+                <th scope="col">Explanation</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for key, explanation in explanations.items %}
+                <tr>
+                  <td>{{ key|capfirst }}</td>
+                  <td>{{ explanation |safe}}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

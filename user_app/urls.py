@@ -17,6 +17,8 @@ urlpatterns = [
     path('updateUser/', views.updateUser, name='updateUser'),
     path('updatePatientDetails/<int:patient_id>/', views.updatePatientDetails, name='updatePatientDetails'),
     path('confirmTreatment/<int:patient_id>/', views.ConfirmTreatment, name='confirmTreatment'),
+    path('treatment_plan/<int:patient_id>/', views.treatment_plan, name='treatment_plan'),
+    path('patientPrediction/<int:patient_id>/', views.patientPrediction, name='patientPrediction'),
     # path('confirm-conclusion/<int:patient_id>/', views.ConfirmConclusion, name='confirmConclusion'),
     
 

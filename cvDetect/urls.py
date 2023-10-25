@@ -65,10 +65,11 @@ admin.site.__class__ = AdminSiteOTPRequiredMixinRedirSetup
 
 
 urlpatterns = [
+    path('accounts/', include('allauth.urls')),
+    path('accounts/', include('allauth_2fa.urls')),
     path('', include('user_app.urls')),
     path('admin/', admin.site.urls),
     # path('custom_admin/', include('user_app.urls')),
-    path('accounts/', include('allauth.urls')),
     # path('accounts/google/login/callback/', google_callback, name='google_callback'),
 
     path('', include(tf_urls, "two_factor")),

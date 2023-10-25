@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User, Group
-from .models import Profile, CustomUser, Patient, PatientDetails, DoctorPatientRel
+from .models import Profile, CustomUser, Patient, PatientDetails, DoctorPatientRel, TreatmentPlan
 # from django.contrib.admin import AdminSite
 # from two_factor.admin import AdminSiteOTPRequiredMixin
 
@@ -26,12 +26,19 @@ admin.site.unregister(User)
 
 class PatientDetailsInline(admin.StackedInline):  # Use TabularInline for a more compact display
     model = PatientDetails
+    
+    
+
+
+class TreatmentInline(admin.StackedInline):  # Use TabularInline for a more compact display
+    model = TreatmentPlan
 
 class PatientAdmin(admin.ModelAdmin):
     model = Patient
-    inlines = [PatientDetailsInline]  # Use the modified inline
+    inlines = [PatientDetailsInline, TreatmentInline]  # Use the modified inline
     list_display = ['firstName', 'lastName', 'email', 'phoneNo', 'sex']
     search_fields = ['firstName', 'lastName', 'email']
+
     
 
 

@@ -43,15 +43,38 @@ class Patient(models.Model):
 
 
 class PatientDetails(models.Model):
+    GENDER_CHOICES = (
+        ('0', 'Male'),
+        ('1', 'Female'),
+    )
+
+    CHOICES = (
+        ('0', '  less than 120 mg/dl'),
+        ('1', '  greater than 120 mg/dl'),
+    )
+
+    EXANG = (
+        ('0', 'Absence'),
+        ('1', 'Presence'),
+    )
     patient = models.OneToOneField(Patient, on_delete=models.CASCADE)
     dob = models.DateField(null=True, blank=True)
+    age = models.IntegerField(null=True, blank=True)
+    # sex = models.BooleanField(null=True, blank=True)
+    sex = models.CharField(max_length=1, choices=GENDER_CHOICES,null=True, blank=True)
+
+    def get_sex_display(self):
+        return dict(self.GENDER_CHOICES).get(self.sex, '')
     cp = models.IntegerField(null=True, blank=True)
     trestbps = models.IntegerField(null=True, blank=True)
     chol = models.IntegerField(null=True, blank=True)
-    fps = models.BooleanField(null=True, blank=True)
-    restech = models.IntegerField(null=True, blank=True)
+    def get_fbs_display(self):
+        return dict(self.CHOICES).get(self.fbs, '')
+    fbs  = models.CharField(max_length=1, choices=CHOICES,null=True, blank=True)
+    restecg = models.IntegerField(null=True, blank=True)
     thalach = models.IntegerField(null=True, blank=True)
-    exang = models.BooleanField(null=True, blank=True)
+    #  exang= models.BooleanField(null=True, blank=True)
+    exang = models.CharField(max_length=1, choices=EXANG,null=True, blank=True)
     oldpeak = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     slope = models.IntegerField(null=True, blank=True)
     ca = models.IntegerField(null=True, blank=True)
@@ -62,7 +85,19 @@ class PatientDetails(models.Model):
     def __str__(self):
         return f"{self.patient.firstName} {self.patient.lastName} Details"
     
+class TreatmentPlan(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    # patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    medications = models.TextField()
+    lifestyle_changes = models.TextField()
+    follow_up_date = models.DateField()
+    additional_notes = models.TextField()
 
+    def __str__(self):
+        return f"Treatment Plan for {self.patient.firstName} {self.patient.lastName} "
+    
+    class Meta:
+        ordering = ['-id']
 
 @receiver(post_save, sender=Patient)
 def create_or_update_patient_details(sender, instance, created, **kwargs):
@@ -126,6 +161,7 @@ def save_profile(sender, instance, **kwargs):
         
         # Create a Patient object if it doesn't exist
         Patient.objects.create(user=instance)
+        
 
 
 
