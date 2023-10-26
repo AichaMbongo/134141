@@ -247,47 +247,96 @@ def addPatientDetails(request, patient_id):
 
             # Extracted features from the form data
             extracted_features = {
-                'age': f"<strong>Result:<strong/> {form_data['age']}",
-                'sex': f"<strong>Result:<strong/>  {form_data['sex']}",
-                'exang': f"<strong>Result:<strong/>  {form_data['exang']}" ,
-                'ca': f"<strong>Result:<strong/>  {form_data['ca']}",
-                'cp': f"<strong>Result:<strong/> {form_data['cp']}",
-                'trestbps': f"<strong>Result:<strong/>  {form_data['trestbps']}",
-                'chol': f"<strong>Result:<strong/>  {form_data['chol']}",
-                'fbs': f"<strong>Result:<strong/>  {form_data['fbs']}",
-                'restecg': f"<strong>Result:<strong/> {form_data['restecg']}",
-                'thalach': f"<strong>Result:<strong/> {form_data['thalach']}",
-                'risk': f"<strong>Result:<strong/> {form_data['target']}"
+                # 'age': f'''<strong>{patient.firstName}'s Age - {form_data['age']} years old ''',
+                # 'sex': f"<strong>{patient.firstName}'s Gender-  {form_data['sex']} <br/><br/> (1: Male, 0: Female)",
+                'exang': f'''<strong>{patient.firstName}'s Exercise Induced Angina Result =  {form_data['exang']} <br/><br/> Explanation: <br/> (1: Presence, 0: Absence)
+                            <br/>- Presence (1): Indicates chest discomfort during exercise, potentially requiring attention.
+                            <br/>- Absence (0): Positive sign, suggesting the patient can engage in physical activity without chest discomfort.''', 
+
+                'oldpeak': f'''<strong>{patient.firstName}'s heart behaviour during exercise Result: {form_data['oldpeak']} <br/><br/> Explanation: <br/>
+                            - Measures how your heart's electrical activity changes during exercise.<br/> <br/> 
+                            Effect on Heart Health:<br/> 
+
+                            - Normal (0): No unusual change during exercise, a good sign. <br/> 
+                           -  Elevated (>0): Indicates some changes, may need closer examination for optimal heart health. ''',
+                'slope': f'''<strong>{patient.firstName}'s heart electrical activity during exercise. Result: {form_data['oldpeak']} <br/><br/> Explanation: <br/> 
+                          - This is the pattern of the heart's electrical activity during exercise.<br/> <br/>
+                          Effect on Heart Health:<br/> 
+
+                        - Upsloping (1): Usually a good sign.<br/> 
+                        - Flat (2): May need further checking.<br/> 
+                        - Downsloping (3): Might indicate potential issues, needs careful evaluation for a healthy heart.''',
+
+
+                'ca': f'''<strong>{patient.firstName}'s Number of Major Vessels =  {form_data['ca']} <br/><br/> Explanation: <br/>Number of major vessels (0-3)<br/>  
+                            - A higher count for ca is often considered a positive indicator for heart health,<br/>
+                            - A lower count may raise concerns about potential cardiovascular issues''',
+                'cp': f'''<strong>{patient.firstName}'s Chest Pain Type =  {form_data['cp']} <br/><br/> Explanation: <br/> Chest Pain type (0: Typical angina, 
+                            1: Atypical angina, 2: Non-anginal pain, 3: Asymptomatic). <br/> 1. Atypical Angina:<br/>
+                                - What it Means: Different kind of chest pain. <br/>
+                                - What to Know: Might suggest a heart issue, needs checking. <br/>
+                                2. Non-Anginal Pain: <br/>
+                                - What it Means: Chest pain not related to the heart. <br/>
+                                - What to Know: Investigate to find out why you're feeling discomfort. <br/>
+
+                                3. Asymptomatic: <br/>
+                                - What it Means: No chest pain. <br/>
+                                - What to Know: Generally good, but it's important to check everything just in case.''',
+                'trestbps': f'''<strong>{patient.firstName}'s Resting blood pressure Result =   {form_data['trestbps']}<br/><br/> Explanation: <br/>
+                                - A healthy blood pressure reading is typically less than 120 over 80. 
+                            <br/>- This means your heart is doing well, pumping blood without putting too much pressure on your blood vessels.<br/>
+                            - Higher than 125mm Hg blood pressure not within the normal range is associated with higher risks of cardiovascular diseases.
+                              ''',
+                'chol': f'''<strong>{patient.firstName}'s Cholesterol  fetched via BMI sensor =    {form_data['chol']} mg/dl <br/><br/> Explanation: <br/>
+                        - What it Means: Level of fat in your blood.<br/>
+                        - What to Know: Lower cholesterol is usually better for heart health. <br/>- High levels might indicate a risk for heart issues. Regular checkups help manage it.''',
+                'fbs': f'''<strong>{patient.firstName}'s Fasting blood sugar Result =   {form_data['fbs']}  <br/><br/> Explanation: <br/> amount of glucose in your blood after an overnight fast.<br/>
+                            -Normal Level (0): ≤120 mg/dl, considered normal.<br/>
+                            Impact: Maintaining normal levels is crucial for overall health, including heart health.<br/><br/>
+                            -Elevated Level (1): >120 mg/dl (1: True), indicates elevated blood sugar.<br/>
+                            Impact: Elevated levels may relate to conditions like diabetes, affecting heart health. ''',
+                
+                'restecg': f'''<strong>{patient.firstName}'s Resting Electrocardiographic Results =  {form_data['restecg']} <br/><br/> Explanation: <br/>
+                            - Normal Result (0): Positive for heart health.<br/>
+
+                            Impact: Indicates healthy electrical activity within the heart.<br/><br/>
+                            - Abnormal Results (1 and 2): May signal potential issues.<br/>
+
+                            Impact: Abnormalities like ST-T wave (1) or ventricular hypertrophy (2) suggest underlying heart conditions needing further investigation or management. ''',
+                'thalach': f'''<strong>{patient.firstName}'s highest heart rate during physical activity Result = {form_data['thalach']}<br/><br/> Explanation: <br/>
+                - Higher maximum heart rates achieved indicate good heart health ''',
+                'risk': f'''<strong>{patient.firstName}'s Risk of Heart Attack Result =  {form_data['target']} <br/> <br/> Explanation: <br/>
+                        - 0:Indicates Less chance of heart attack <br/> 
+                        - 1: More chance of heart attack <br/> 
+                        '''
             }
 
             # Mapping of feature names to patient-friendly explanations
             feature_explanations = {
-                'age': '''Age of the patient''',
-                'sex': '''Sex of the patient (1: Male, 0: Female)''',
-                'exang': '''Exercise induced angina (1: Presence, 0: Absence)
-                                Presence (1): Indicates chest discomfort during exercise, potentially requiring attention.
-                                Absence (0): Positive sign, suggesting the patient can engage in physical activity without chest discomfort.''',                
-                'chol': '''Cholesterol in mg/dl fetched via BMI sensor.
-                            Healthy Range: A total cholesterol level below 200 mg/dl is often considered desirable.''',
-                'fbs': '''Fasting blood sugar > 120 mg/dl (1: True, 0: False)
-
-                            Healthy Range: Fasting blood sugar measures glucose after an overnight fast.
-                            Interpretation:
-
-                            1: Elevated (>120 mg/dl) may relate to conditions like diabetes, impacting heart health.
-                            0: ≤120 mg/dl, normal. Maintaining normal levels is crucial for overall and heart health.
+                # 'age': ''' ''',
+                # 'sex': ''' ''',
+                'exang': ''' ''',
+                'oldpeak': ''' ''',  
+                'slope': ''' ''', 
+                'ca': ''' ''', 
+                'cp': ''' ''',    
+                'trestbps': ''' ''' ,             
+                'chol': ''' ''',
+                'fbs': '''
                            ''',
-                'restecg': '''Resting electrocardiographic results (0: Normal, 1: ST-T wave abnormality, 2: Left ventricular hypertrophy)
-                                Resting electrocardiography (ECG or EKG) assesses the heart's electrical function at rest. 
-                                A normal result (0) is positive for heart health, while abnormalities (1 and 2) may indicate issues requiring further attention or management.''',
-                'thalach': '''Maximum heart rate achieved
-                                Result''',
-                'risk': '''Risk of heart attack prediction (0: Less chance of heart attack, 1: More chance of heart attack)'''
+                'restecg': ''' ''',
+                'thalach': ''' ''',
+                'risk': ''' '''
             }
 
-            feature_explanations['age'] = linebreaks(feature_explanations['age'])
-            feature_explanations['sex'] = linebreaks(feature_explanations['sex'])
+            # feature_explanations['age'] = linebreaks( feature_explanations['age'])
+            # feature_explanations['sex'] = linebreaks(feature_explanations['sex'])
             feature_explanations['exang'] = linebreaks(feature_explanations['exang'])
+            feature_explanations['oldpeak'] = linebreaks(feature_explanations['oldpeak'])
+            feature_explanations['slope'] = linebreaks(feature_explanations['slope'])
+            feature_explanations['ca'] = linebreaks(feature_explanations['ca'])
+            feature_explanations['cp'] = linebreaks(feature_explanations['cp'])
+            feature_explanations['trestbps'] = linebreaks(feature_explanations['trestbps'])
             feature_explanations['chol'] = linebreaks(feature_explanations['chol'])
             feature_explanations['fbs'] = linebreaks(feature_explanations['fbs'])
             feature_explanations['restecg'] = linebreaks(feature_explanations['restecg'])
@@ -298,35 +347,6 @@ def addPatientDetails(request, patient_id):
             summary_message = "Based on the provided information:\n"
             for feature, value in extracted_features.items():
                 explanation = feature_explanations.get(feature, 'Explanation not available')
-
-                # Add specific explanations based on feature values
-                if feature == 'sex':
-                    explanation += " (Male)" if value == 1 else " (Female)"
-                elif feature == 'exang':
-                    explanation += " (Presence of chest discomfort during exercise)" if value == 1 else " (No chest discomfort during exercise)"
-                elif feature == 'cp':
-                    if value == 0:
-                        explanation += " (Typical angina)"
-                    elif value == 1:
-                        explanation += " (Atypical angina)"
-                    elif value == 2:
-                        explanation += " (Non-anginal pain)"
-                    elif value == 3:
-                        explanation += " (Asymptomatic)"
-                elif feature == 'fbs':
-                    explanation += " (Fasting blood sugar > 120 mg/dl)" if value == 1 else " (Fasting blood sugar <= 120 mg/dl)"
-                elif feature == 'restecg':
-                    if value == 0:
-                        explanation += " (Normal)"
-                    elif value == 1:
-                        explanation += " (ST-T wave abnormality)"
-                    elif value == 2:
-                        explanation += " (Left ventricular hypertrophy)"
-
-                summary_message += f"{explanation}: {value}\n"
-
-            # Print the summary message
-            print(summary_message)
 
             # Generate patient-friendly explanations
             explanations = {feature: f"{feature_explanations[feature]}: {extracted_features[feature]}" for feature in feature_explanations}
