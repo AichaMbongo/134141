@@ -10,7 +10,14 @@ from .models import Profile, CustomUser, Patient, PatientDetails, DoctorPatientR
 # Include your custom CSS
 
 
-admin.site.unregister(Group)
+# admin.site.unregister(Group)
+
+# Create groups
+# Group.objects.create(name='Admin')
+# Group.objects.create(name='Secretaries')
+# Group.objects.create(name='Nurses')
+# Group.objects.create(name='Doctors')
+# Group.objects.create(name='Unassigned')
 
 admin.site.unregister(User)
 
@@ -50,12 +57,20 @@ class ProfileInline(admin.StackedInline):
 class CustomUserAdmin(BaseUserAdmin):
     model = CustomUser
     inlines = [ProfileInline]
+    list_display = ('username', 'email', 'first_name', 'last_name', 'get_role_display', 'is_active')
+
+    def get_role_display(self, obj):
+        if hasattr(obj, 'profile') and obj.profile:
+            return obj.profile.get_role_display()
+        return None
+
+    get_role_display.short_description = 'Role'
+
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         ('Personal info', {'fields': ('first_name', 'last_name', 'email')}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
-       
     )
 
 # Register the CustomUserAdmin

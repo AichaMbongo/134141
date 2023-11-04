@@ -123,6 +123,16 @@ def create_or_update_patient_details(sender, instance, created, **kwargs):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    ROLE_CHOICES = [
+        ('admin', 'Admin'),
+        ('secretary', 'Secretary'),
+        ('nurse', 'Nurse'),
+        ('doctor', 'Doctor'),
+        ('unassigned', 'Unassigned'),
+    ]
+    role = models.CharField(max_length=12, choices=ROLE_CHOICES, default= "unassigned")
+    
     
     phone_number = models.CharField(max_length=13, blank=True)
     specialization = models.CharField(max_length=100, blank=True, null=True)
