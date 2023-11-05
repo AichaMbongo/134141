@@ -1,5 +1,5 @@
 {% load static %}
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
   <div class="container-fluid">
     <a class="navbar-brand" href="{% url 'home' %}"><span style="font-weight: bold; font-style: italic; color: #e2e9f0;">CVDetect</span></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -7,9 +7,7 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'profile_list' %}">CVdoctors</a>
-        </li>
+
         {% if user.is_authenticated %}
         <ul class="navbar-nav ml-auto">
           {% if user.profile.role == 'secretary' %}
@@ -26,12 +24,20 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'appointment_list' %}">View Appointments</a>
             </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'profile_list' %}">CVdoctors</a>
+            </li>
           {% endif %}
 
           {% if user.profile.role == 'doctor' %}
 
           <li class="nav-item">
               <a class="nav-link" href="{% url 'view_assigned_patients' %}">Assigned Patients</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'profile_list' %}">CVdoctors</a>
           </li>
 
           {% endif %}
@@ -45,6 +51,10 @@
           <a class="nav-link" href="{% url 'appointment_list' %}">View Appointments</a>
         </li>
 
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'profile_list' %}">CVdoctors</a>
+        </li>
+
 
           {% endif %}
 
@@ -52,6 +62,10 @@
          
 
           {% if user.is_superuser %}
+
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'profile_list' %}">System Users</a>
+          </li>
           
             <li class="nav-item">
               <a class="nav-link" href="{% url 'listPatient' %}">Registered Patients</a>
@@ -60,7 +74,7 @@
             <a class="nav-link" href="{% url 'appointment_list' %}">View Appointments</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'admin:index' %}">Admin Dashboard</a>
+            <a class="nav-link" href="{% url 'index' %}">Admin Dashboard</a>
           </li>
 
           {% endif %}
@@ -70,6 +84,7 @@
           </li>
           
         </ul>
+        
       {% else %}
         <ul class="navbar-nav ml-auto">
           <li class="nav-item" id="register-link">
@@ -99,3 +114,4 @@
     </div>
   </div>
 </nav>
+

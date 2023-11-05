@@ -1,0 +1,263 @@
+{% extends 'base.html' %} 
+{% load static %}
+
+{% block title %}
+  CV - Detect
+{% endblock %}
+{{ message }}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Role, Gender, Age, and Appointment Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+    
+
+          
+          <h1 class="custom-h1" >Admin Dashboard<a href="{% url 'admin:index' %}" class="btn btn-primary float-end" role="button">Click to View Admin Site</a></h1>
+          
+
+
+        <div class="row justify-content-center shadow g-2" style="background-color: aliceblue;">
+            <h1 class="custom-h1" >System Users Analytics</h1>
+
+            <div class="col-md-4 ">
+                <canvas id="roleDistributionChart"></canvas>
+            </div>
+           
+            <div class="col-md-4 ">
+                <canvas id="appointmentChart"></canvas>
+            </div>
+
+            <div class="col-md-4 ">
+                <canvas id="lastLoginDistributionChart"></canvas>
+            </div>
+
+            <div class="col-md-4 ">
+                <canvas id="userStatusDistributionChart"></canvas>
+            </div>
+
+            <div class="col-md-4">
+                <canvas id="doctorSpecializationChart"></canvas>
+            </div>
+            
+
+            <h1 class="custom-h1" style="margin-top: 20px;">Patient Analytics</h1>
+        
+
+            <div class="col-md-4">
+                <canvas id="genderDistributionChart"></canvas>
+            </div>
+           
+            
+            <div class="col-md-4">
+                <canvas id="ageDistributionChart"></canvas>
+            </div>
+
+            <div class="col-md-4">
+                <canvas id="healthConditionChart"></canvas>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- <div class="container" style="background-color: aliceblue;">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <canvas id="genderDistributionChart"></canvas>
+            </div>
+            <div class="col-md-6">
+                <canvas id="ageDistributionChart"></canvas>
+            </div>
+        </div>
+    </div> -->
+
+    <script>
+        // Role Distribution Chart
+        var roleDistributionCtx = document.getElementById('roleDistributionChart').getContext('2d');
+        var roleDistributionChart = new Chart(roleDistributionCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Admin', 'Doctor', 'Nurse', 'Secretary'],
+                datasets: [{
+                    label: 'Role Distribution',
+                    data: {{ role_data|safe }},
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Gender Distribution Chart
+        var genderDistributionCtx = document.getElementById('genderDistributionChart').getContext('2d');
+        var genderDistributionChart = new Chart(genderDistributionCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Male', 'Female'],
+                datasets: [{
+                    data: {{ gender_data|safe }},
+                    backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)'],
+                    borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                    borderWidth: 1
+                }]
+            }
+        });
+
+
+
+        // Appointment Analytics Chart
+        var appointmentCtx = document.getElementById('appointmentChart').getContext('2d');
+        var appointmentChart = new Chart(appointmentCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ appointment_labels|safe }},
+                datasets: [{
+                    label: 'Appointments per Day',
+                    data: {{ appointment_data|safe }},
+                    backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                    borderColor: 'rgba(255, 206, 86, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        precision: 0,
+                        stepSize: 1
+                    }
+                }
+            }
+        });
+
+
+        // Age Distribution Chart
+        var ageDistributionCtx = document.getElementById('ageDistributionChart').getContext('2d');
+        var ageDistributionChart = new Chart(ageDistributionCtx, {
+            type: 'bar', // or 'line'
+            data: {
+                labels: {{ age_labels|safe }},
+                datasets: [{
+                    label: 'Age Distribution',
+                    data: {{ age_data|safe }},
+                    backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                    borderColor: 'rgba(255, 206, 86, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        precision: 0,
+                        stepSize: 1
+                    }
+                }
+            }
+        });
+
+         // Last Login Distribution Chart
+    var lastLoginDistributionCtx = document.getElementById('lastLoginDistributionChart').getContext('2d');
+    var lastLoginDistributionChart = new Chart(lastLoginDistributionCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ login_labels|safe }},
+            datasets: [{
+                label: 'Last Login Distribution',
+                data: {{ login_data|safe }},
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+
+
+        // Health Condition Distribution Chart
+    var healthConditionCtx = document.getElementById('healthConditionChart').getContext('2d');
+    var healthConditionChart = new Chart(healthConditionCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Healthy', 'Not Healthy'],
+            datasets: [{
+                data: {{ health_condition_data|safe }},
+                backgroundColor: ['rgba(75, 192, 192, 0.2)', 'rgba(255, 99, 132, 0.2)'],
+                borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)'],
+                borderWidth: 1
+            }]
+        }
+    });
+
+     // User Status Distribution Chart
+     var userStatusDistributionCtx = document.getElementById('userStatusDistributionChart').getContext('2d');
+        var userStatusDistributionChart = new Chart(userStatusDistributionCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Not On Leave', ' On Leave'],
+                datasets: [{
+                    label: 'User Status Distribution',
+                    data: {{ status_data|safe }},
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+
+         // Doctor Specialization Distribution Chart
+    var doctorSpecializationCtx = document.getElementById('doctorSpecializationChart').getContext('2d');
+    var doctorSpecializationChart = new Chart(doctorSpecializationCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ doctor_specialization_labels|safe }},
+            datasets: [{
+                label: 'Doctor Specialization Distribution',
+                data: {{ doctor_specialization_data|safe }},
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    </script>
+</body>
+</html>
+{% endblock %}

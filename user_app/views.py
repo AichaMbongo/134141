@@ -24,6 +24,9 @@ from django.urls import reverse
 from .forms import TreatmentPlanForm
 from .models import TreatmentPlan, Appointment, PatientDetails
 from django.utils.html import linebreaks
+from django.db.models import Count
+from datetime import timedelta
+
 # ... (other imports)
 
 # Instantiate the base models
@@ -630,3 +633,88 @@ def fill_patient_details(request, patient_id):
         form = PatientDetailsForm()
 
     return render(request, 'fill_patient_details.html', {'patient_details': patient_details, 'form': form, 'patient_id': patient_id})
+
+
+
+@login_required(login_url='login')  
+def index(request):
+    # Role Distribution Data
+    role_data = Profile.objects.values('role').annotate(count=Count('role'))
+    role_labels = [entry['role'] for entry in role_data]
+    role_count = [entry['count'] for entry in role_data]
+
+    # Gender Distribution Data
+    gender_data = Patient.objects.values('sex').annotate(count=Count('sex'))
+    gender_labels = ['Male', 'Female']
+    gender_count = [entry['count'] for entry in gender_data]
+
+
+    # Data for Appointments per Day
+    appointment_data = Appointment.objects.values('date').annotate(count=Count('date'))
+    appointment_labels = [entry['date'].strftime('%Y-%m-%d') for entry in appointment_data]
+    appointment_count = [entry['count'] for entry in appointment_data]
+
+
+ 
+ # Last Login Distribution Data (for the last 7 days)
+    last_login_data = User.objects.filter(last_login__gte=timezone.now() - timezone.timedelta(days=7))
+    last_login_labels = [user.username for user in last_login_data]
+    last_login_count = [1] * len(last_login_data)  # Assuming each login counts as 1
+
+
+        # Gender Distribution Data
+    gender_data = Patient.objects.values('sex').annotate(count=Count('sex'))
+    gender_labels = ['Male Patient', 'Female Patient']
+    gender_count = [entry['count'] for entry in gender_data]
+
+    print("Gender Data:", gender_data)
+    print("Gender Labels:", gender_labels)
+    print("Gender Count:", gender_count)
+
+    # Age Distribution data
+    age_data = PatientDetails.objects.values_list('age', flat=True).exclude(age=None)
+    age_labels = list(range(min(age_data), max(age_data) + 1))
+    age_values = [age_data.count() for _ in age_labels]
+
+
+    # Health Condition Distribution Data
+    health_condition_data = PatientDetails.objects.values('target').annotate(count=Count('target'))
+    health_condition_labels = ['Healthy', 'Not Healthy']
+    health_condition_count = [entry['count'] for entry in health_condition_data]
+
+    # User Status Distribution Data
+    status_data = Profile.objects.values('on_leave').annotate(count=Count('on_leave'))
+    status_labels = ['Not On Leave', ' On Leave']
+    status_count = [entry['count'] for entry in status_data]
+
+     # Doctor Specialization Distribution Data
+    doctor_specialization_data = Profile.objects.filter(role='doctor', specialization__isnull=False).values('specialization').annotate(count=Count('specialization'))
+    doctor_specialization_labels = [entry['specialization'] for entry in doctor_specialization_data]
+    doctor_specialization_count = [entry['count'] for entry in doctor_specialization_data]
+
+
+
+
+    return render(request, 'index.html', {
+        'role_data': role_count,
+        'role_labels': role_labels,
+        'gender_data': gender_count,
+        'gender_labels': gender_labels,
+        'appointment_labels': appointment_labels,
+        'appointment_data': appointment_count,
+        'login_labels': last_login_labels,
+        'login_data': last_login_count,
+        'gender_data': gender_count,
+        'gender_labels': gender_labels,
+        'age_data': age_values,
+        'age_labels': age_labels,
+        'health_condition_data': health_condition_count,
+        'health_condition_labels': health_condition_labels,
+        'status_data': status_count,
+        'status_labels': status_labels,
+        'doctor_specialization_data': doctor_specialization_count,
+        'doctor_specialization_labels': doctor_specialization_labels,
+        })
+
+        
+

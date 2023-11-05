@@ -1,17 +1,23 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Appointment List</h1>
-<ul>
-    {% for appointment in appointments %}
-        <li>
-            <strong>Patient:</strong> {{ appointment.patient }}<br>
-            <strong>Doctor:</strong> {{ appointment.doctor }}<br>
-            <strong>Date and Time:</strong> {{ appointment.date }} {{ appointment.time }}<br>
-            <strong>Reason for Appointment:</strong> {{ appointment.purpose }}
-        </li>
-        <br>
-    {% endfor %}
-</ul>
-{% endblock %}
+  <h1 class="custom-h1 ">Appointment List</h1>
 
+  <div class="row">
+    {% for appointment in appointments %}
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Appointment Details</h5>
+            <p class="card-text">
+              <strong>Patient:</strong> {{ appointment.patient }}<br>
+              <strong>Doctor:</strong> {{ appointment.doctor }}<br>
+              <strong>Date and Time:</strong> {{ appointment.date }} {{ appointment.time }}<br>
+              <strong>Reason for Appointment:</strong> {{ appointment.purpose }}
+            </p>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

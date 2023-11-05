@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     'user_app',
+    
     # For TOTP support
     
 ]

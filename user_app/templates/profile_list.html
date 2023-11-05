@@ -6,12 +6,85 @@
 {% endblock %}
 
 {% block content %}
+  {% if user.is_superuser %}
+    <center>
+      <h1 class="custom-h1">System User Profiles</h1>
+    </center>
+    <div class="btn-group" role="group" aria-label="Basic example">
+      <button type="button" class="btn btn-primary" data-role="secretary">Secretaries</button>
+      <button type="button" class="btn btn-secondary" data-role="nurse">Nurses</button>
+      <button type="button" class="btn btn-primary" data-role="doctor">Doctors</button>
+      <button type="button" class="btn btn-secondary" data-role="admin">Admins</button>
+      <button type="button" class="btn btn-primary" data-role="all">All Users</button>
+    </div>
+    <br/>
+    <br/>
+
+    {% if profiles %}
+      <div class="row">
+        {% for profile in profiles %}
+          <div class="col-md-6 mb-3 profile-card" data-role="{{ profile.role }}">
+            <div class="card shadow">
+              <div class="row g-0">
+                <div class="col-md-4">
+                  {% if profile.profile_image %}
+                    <img src="{{ profile.profile_image.url }}" class="img-fluid rounded img-thumbnail" style="height: 130px;" alt="Profile Image">
+                  {% else %}
+                    <!-- Placeholder image -->
+                    <img src="{% static 'images/doctor2.png' %}" class="img-fluid rounded img-thumbnail" style="height: 130px;" alt="Placeholder Image">
+                  {% endif %}
+                </div>
+                <div class="col-md-8">
+                  <div class="card-body">
+                    <h5 class="card-title">{{ profile.user.username }}</h5>
+                    <p class="card-text"><a href="{% url 'profile' profile.user.id %}">@{{ profile.user.username|lower }}</a></p>
+                    {% if profile.on_leave %}
+                      <p class="card-text text-danger">On Leave</p>
+                    {% else %}
+                      <p class="card-text text-success">Available</p>
+                    {% endif %}
+                    <p class="card-text"><small class="text-muted">Last Updated: {{ profile.date_modified }}</small></p>
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" id="isActiveCheckbox{{ profile.user.id }}" {% if profile.user.is_active %}checked{% endif %}>
+                      <label class="form-check-label" for="isActiveCheckbox{{ profile.user.id }}">Active</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+      $(document).ready(function() {
+        $(".btn-group .btn").click(function() {
+          var role = $(this).data("role");
+          if (role === "all") {
+            $(".profile-card").show();
+          } else {
+            $(".profile-card").hide();
+            $(".profile-card[data-role='" + role + "']").show();
+          }
+        });
+    
+        $(":checkbox").prop("disabled", true); // Disable all checkboxes initially
+    
+        $(":checkbox").change(function() {
+          var userId = $(this).attr("id").replace("isActiveCheckbox", "");
+          var isActive = $(this).is(":checked");
+          // You can use AJAX to send a request to update the is_active status in the database
+          // For simplicity, I'll just log the values to the console
+          console.log("User ID:", userId, "is_active:", isActive);
+        });
+      });
+    </script>
+    
+  {% else %}
   <center>
     <h1 class="custom-h1">Doctor's Profile List</h1>
   </center>
-  
-  <br/>
-
   {% if profiles %}
     <div class="row">
       {% for profile in profiles %}
@@ -45,5 +118,6 @@
         {% endif %}
       {% endfor %}
     </div>
+  {% endif %}
   {% endif %}
 {% endblock %}

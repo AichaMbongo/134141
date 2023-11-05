@@ -19,6 +19,7 @@
         <div class="d-flex flex-column align-items-start bg-light shadow">
             {% if user.is_authenticated and user == profile.user %}
                 <h3 class="display-9 mb-4">My Profile: {{ profile.user.username }}</h3>
+              
             {% else %}
                 <h3 class="display-9 mb-4">{{ profile.user.username }}'s Profile</h3>
             {% endif %}
@@ -63,10 +64,21 @@
                         </tr>
 
                         <tr>
-                            <th scope="row">Specialization</th>
-                            <td>{{ profile.specialization}}</td>
+                            <th scope="row">Role</th>
+                            <td>{{ profile.role}}</td>
                         </tr>
 
+                        {% with profile=user.profile %}
+                        {% if user.profile.role == 'doctor' %}
+                          <!-- Additional information for doctors -->
+                          <tr>
+                            <th scope="row">Specialization</th>
+                            <td>{{ profile.specialization }}</td>
+                          </tr>
+                        {% endif %}
+                      {% endwith %}
+
+                       
                         <tr>
                             <th scope="row">Status</th>
                             <td>
@@ -88,10 +100,8 @@
        
 
     
-<div class="">
-    <!-- {% if profile.profile_image %}
-    <img src="{{ profile.profile_image.url }}" class="img-fluid rounded-circle" ><br/><br/>
-    {% endif %} -->
+<!-- <div class="">
+  
     {% if user.is_authenticated and user.profile == profile and user.profile.role == 'doctor' %}
     <div class="col-md-12 card shadow" style="height: 55vh; overflow-y: auto;">
         <div class="card-header bg-dark text-white">
@@ -124,18 +134,7 @@
     </div>
     {% endif %}
     
-  <br/><br/>
-  <!-- <div class="card">
-    <h5 class="card-header">Treated By</h5>
-    <div class="card-body">
-      <p class="card-text">
-        {% for treating in profile.treated_by.all %}
-        <a href="{% url 'profile' treating.user.id %}">@{{ treating }}</a><br/>
-      
-        {% endfor %}
-      </p>
-    </div>
-  </div> -->
+  <br/><br/> -->
 
   
 

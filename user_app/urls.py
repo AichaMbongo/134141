@@ -24,7 +24,9 @@ urlpatterns = [
     path('view_assigned_patients/', views.view_assigned_patients, name='view_assigned_patients'),
     path('view_health_records/<int:patient_id>/', views.view_health_records, name='view_health_records'),
     path('predict_health_records/<int:patient_id>/', views.predict_health_records, name='predict_health_records'),
-     path('fill_patient_details/<int:patient_id>/', views.fill_patient_details, name='fill_patient_details'),
+    path('fill_patient_details/<int:patient_id>/', views.fill_patient_details, name='fill_patient_details'),
+    path('index/', views.index, name='index'),
+
     # path('confirm-conclusion/<int:patient_id>/', views.ConfirmConclusion, name='confirmConclusion'),
     
 

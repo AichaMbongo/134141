@@ -22,14 +22,34 @@
           <p class="lead">Predicting Cardiovascular Diseases</p>
           <hr class="my-4">
           {% if user.is_authenticated %}
-    {% with profile=user.profile %}
-    <p>Hello Dr {{ user.username }}!</p>
-        <a class="btn btn-primary btn-lg" href="{% url 'profile' pk=user.pk %}" role="button">Click here to get started</a>
-    {% endwith %}
-    {% else %}
-    <p>Explore our features and start your journey towards a healthier life.</p>
-    <a class="btn btn-primary btn-lg" href="{% url 'login' %}" role="button">Log in to Get Started</a>
-    {% endif %}
+            {% with profile=user.profile %}
+              {% if user.profile.role == 'doctor' %}
+                <p>Hello Dr {{ user.username }}!</p>
+                <a class="btn btn-primary btn-lg" href="{% url 'profile' pk=user.pk %}" role="button">Click here to get started</a>
+              {% elif user.profile.role == 'nurse' %}
+                <p>Hello Nurse {{ user.username }}!</p>
+                <!-- Add specific content or links for nurses if needed -->
+                <a class="btn btn-primary btn-lg" href="{% url 'profile' pk=user.pk %}" role="button">Click here to get started</a>
+
+              {% elif user.profile.role == 'secretary' %}
+                <p>Hello Secretary {{ user.username }}!</p>
+                <!-- Add specific content or links for secretaries if needed -->
+                <a class="btn btn-primary btn-lg" href="{% url 'profile' pk=user.pk %}" role="button">Click here to get started</a>
+
+              {% elif user.profile.role == 'admin' %}
+                <p>Hello Admin {{ user.username }}!</p>
+                <!-- Add specific content or links for secretaries if needed -->
+                <a class="btn btn-primary btn-lg" href="{% url 'profile' pk=user.pk %}" role="button">Click here to get started</a>
+
+
+              {% else %}
+                <p>Hello {{ user.username }}!</p>
+              {% endif %}
+            {% endwith %}
+          {% else %}
+            <p>Explore our features and start your journey towards a healthier life.</p>
+            <a class="btn btn-primary btn-lg" href="{% url 'login' %}" role="button">Log in to Get Started</a>
+          {% endif %}
         </div>
       </div>
     </div>
