@@ -5,11 +5,12 @@ from django.contrib.auth.forms import UserChangeForm
 from django.contrib.auth.models import User
 from django import forms
 from django.forms import ModelForm
-from .models import Patient, Profile, PatientDetails, DoctorPatientRel
+from .models import Patient, Profile, PatientDetails, DoctorPatientRel, Appointment, User, CustomUser
 from django.utils import timezone
 from django.contrib.admin.widgets import AdminDateWidget
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
+from datetime import date
 
 
 
@@ -76,23 +77,45 @@ class RegisterUserForm(UserCreationForm):
 class PatientForm(ModelForm):
     class Meta:
         model = Patient
-        fields = ['firstName', 'lastName', 'email', 'phoneNo', 'sex']
-        # labels = {
-        #     'firstName': '',
-        #     'lastName': '',
-        #     'email': '',
-        #     'phoneNo': '',
-        #     'sex': '',            
-
-        # }
+        fields = ['firstName', 'lastName', 'dob', 'email', 'phoneNo', 'sex']
         widgets = {
             'firstName': forms.TextInput(attrs={'class':'form-control'}),
             'lastName': forms.TextInput(attrs={'class':'form-control'}),
+            'dob': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class':'form-control'}),
             'phoneNo': forms.TextInput(attrs={'class':'form-control'}),
             'sex': forms.Select(attrs={'class':'form-control'}),            
         }
 
+    def clean_dob(self):
+        dob = self.cleaned_data.get('dob')
+        if dob:
+            today = date.today()
+            age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+            if age < 0:
+                raise forms.ValidationError("Invalid date of birth")
+            return age
+
+    def save(self, commit=True):
+        patient = super().save(commit=False)
+
+        # Calculate age from date of birth
+        dob = self.cleaned_data.get('dob')
+        if dob:
+            today = date.today()
+            age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+            if age < 0:
+                raise forms.ValidationError("Invalid date of birth")
+
+            # Save age to PatientDetails
+            patient_details, created = PatientDetails.objects.get_or_create(patient=patient)
+            patient_details.age = age
+            patient_details.save()
+
+        if commit:
+            patient.save()
+
+        return patient
 # class PatientDetailsForm(forms.ModelForm):
 #     class Meta:
 #         model = PatientDetails
@@ -116,9 +139,15 @@ class PatientForm(ModelForm):
 class PatientDetailsForm(forms.ModelForm):
     class Meta:
         model = PatientDetails
-        fields = ['age','sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg', 'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal', ]
+
+
+        fields = ['temperature', 'blood_pressure', 'heart_rate', 'respiratory_rate', 'age','sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg', 'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal', ]
         widgets = {
             # 'dob': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'temperature': forms.NumberInput(attrs={'class': 'form-control'}),
+            'blood_pressure': forms.NumberInput(attrs={'class': 'form-control'}),
+            'heart_rate': forms.NumberInput(attrs={'class': 'form-control'}),
+            'respiratory_rate': forms.NumberInput(attrs={'class': 'form-control'}),
             'age': forms.NumberInput(attrs={'class': 'form-control'}),
             'sex': forms.Select(attrs={'class': 'form-control'}, choices=((0, 'Female'), (1, 'Male'))),
             'cp': forms.NumberInput(attrs={'class': 'form-control'}),
@@ -134,8 +163,6 @@ class PatientDetailsForm(forms.ModelForm):
             'thal': forms.NumberInput(attrs={'class': 'form-control'}),
             # 'target': forms.Select(attrs={'class': 'form-control'}, choices=((True, 'True'), (False, 'False'))),
         }
-   
-
    
     def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
@@ -238,3 +265,19 @@ class TreatmentPlanForm(forms.Form):
     lifestyle_changes = forms.CharField(label='Lifestyle Changes', widget=forms.Textarea)
     follow_up_date = forms.DateField(label='Follow-up Date')
     additional_notes = forms.CharField(label='Additional Notes', widget=forms.Textarea)
+
+class AppointmentForm(forms.ModelForm):
+    class Meta:
+        model = Appointment
+        fields = ['doctor', 'date', 'time', 'purpose']
+        widgets = {
+            'doctor': forms.Select(attrs={'class': 'form-control'}),
+            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+            'purpose': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Populate the 'doctor' field with choices from users with the 'Doctor' role
+        self.fields['doctor'].queryset = Profile.objects.filter(role='doctor')

@@ -1,0 +1,18 @@
+<!-- templates/edit_health_records.html -->
+
+{% extends 'base.html' %}  <!-- Adjust the base template as needed -->
+{% block title %}
+  Edit Health Records
+{% endblock %}
+{% block content %}
+
+  <h1 class="custom-h1">Edit Health Records for {{ form.instance.patient.firstName }} {{ form.instance.patient.lastName }}</h1>
+
+  <!-- Display the health records edit form -->
+  <form method="POST" action="{% url 'predict_health_records' patient_id=form.instance.patient.id %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-primary" type="submit">Make Prediction</button>
+  </form>
+
+{% endblock %}

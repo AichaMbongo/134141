@@ -1,0 +1,27 @@
+{% extends 'base.html' %} 
+
+{% block title %}
+  Assigned Patients
+{% endblock %}
+
+{% block content %}
+  <h1 class="custom-h1 text-center">Assigned Patients</h1>
+
+  <div class="container mt-5">
+    <div class="row">
+      {% for appointment in assigned_patients %}
+        <div class="col-md-6 mb-3">
+          <div class="card shadow">
+            <div class="card-body">
+                <h5 class="card-title">Patient: <a href="{% url 'showPatient' appointment.patient.id %}">{{ appointment.patient }}</a></h5>
+                <p class="card-text">Appointment Date: {{ appointment.date }}</p>
+              <p class="card-text">Appointment Time: {{ appointment.time }}</p>
+
+              <!-- Add other fields as needed -->
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}

@@ -21,6 +21,10 @@ class CustomUser(AbstractUser):
 
     # ... other fields as needed
 
+
+
+
+
 class Patient(models.Model):
     GENDER_CHOICES = (
         ('M', 'Male'),
@@ -29,6 +33,7 @@ class Patient(models.Model):
     
     firstName = models.CharField(max_length=30)
     lastName = models.CharField(max_length=30)
+    dob = models.DateField(null=True, blank=True)
     email = models.EmailField(max_length=60)
     phoneNo = models.CharField(max_length=20)
     sex = models.CharField(max_length=1, choices=GENDER_CHOICES)
@@ -58,8 +63,13 @@ class PatientDetails(models.Model):
         ('1', 'Presence'),
     )
     patient = models.OneToOneField(Patient, on_delete=models.CASCADE)
-    dob = models.DateField(null=True, blank=True)
     age = models.IntegerField(null=True, blank=True)
+    # Vitals measured by the nurse
+    temperature = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    blood_pressure = models.CharField(max_length=10, null=True, blank=True)
+    heart_rate = models.IntegerField(null=True, blank=True)
+    respiratory_rate = models.IntegerField(null=True, blank=True)
+
     # sex = models.BooleanField(null=True, blank=True)
     sex = models.CharField(max_length=1, choices=GENDER_CHOICES,null=True, blank=True)
 
@@ -137,11 +147,8 @@ class Profile(models.Model):
     phone_number = models.CharField(max_length=13, blank=True)
     specialization = models.CharField(max_length=100, blank=True, null=True)
 
-    treats = models.ManyToManyField(Patient, 
-                                    related_name="treated_by",
-                                    blank=True,
-                                    symmetrical=False)
     
+    on_leave = models.BooleanField(default=False) 
     date_modified = models.DateTimeField(auto_now=True)
     profile_image = models.ImageField(null=True, blank=True, upload_to="images/")
 
@@ -160,11 +167,11 @@ def save_profile(sender, instance, **kwargs):
         profile = instance.profile
         profile.save()
         
-        # Check if there are any treats (patients) associated with the profile
-        if profile.treats.exists():
-            # Save each associated patient
-            for patient in profile.treats.all():
-                patient.save()
+        # # Check if there are any treats (patients) associated with the profile
+        # if profile.treats.exists():
+        #     # Save each associated patient
+        #     for patient in profile.treats.all():
+        #         patient.save()
     except Profile.DoesNotExist:
         # Create a Profile object if it doesn't exist
         profile = Profile.objects.create(user=instance)
@@ -180,3 +187,19 @@ class DoctorPatientRel(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)
+
+
+class Appointment(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(Profile, on_delete=models.CASCADE, limit_choices_to={'role': 'doctor'})
+    date = models.DateField()
+    time = models.TimeField()
+    purpose = models.TextField()
+
+    def __str__(self):
+        return f"{self.patient} - Dr. {self.doctor.user.username} - {self.date} {self.time}"
+    
+
+    
+
+    

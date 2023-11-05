@@ -13,23 +13,62 @@
         {% if user.is_authenticated %}
         <ul class="navbar-nav ml-auto">
           {% if user.profile.role == 'secretary' %}
-            <li class="nav-item">
+          <li class="nav-item">
               <a class="nav-link" href="{% url 'addPatient' %}">Add Patient</a>
-            </li>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link" href="{% url 'listPatient' %}">Registered Patients</a>
+          </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'listPatient' %}">Patients</a>
+              <a class="nav-link" href="{% url 'listPatient' %}">Make Appointment</a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'appointment_list' %}">View Appointments</a>
             </li>
           {% endif %}
+
+          {% if user.profile.role == 'doctor' %}
+
+          <li class="nav-item">
+              <a class="nav-link" href="{% url 'view_assigned_patients' %}">Assigned Patients</a>
+          </li>
+
+          {% endif %}
+
+          {% if user.profile.role == 'nurse' %}
+
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'listPatient' %}">Registered Patients</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'appointment_list' %}">View Appointments</a>
+        </li>
+
+
+          {% endif %}
+
           
+         
+
+          {% if user.is_superuser %}
+          
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'listPatient' %}">Registered Patients</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'appointment_list' %}">View Appointments</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'admin:index' %}">Admin Dashboard</a>
+          </li>
+
+          {% endif %}
+
           <li class="nav-item" id="logout-link">
             <a class="nav-link" href="{% url 'logout' %}">Logout</a>
           </li>
-
-          {% if user.is_superuser %}
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'admin:index' %}">Admin</a>
-            </li>
-          {% endif %}
+          
         </ul>
       {% else %}
         <ul class="navbar-nav ml-auto">

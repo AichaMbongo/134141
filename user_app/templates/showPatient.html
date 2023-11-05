@@ -13,20 +13,9 @@
   <div class="card shadow">
     <h5 class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
         Patient Details
-        <form method="POST" id="treatForm">
-            {% csrf_token %}
-            {% if is_treated %}
-            <button class="btn btn-danger" name="treat" value="untreat" type="submit">
-                Conclude Treatment of: {{ patient.firstName|lower }}
-            </button>
-            {% else %}
-            <button class="btn btn-success" name="treat" value="treat" type="submit">
-                Begin Treatment of: {{ patient.firstName|lower }}
-            </button>
+        
 
-           
-            {% endif %}
-        </form>
+        
     </h5>
     
     <div class="card-body">
@@ -38,14 +27,19 @@
         <li class="list-group-item"><strong>Phone Number:</strong> {{ patient.phoneNo }}</li>
         <li class="list-group-item"><strong>Gender:</strong> {{ patient.sex }}</li>
       </ul>
-      {% if is_treated %}
-    <form method="POST" action="{% url 'addPatientDetails' patient.id %}">
-        {% csrf_token %}
-        <button class="btn btn-success float-end" name="treat" value="treat" type="submit">
-            Health Records
-        </button>
-    </form>
-{% endif %}
+   
+      {% if user.profile.role == 'nurse' or user.profile.role == 'doctor' %}
+      <form method="POST" action="{% url 'view_health_records' patient.id %}">
+          {% csrf_token %}
+          <button class="btn btn-success float-end" name="treat" value="treat" type="submit">
+              {% if user.profile.role == 'nurse' %}
+                  Fill in Vital Health Records
+              {% elif user.profile.role == 'doctor' %}
+                  View Health Records
+              {% endif %}
+          </button>
+      </form>
+  {% endif %}
     </div>
     
 

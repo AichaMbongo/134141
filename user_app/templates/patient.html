@@ -14,19 +14,33 @@
           <tr>
             <th class="bg-secondary text-white" scope="col">Patient ID</th>
             <th class="bg-secondary text-white" scope="col">Patient Name</th>
-            
+            {% if user.profile.role == 'secretary' %}  <!-- Condition for the secretary -->
+            <th class="bg-secondary text-white" scope="col">Make Appointment</th>  <!-- New column for the button -->
+          {% endif %}
+          {% if user.profile.role == 'nurse' %}  <!-- Condition for the nurse -->
+            <th class="bg-secondary text-white" scope="col">Update Health Records</th>  <!-- New column for the button -->
+          {% endif %}           
           </tr>
         </thead>
         <tbody>
           {% for patient in patientList %}
             <tr>
-                <td>
-                    <a href="{% url 'showPatient' patient.id %}" class="text-decoration-none">AKUH{{ patient.id }}PK</a>
-                </td>
+              <td>
+                <a href="{% url 'showPatient' patient.id %}" class="text-decoration-none">AKUH{{ patient.id }}PK</a>
+              </td>
               <td>
                 {{ patient.firstName }}  {{ patient.lastName }}
               </td>
-              
+              {% if user.profile.role == 'secretary' %}  <!-- Condition for the secretary -->
+              <td>
+                <a href="{% url 'make_appointment' patient.id %}" class="btn btn-primary">Make Appointment</a>
+              </td>
+              {% endif %}
+              {% if user.profile.role == 'nurse' %}  <!-- Condition for the nurse -->
+              <td>
+                <a href="{% url 'view_health_records' patient.id %}" class="btn btn-primary">Update Health Records</a>
+              </td>
+              {% endif %}
             </tr>
           {% endfor %}
         </tbody>

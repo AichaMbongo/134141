@@ -19,6 +19,12 @@ urlpatterns = [
     path('confirmTreatment/<int:patient_id>/', views.ConfirmTreatment, name='confirmTreatment'),
     path('treatment_plan/<int:patient_id>/', views.treatment_plan, name='treatment_plan'),
     path('patientPrediction/<int:patient_id>/', views.patientPrediction, name='patientPrediction'),
+    path('make_appointment/<int:patient_id>/', views.make_appointment, name='make_appointment'),
+    path('appointment_list/', views.appointment_list, name='appointment_list'),
+    path('view_assigned_patients/', views.view_assigned_patients, name='view_assigned_patients'),
+    path('view_health_records/<int:patient_id>/', views.view_health_records, name='view_health_records'),
+    path('predict_health_records/<int:patient_id>/', views.predict_health_records, name='predict_health_records'),
+     path('fill_patient_details/<int:patient_id>/', views.fill_patient_details, name='fill_patient_details'),
     # path('confirm-conclusion/<int:patient_id>/', views.ConfirmConclusion, name='confirmConclusion'),
     
 

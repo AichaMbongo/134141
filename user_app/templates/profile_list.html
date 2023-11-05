@@ -1,44 +1,49 @@
 {% extends 'base.html' %} 
 {% load static %}
+
 {% block title %}
   CV - detect
 {% endblock %}
-{% block content %}
- 
 
+{% block content %}
   <center>
-  <h1 class="custom-h1">Doctor's Profile List</h1>
-</center>
+    <h1 class="custom-h1">Doctor's Profile List</h1>
+  </center>
   
   <br/>
 
   {% if profiles %}
-  <div class="row">
+    <div class="row">
       {% for profile in profiles %}
+        {% if profile.role == 'doctor' %}
           <div class="col-md-6 mb-3">
-              <div class="card shadow">
-                  <div class="row g-0">
-                      <div class="col-md-4">
-                          {% if profile.profile_image %}
-                              <img src="{{ profile.profile_image.url }}" class="img-fluid rounded img-thumbnail" style="height: 130px;" alt="Profile Image">
-                          {% else %}
-                              <!-- Placeholder image -->
-                              <img src="{% static 'images/doctor2.png' %}" class="img-fluid rounded img-thumbnail" style="height: 130px;" alt="Placeholder Image">
-                          {% endif %}
-                      </div>
-                      <div class="col-md-8">
-                          <div class="card-body">
-                              <h5 class="card-title">{{ profile.user.username }}</h5>
-                              <p class="card-text"><a href="{% url 'profile' profile.user.id %}">@{{ profile.user.username|lower }}</a></p>
-                              <p class="card-text"><small class="text-muted">Last Updated: {{ profile.date_modified }}</small></p>
-                          </div>
-                      </div>
+            <div class="card shadow">
+              <div class="row g-0">
+                <div class="col-md-4">
+                  {% if profile.profile_image %}
+                    <img src="{{ profile.profile_image.url }}" class="img-fluid rounded img-thumbnail" style="height: 130px;" alt="Profile Image">
+                  {% else %}
+                    <!-- Placeholder image -->
+                    <img src="{% static 'images/doctor2.png' %}" class="img-fluid rounded img-thumbnail" style="height: 130px;" alt="Placeholder Image">
+                  {% endif %}
+                </div>
+                <div class="col-md-8">
+                  <div class="card-body">
+                    <h5 class="card-title">{{ profile.user.username }}</h5>
+                    <p class="card-text"><a href="{% url 'profile' profile.user.id %}">@{{ profile.user.username|lower }}</a></p>
+                    {% if profile.on_leave %}
+                      <p class="card-text text-danger">On Leave</p>
+                    {% else %}
+                      <p class="card-text text-success">Available</p>
+                    {% endif %}
+                    <p class="card-text"><small class="text-muted">Last Updated: {{ profile.date_modified }}</small></p>
                   </div>
+                </div>
               </div>
+            </div>
           </div>
+        {% endif %}
       {% endfor %}
-  </div>
-{% endif %}
-
-
+    </div>
+  {% endif %}
 {% endblock %}

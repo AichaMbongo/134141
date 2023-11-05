@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User, Group
-from .models import Profile, CustomUser, Patient, PatientDetails, DoctorPatientRel, TreatmentPlan
+from .models import Profile, CustomUser, Patient, PatientDetails, DoctorPatientRel, TreatmentPlan, Appointment
 # from django.contrib.admin import AdminSite
 # from two_factor.admin import AdminSiteOTPRequiredMixin
 
@@ -78,4 +78,6 @@ admin.site.register(User, CustomUserAdmin)
      
 
 admin.site.register(DoctorPatientRel)
+
+admin.site.register(Appointment)
 # admin.site.register(User, UserAdmin)

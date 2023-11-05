@@ -1,0 +1,13 @@
+<!-- make_appointment.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Make Appointment for {{ patient }}</h2>
+  <form method="post" action="">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Make Appointment</button>
+  </form>
+{% endblock %}
+
+
