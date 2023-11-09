@@ -201,5 +201,24 @@ class Appointment(models.Model):
     
 
     
+# class HealthRecord(models.Model):
+#     patient = models.ForeignKey(User, on_delete=models.CASCADE)
+#     test_name = models.CharField(max_length=255)
+#     result_explanation = models.TextField()
 
+#     def __str__(self):
+#         return f"{self.patient.username} - {self.test_name}"
+    
+class PredictionResult(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    test = models.CharField(max_length=255)
+    result = models.TextField()
+    purpose = models.TextField()
+    date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+
+    class Meta:
+        ordering = ['-date']
+
+    def __str__(self):
+        return f"{self.patient.firstName}'s {self.test} Result"
     

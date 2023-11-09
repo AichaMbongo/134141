@@ -22,10 +22,23 @@ from django.utils.safestring import mark_safe
 import joblib
 from django.urls import reverse
 from .forms import TreatmentPlanForm
-from .models import TreatmentPlan, Appointment, PatientDetails
+from .models import TreatmentPlan, Appointment, PatientDetails, PredictionResult
 from django.utils.html import linebreaks
 from django.db.models import Count
 from datetime import timedelta
+
+from django.http import FileResponse
+import io
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import inch
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import Paragraph
+
+import csv
 
 # ... (other imports)
 
@@ -455,10 +468,71 @@ def predict_health_records(request, patient_id):
     patient = get_object_or_404(Patient, id=patient_id)
     patient_details = patient.patientdetails
 
+    def generate_result_message(data):
+        exang_result = "Present \nIndicates chest discomfort during exercise, potentially requiring attention." if data['exang'] == 1 else "Absent \nPositive sign, suggesting the patient can \nengage in physical activity without \nchest discomfort"
+        oldpeak_result = "No unusual change during exercise, a good sign." if data['oldpeak'] == 0 else "Elevated. \nIndicates some changes, may need \ncloser examination for optimal heart health."
+        slope_result = {
+            1: "Upsloping: \nUsually a good sign.",
+            2: "Flat: \nMay need further checking.",
+            3: "Downsloping: \nMight indicate potential issues, needs careful evaluation for a healthy heart."
+        }.get(data['slope'], "Unknown Slope")
+
+        ca_result = {
+            0: "0: \nIndicates potential issues, needs careful \nevaluation for a healthy heart.",
+            1: "1: \nIndicates potential issues, needs careful \nevaluation for a healthy heart.",
+            2: "1: \nHigh blood vessel count observed, considered \na positive indicator for heart health.",
+            3: "1: \nHigh blood vessel count observed, considered \na positive indicator for heart health."
+        }.get(data['ca'], "Unknown CA")
+
+        cp_result = {
+            1: "1. \nAtypical Angina:\n- What it Means: Different kind of chest pain.\n- What to Know: Might suggest a heart issue, needs checking.",
+            2: "2. \nNon-Anginal Pain:\n- What it Means: Chest pain not related to the heart.\n- What to Know: Investigate to find out \nwhy you're feeling discomfort.",
+            3: "3. \nAsymptomatic:\n- What it Means: No chest pain.\n- What to Know: Generally good, \nbut it's important to check everything \n just in case."
+        }.get(data['cp'], "Unknown CP")
+
+        trestbps_result = "Higher than 125mm Hg \nblood pressure not within the \nnormal range is associated with \nhigher risks of cardiovascular diseases. \nCheck everything just in case." if data['trestbps'] > 125 else "Within the normal range. \nGood indicator of heart health."
+
+        chol_result = {
+            "Normal": "Within the normal range. \nGood indicator of heart health",
+            "Borderline": "Borderline high. \nRisk for heart issues",
+            "High": "High. \nRisk for heart issues"
+        }.get(get_chol_category(data['chol']), "Unknown Cholesterol")
+
+        fbs_result = "Normal Level. \nIndicator of good heart health" if int(data['fbs']) <= 120 else "Elevated Level. \nIndicates elevated blood sugar. Elevated levels may relate to conditions like diabetes, affecting heart health."
+
+        restecg_result = "Abnormal Results (1 and 2): \nMay signal potential issues" if data['restecg'] in [1, 2] else "Normal Results: \nPositive for heart health"
+
+        thalach_result = "More than 140 \nmore likely to have heart disease." if data['thalach'] > 140 else "Healthy range."
+
+        target_result = "Low chance of heart attack" if data['target'] == 0 else "High chance of heart attack"
+
+        result_message = [
+            {'test': 'Exang', 'result': exang_result, 'purpose': 'tests for Exercise Induced Angina (pain \nin chest during exercise)'},
+            {'test': 'Oldpeak', 'result': oldpeak_result, 'purpose': 'Measures how your heart\'s electrical \nactivity changes during exercise'},
+            {'test': 'Slope', 'result': slope_result, 'purpose': 'Observes the pattern of the heart\'s \nelectrical activity during exercise'},
+            {'test': 'CA', 'result': ca_result, 'purpose': 'Observes the Number of major vessels\n (0-3).  higher count for ca is \noften considered a positive indicator \nfor heart health'},
+            {'test': 'CP', 'result': cp_result, 'purpose': 'Observes the Chest Pain type (0: \nTypical angina, 1: Atypical angina, \n2: Non-anginal pain, 3: Asymptomatic)'},
+            {'test': 'Trestbps', 'result': trestbps_result, 'purpose': 'Observes the blood pressure. \nA healthy blood pressure reading is \ntypically less than 125 over 80'},
+            {'test': 'Chol', 'result': chol_result, 'purpose': 'Observes the level of cholesterol in \nthe blood'},
+            {'test': 'FBS', 'result': fbs_result, 'purpose': 'Observes the amount of glucose in \nyour blood after an overnight fast'},
+            {'test': 'Restecg', 'result': restecg_result, 'purpose': 'Checks for Abnormalities like ST-T wave(1) \nor ventricular hypertrophy (2) suggest \nunderlying heart conditions needing further \ninvestigation or management'},
+            {'test': 'Thalach', 'result': thalach_result, 'purpose': 'Checks for maximum heart rate achieved'},
+            {'test': 'Prediction Outcome', 'result': target_result, 'purpose': 'Checks chances of getting \na heart attack'},
+        ]
+
+        return result_message
+
+    def get_chol_category(chol_value):
+        if chol_value < 200:
+            return "Normal"
+        elif 200 <= chol_value <= 239:
+            return "Borderline"
+        else:
+            return "High"
+
     if request.method == 'POST':
         form = PatientDetailsForm(request.POST, instance=patient_details)
         if form.is_valid():
-            # Get the form data
             form_data = form.cleaned_data
 
             # Extract the features for prediction
@@ -483,134 +557,40 @@ def predict_health_records(request, patient_id):
             form_data['target'] = prediction
 
             # Determine the result_message based on the prediction
+            result_message = generate_result_message(form_data)
+
             if prediction == 1:
-                result_message = f"{patient.firstName} has a high chance of experiencing a heart attack. Treatment should begin immediately."
-                
-                # Generate the URL for the treatment plan form
+                result_messages = f"{patient.firstName} has a high chance of experiencing a heart attack. Treatment should begin immediately."
                 treatment_plan_url = reverse('treatment_plan', args=[patient.id])
-                treatment_button = f'<a href="{treatment_plan_url}" class="btn btn-primary float-right">Fill Treatment Plan</a>'
-                result_message += f'<br/>{treatment_button}'
+                treatment_button = f'<a href="{treatment_plan_url}" class="btn btn-danger float-right">Fill Treatment Plan</a>'
+                result_messages += f'<br/>{treatment_button}'
             else:
-                result_message = f"{patient.firstName} has a low chance of experiencing a heart attack.<br/><br/> Ensure a healthy lifestyle is maintained and checkups are done yearly."
+                result_message += f"{patient.firstName} has a low chance of experiencing a heart attack.<br/><br/> Ensure a healthy lifestyle is maintained and checkups are done yearly."
+            messages.success(request, mark_safe(f" Prediction Outcome:<br/> {result_messages}"))
+            # Render the result template with the detailed result message
 
-            # Extracted features from the form data
-            extracted_features = {
-                # 'age': f'''<strong>{patient.firstName}'s Age - {form_data['age']} years old ''',
-                # 'sex': f"<strong>{patient.firstName}'s Gender-  {form_data['sex']} <br/><br/> (1: Male, 0: Female)",
-                'exang': f'''<strong>{patient.firstName}'s Exercise Induced Angina Result =  {form_data['exang']} <br/><br/> Explanation: <br/> (1: Presence, 0: Absence)
-                            <br/>- Presence (1): Indicates chest discomfort during exercise, potentially requiring attention.
-                            <br/>- Absence (0): Positive sign, suggesting the patient can engage in physical activity without chest discomfort.''', 
-
-                'oldpeak': f'''<strong>{patient.firstName}'s heart behaviour during exercise Result: {form_data['oldpeak']} <br/><br/> Explanation: <br/>
-                            - Measures how your heart's electrical activity changes during exercise.<br/> <br/> 
-                            Effect on Heart Health:<br/> 
-
-                            - Normal (0): No unusual change during exercise, a good sign. <br/> 
-                           -  Elevated (>0): Indicates some changes, may need closer examination for optimal heart health. ''',
-                'slope': f'''<strong>{patient.firstName}'s heart electrical activity during exercise. Result: {form_data['oldpeak']} <br/><br/> Explanation: <br/> 
-                          - This is the pattern of the heart's electrical activity during exercise.<br/> <br/>
-                          Effect on Heart Health:<br/> 
-
-                        - Upsloping (1): Usually a good sign.<br/> 
-                        - Flat (2): May need further checking.<br/> 
-                        - Downsloping (3): Might indicate potential issues, needs careful evaluation for a healthy heart.''',
-
-
-                'ca': f'''<strong>{patient.firstName}'s Number of Major Vessels =  {form_data['ca']} <br/><br/> Explanation: <br/>Number of major vessels (0-3)<br/>  
-                            - A higher count for ca is often considered a positive indicator for heart health,<br/>
-                            - A lower count may raise concerns about potential cardiovascular issues''',
-                'cp': f'''<strong>{patient.firstName}'s Chest Pain Type =  {form_data['cp']} <br/><br/> Explanation: <br/> Chest Pain type (0: Typical angina, 
-                            1: Atypical angina, 2: Non-anginal pain, 3: Asymptomatic). <br/> 1. Atypical Angina:<br/>
-                                - What it Means: Different kind of chest pain. <br/>
-                                - What to Know: Might suggest a heart issue, needs checking. <br/>
-                                2. Non-Anginal Pain: <br/>
-                                - What it Means: Chest pain not related to the heart. <br/>
-                                - What to Know: Investigate to find out why you're feeling discomfort. <br/>
-
-                                3. Asymptomatic: <br/>
-                                - What it Means: No chest pain. <br/>
-                                - What to Know: Generally good, but it's important to check everything just in case.''',
-                'trestbps': f'''<strong>{patient.firstName}'s Resting blood pressure Result =   {form_data['trestbps']}<br/><br/> Explanation: <br/>
-                                - A healthy blood pressure reading is typically less than 120 over 80. 
-                            <br/>- This means your heart is doing well, pumping blood without putting too much pressure on your blood vessels.<br/>
-                            - Higher than 125mm Hg blood pressure not within the normal range is associated with higher risks of cardiovascular diseases.
-                              ''',
-                'chol': f'''<strong>{patient.firstName}'s Cholesterol  fetched via BMI sensor =    {form_data['chol']} mg/dl <br/><br/> Explanation: <br/>
-                        - What it Means: Level of fat in your blood.<br/>
-                        - What to Know: Lower cholesterol is usually better for heart health. <br/>- High levels might indicate a risk for heart issues. Regular checkups help manage it.''',
-                'fbs': f'''<strong>{patient.firstName}'s Fasting blood sugar Result =   {form_data['fbs']}  <br/><br/> Explanation: <br/> amount of glucose in your blood after an overnight fast.<br/>
-                            -Normal Level (0): ≤120 mg/dl, considered normal.<br/>
-                            Impact: Maintaining normal levels is crucial for overall health, including heart health.<br/><br/>
-                            -Elevated Level (1): >120 mg/dl (1: True), indicates elevated blood sugar.<br/>
-                            Impact: Elevated levels may relate to conditions like diabetes, affecting heart health. ''',
-                
-                'restecg': f'''<strong>{patient.firstName}'s Resting Electrocardiographic Results =  {form_data['restecg']} <br/><br/> Explanation: <br/>
-                            - Normal Result (0): Positive for heart health.<br/>
-
-                            Impact: Indicates healthy electrical activity within the heart.<br/><br/>
-                            - Abnormal Results (1 and 2): May signal potential issues.<br/>
-
-                            Impact: Abnormalities like ST-T wave (1) or ventricular hypertrophy (2) suggest underlying heart conditions needing further investigation or management. ''',
-                'thalach': f'''<strong>{patient.firstName}'s highest heart rate during physical activity Result = {form_data['thalach']}<br/><br/> Explanation: <br/>
-                - Higher maximum heart rates achieved indicate good heart health ''',
-                'risk': f'''<strong>{patient.firstName}'s Risk of Heart Attack Result =  {form_data['target']} <br/> <br/> Explanation: <br/>
-                        - 0:Indicates Less chance of heart attack <br/> 
-                        - 1: More chance of heart attack <br/> 
-                        '''
-            }
-
-            # Mapping of feature names to patient-friendly explanations
-            feature_explanations = {
-                # 'age': ''' ''',
-                # 'sex': ''' ''',
-                'exang': ''' ''',
-                'oldpeak': ''' ''',  
-                'slope': ''' ''', 
-                'ca': ''' ''', 
-                'cp': ''' ''',    
-                'trestbps': ''' ''' ,             
-                'chol': ''' ''',
-                'fbs': '''
-                           ''',
-                'restecg': ''' ''',
-                'thalach': ''' ''',
-                'risk': ''' '''
-            }
-
-            # feature_explanations['age'] = linebreaks( feature_explanations['age'])
-            # feature_explanations['sex'] = linebreaks(feature_explanations['sex'])
-            feature_explanations['exang'] = linebreaks(feature_explanations['exang'])
-            feature_explanations['oldpeak'] = linebreaks(feature_explanations['oldpeak'])
-            feature_explanations['slope'] = linebreaks(feature_explanations['slope'])
-            feature_explanations['ca'] = linebreaks(feature_explanations['ca'])
-            feature_explanations['cp'] = linebreaks(feature_explanations['cp'])
-            feature_explanations['trestbps'] = linebreaks(feature_explanations['trestbps'])
-            feature_explanations['chol'] = linebreaks(feature_explanations['chol'])
-            feature_explanations['fbs'] = linebreaks(feature_explanations['fbs'])
-            feature_explanations['restecg'] = linebreaks(feature_explanations['restecg'])
-            feature_explanations['thalach'] = linebreaks(feature_explanations['thalach'])
-            feature_explanations['risk'] = linebreaks(feature_explanations['risk'])
-
-            # Generate a summary message for the patient
-            summary_message = "Based on the provided information:\n"
-            for feature, value in extracted_features.items():
-                explanation = feature_explanations.get(feature, 'Explanation not available')
-
-            # Generate patient-friendly explanations
-            explanations = {feature: f"{feature_explanations[feature]}: {extracted_features[feature]}" for feature in feature_explanations}
-
-            # Save the updated form data to the database
             form.save()
+             # Save each row of the table data into the PredictionResult model
+            # Save each row of the table data into the PredictionResult model
+            for result in result_message:
+                PredictionResult.objects.create(
+                    patient=patient,
+                    test=result['test'],
+                    result=result['result'],
+                    purpose=result['purpose']
+                )
 
-            # Display the prediction result and accompanying statement
-            messages.success(request, mark_safe(f" Prediction Outcome:<br/> {result_message}"))
+          
+            return render(request, 'patientPrediction.html', {'patient': patient, 'result_message': result_message})
+        
+      
 
-            # Display the patient details and explanations in the template
-            return render(request, 'patientPrediction.html', {'patient': patient, 'details': extracted_features, 'explanations': explanations})
     else:
         form = PatientDetailsForm(instance=patient_details)
 
-    return render(request, 'predict_health_records.html', {'form': form, 'patient': patient})
+    return render(request, 'predict_health_records.html', {'form': form})
+
+
 
 
 def fill_patient_details(request, patient_id):
@@ -715,6 +695,95 @@ def index(request):
         'doctor_specialization_data': doctor_specialization_count,
         'doctor_specialization_labels': doctor_specialization_labels,
         })
+def result_pdf(request):
+    # Create a byte stream buffer
+    buf = io.BytesIO()
 
-        
+    # Create a PDF document with the buffer
+    pdf = SimpleDocTemplate(buf, pagesize=letter)
 
+    # Designate the model
+    results = PredictionResult.objects.all()[:11] 
+ 
+
+    # Define styles for header, table, and text
+    styles = getSampleStyleSheet()
+    header_style = styles['Title']
+    table_style = styles['BodyText']
+    text_style = styles['Normal']
+
+    # Generate header content
+    patient_name = results.first().patient.firstName if results.exists() else "Unknown Patient"
+    header_lines = [
+        f"{patient_name}'s Prediction Results",
+        f"Date: {results.first().date.strftime('%Y-%m-%d %H:%M:%S')}" if results.exists() else "No Date",
+    ]
+
+    # Generate table data
+    table_data = [['Test', 'Result', 'Purpose']]
+    table_data.extend([
+        [result_instance.test, result_instance.result, result_instance.purpose]
+        for result_instance in results
+    ])
+
+    # Create a table with appropriate styling
+    table = Table(table_data, colWidths=[1.5 * inch, 2.9 * inch, 2.9 * inch])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+       ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Add inner borders
+    ]))
+
+    # Build elements
+    elements = []
+
+    # Add header lines to the story
+    for line in header_lines:
+        elements.append(Paragraph(line, header_style))
+
+    # Add an empty line before the table
+    elements.append(Paragraph("<br/><br/>", text_style))
+
+    # Add table to the story
+    elements.append(table)
+
+    # Build PDF document
+    pdf.build(elements)
+
+    # Reset buffer position
+    buf.seek(0)
+
+
+    return FileResponse(buf, as_attachment=True, filename='result_pdf.pdf')
+
+
+def users_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=users.csv'
+    writer = csv.writer(response)
+    users = User.objects.all()
+
+    writer.writerow(['Username','First Name', 'Last Name', 'Email', 'Role', 'Phone Number', 'Date Joined', 'Last Login'])
+
+    for user in users:
+        writer.writerow([user.username, user.first_name, user.last_name, user.email, user.profile.role, user.profile.phone_number, user.date_joined, user.last_login])
+
+
+    return response
+
+def appointment_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=appointment.csv'
+    writer = csv.writer(response)
+    patients = Appointment.objects.all()
+
+    writer.writerow(['Patient', 'Doctor', 'Date', 'Time', 'Purpose'])
+
+    for patient in patients:
+        writer.writerow([patient.patient, patient.doctor, patient.date, patient.time, patient.purpose])
+
+    return response  # Move this line outside the for loop

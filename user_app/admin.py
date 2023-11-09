@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User, Group
-from .models import Profile, CustomUser, Patient, PatientDetails, DoctorPatientRel, TreatmentPlan, Appointment
+from .models import Profile, CustomUser, Patient, PatientDetails, DoctorPatientRel, TreatmentPlan, Appointment, PredictionResult
 # from django.contrib.admin import AdminSite
 # from two_factor.admin import AdminSiteOTPRequiredMixin
 
@@ -40,9 +40,14 @@ class PatientDetailsInline(admin.StackedInline):  # Use TabularInline for a more
 class TreatmentInline(admin.StackedInline):  # Use TabularInline for a more compact display
     model = TreatmentPlan
 
+class PredictionInline(admin.StackedInline):  # Use TabularInline for a more compact display
+    model = PredictionResult  
+    extra = 0  # This ensures no extra empty forms are displayed by default
+    readonly_fields = ['date']  # Make the date field read-only
+
 class PatientAdmin(admin.ModelAdmin):
     model = Patient
-    inlines = [PatientDetailsInline, TreatmentInline]  # Use the modified inline
+    inlines = [PatientDetailsInline, TreatmentInline, PredictionInline]  # Use the modified inline
     list_display = ['firstName', 'lastName', 'email', 'phoneNo', 'sex']
     search_fields = ['firstName', 'lastName', 'email']
 
@@ -81,3 +86,4 @@ admin.site.register(DoctorPatientRel)
 
 admin.site.register(Appointment)
 # admin.site.register(User, UserAdmin)
+

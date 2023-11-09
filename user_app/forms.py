@@ -140,10 +140,8 @@ class PatientDetailsForm(forms.ModelForm):
     class Meta:
         model = PatientDetails
 
-
-        fields = ['temperature', 'blood_pressure', 'heart_rate', 'respiratory_rate', 'age','sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg', 'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal', ]
+        fields = ['temperature', 'blood_pressure', 'heart_rate', 'respiratory_rate', 'age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg', 'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal']
         widgets = {
-            # 'dob': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'temperature': forms.NumberInput(attrs={'class': 'form-control'}),
             'blood_pressure': forms.NumberInput(attrs={'class': 'form-control'}),
             'heart_rate': forms.NumberInput(attrs={'class': 'form-control'}),
@@ -161,9 +159,7 @@ class PatientDetailsForm(forms.ModelForm):
             'slope': forms.NumberInput(attrs={'class': 'form-control'}),
             'ca': forms.NumberInput(attrs={'class': 'form-control'}),
             'thal': forms.NumberInput(attrs={'class': 'form-control'}),
-            # 'target': forms.Select(attrs={'class': 'form-control'}, choices=((True, 'True'), (False, 'False'))),
         }
-   
     def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             for field in self.fields.values():
