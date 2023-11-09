@@ -1,9 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% if user.is_superuser %}
   <h1 class="custom-h1 ">Appointment List  <a class="btn btn-secondary float-end" href="{% url 'appointment_csv' %}">Download Appointment report</a>
+   
   </h1>
-
+  
+  {% else %}
+  <h1 class="custom-h1 ">Appointment List</h1>
+  {% endif %}
   <div class="row">
     {% for appointment in appointments %}
       <div class="col-md-4 mb-4">
@@ -20,5 +25,6 @@
         </div>
       </div>
     {% endfor %}
+   
   </div>
 {% endblock %}
