@@ -222,3 +222,53 @@ class PredictionResult(models.Model):
     def __str__(self):
         return f"{self.patient.firstName}'s {self.test} Result"
     
+class HeartDiseasePrediction(models.Model):
+    GENDER_CHOICES = (
+        ('0', 'Male'),
+        ('1', 'Female'),
+    )
+
+    CHOICES = (
+        ('0', '  less than 120 mg/dl'),
+        ('1', '  greater than 120 mg/dl'),
+    )
+
+    EXANG = (
+        ('0', 'Absence'),
+        ('1', 'Presence'),
+    )
+    patient = models.OneToOneField(Patient, on_delete=models.CASCADE)
+    age = models.IntegerField(null=True, blank=True)
+    # Vitals measured by the nurse
+    temperature = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    blood_pressure = models.CharField(max_length=10, null=True, blank=True)
+    heart_rate = models.IntegerField(null=True, blank=True)
+    respiratory_rate = models.IntegerField(null=True, blank=True)
+
+    # sex = models.BooleanField(null=True, blank=True)
+    sex = models.CharField(max_length=1, choices=GENDER_CHOICES,null=True, blank=True)
+
+    def get_sex_display(self):
+        return dict(self.GENDER_CHOICES).get(self.sex, '')
+    cp = models.IntegerField(null=True, blank=True)
+    trestbps = models.IntegerField(null=True, blank=True)
+    chol = models.IntegerField(null=True, blank=True)
+    def get_fbs_display(self):
+        return dict(self.CHOICES).get(self.fbs, '')
+    fbs  = models.CharField(max_length=1, choices=CHOICES,null=True, blank=True)
+    restecg = models.IntegerField(null=True, blank=True)
+    thalach = models.IntegerField(null=True, blank=True)
+    #  exang= models.BooleanField(null=True, blank=True)
+    exang = models.CharField(max_length=1, choices=EXANG,null=True, blank=True)
+    oldpeak = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    slope = models.IntegerField(null=True, blank=True)
+    ca = models.IntegerField(null=True, blank=True)
+    thal = models.IntegerField(null=True, blank=True)
+    prediction = models.CharField(max_length=10)
+    interpretation = models.TextField()
+
+    # target = models.BooleanField(null=True, blank=True)
+    dateModified = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.patient.firstName} {self.patient.lastName} Details"

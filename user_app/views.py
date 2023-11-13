@@ -1,35 +1,26 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import HttpResponse
-from django.template import loader
 from .models import Profile, Patient,CustomUser 
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import UserCreationForm
 from .forms import RegisterUserForm, PatientForm, UpdateUserForm, ProfilePicForm, PatientDetailsForm, DoctorPatientRelForm, AppointmentForm
 from django.http import HttpResponseRedirect
-from django import forms
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
-from allauth.account.decorators import verified_email_required
-from allauth.account.models import EmailAddress
-from .HeartDiseasePredUsingML import model
 from mlxtend.classifier import StackingCVClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-from .HeartDiseasePredUsingML import scv, X_train, y_train 
+from .HeartDiseasePredUsingML import X_train, y_train 
 from django.utils.safestring import mark_safe
 import joblib
 from django.urls import reverse
 from .forms import TreatmentPlanForm
 from .models import TreatmentPlan, Appointment, PatientDetails, PredictionResult
-from django.utils.html import linebreaks
 from django.db.models import Count
-from datetime import timedelta
 
 from django.http import FileResponse
 import io
-from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
@@ -37,7 +28,9 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import Paragraph
-
+from .forms import HeartDiseasePredictionForm
+import requests
+from .models import HeartDiseasePrediction
 import csv
 
 # ... (other imports)
@@ -51,7 +44,6 @@ scv = StackingCVClassifier(classifiers=[knn, svc], meta_classifier=svc, random_s
 
 
 # from .HeartDiseasePredUsingML import make_prediction
-import numpy as np
 
 
 
@@ -787,3 +779,60 @@ def appointment_csv(request):
         writer.writerow([patient.patient, patient.doctor, patient.date, patient.time, patient.purpose])
 
     return response  # Move this line outside the for loop
+
+
+
+
+def heart_disease_prediction(request, patient_id):
+    patient = get_object_or_404(Patient, id=patient_id)
+    patient_details = patient.patientdetails
+    form = HeartDiseasePredictionForm()
+
+    if request.method == 'POST':
+        form = HeartDiseasePredictionForm(request.POST)
+
+        if form.is_valid():
+            # Get form data
+            form_data = form.cleaned_data
+
+            # Set the API endpoint URL
+            api_url = 'http://127.0.0.1:5022/target'
+
+            # Make a GET request to the Plumber API
+            response = requests.get(api_url, params=form_data)
+
+            # Process the response
+            if response.status_code == 200:
+                data = response.json()
+
+                # Create an instance of HeartDiseasePrediction model
+                prediction_instance = HeartDiseasePrediction(
+                    age=form_data['arg_age'],
+                    sex=form_data['arg_sex'],
+                    cp=form_data['arg_cp'],
+                    trestbps=form_data['arg_trestbps'],
+                    chol=form_data['arg_chol'],
+                    fbs=form_data['arg_fbs'],
+                    restecg=form_data['arg_restecg'],
+                    thalach=form_data['arg_thalach'],
+                    exang=form_data['arg_exang'],
+                    oldpeak=form_data['arg_oldpeak'],
+                    slope=form_data['arg_slope'],
+                    ca=form_data['arg_ca'],
+                    thal=form_data['arg_thal'],
+                    prediction=data[0],  # Assuming the prediction is in the first element of data
+                )
+
+                # Save the instance to the database
+                prediction_instance.save()
+
+                # Fetch the saved instance from the database
+                saved_instance = HeartDiseasePrediction.objects.get(id=prediction_instance.id)
+
+                return render(request, 'heart_disease_prediction.html', {'prediction_instance': saved_instance, 'form': form})
+            else:
+                # Handle API error
+                return render(request, 'heart_disease_prediction.html', {'error': 'API Error', 'form': form})
+
+    return render(request, 'heart_disease_prediction.html', {'form': form})
+

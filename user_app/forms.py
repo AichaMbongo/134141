@@ -277,3 +277,21 @@ class AppointmentForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # Populate the 'doctor' field with choices from users with the 'Doctor' role
         self.fields['doctor'].queryset = Profile.objects.filter(role='doctor')
+
+
+
+
+class HeartDiseasePredictionForm(forms.Form):
+    arg_age = forms.CharField(label='Age', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    arg_sex = forms.ChoiceField(label='Sex', choices=[(0, 'Female'), (1, 'Male')], widget=forms.Select(attrs={'class': 'form-control'}))
+    arg_cp = forms.ChoiceField(label='Chest Pain Type', choices=[(0, 'Type 0'), (1, 'Type 1'), (2, 'Type 2'), (3, 'Type 3')], widget=forms.Select(attrs={'class': 'form-control'}))
+    arg_trestbps = forms.CharField(label='Resting Blood Pressure', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    arg_chol = forms.CharField(label='Serum Cholesterol Level', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    arg_fbs = forms.ChoiceField(label='Fasting Blood Sugar', choices=[(0, 'No'), (1, 'Yes')], widget=forms.Select(attrs={'class': 'form-control'}))
+    arg_restecg = forms.ChoiceField(label='Resting Electrocardiographic Results', choices=[(0, 'Type 0'), (1, 'Type 1'), (2, 'Type 2')], widget=forms.Select(attrs={'class': 'form-control'}))
+    arg_thalach = forms.CharField(label='Maximum Heart Rate Achieved', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    arg_exang = forms.ChoiceField(label='Exercise-induced Angina', choices=[(0, 'No'), (1, 'Yes')], widget=forms.Select(attrs={'class': 'form-control'}))
+    arg_oldpeak = forms.CharField(label='ST Depression Induced by Exercise Relative to Rest', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    arg_slope = forms.ChoiceField(label='Slope of the Peak Exercise ST Segment', choices=[(0, 'Type 0'), (1, 'Type 1'), (2, 'Type 2')], widget=forms.Select(attrs={'class': 'form-control'}))
+    arg_ca = forms.CharField(label='Number of Major Vessels Colored by Fluoroscopy', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    arg_thal = forms.ChoiceField(label='Thalassemia Type', choices=[(0, 'Type 0'), (1, 'Type 1'), (2, 'Type 2'), (3, 'Type 3')], widget=forms.Select(attrs={'class': 'form-control'}))
