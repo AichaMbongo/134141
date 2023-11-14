@@ -137,34 +137,38 @@ class PatientForm(ModelForm):
 # }
 
 class PatientDetailsForm(forms.ModelForm):
+    arg_age = forms.CharField(label='Age', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    arg_sex = forms.ChoiceField(label='Sex', choices=[(0, 'Female'), (1, 'Male')], widget=forms.Select(attrs={'class': 'form-control'}))
+    arg_cp = forms.ChoiceField(label='Chest Pain Type', choices=[(0, 'Type 0'), (1, 'Type 1'), (2, 'Type 2'), (3, 'Type 3')], widget=forms.Select(attrs={'class': 'form-control'}))
+    arg_trestbps = forms.CharField(label='Resting Blood Pressure', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    arg_chol = forms.CharField(label='Serum Cholesterol Level', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    arg_fbs = forms.ChoiceField(label='Fasting Blood Sugar', choices=[(0, 'No'), (1, 'Yes')], widget=forms.Select(attrs={'class': 'form-control'}))
+    arg_restecg = forms.ChoiceField(label='Resting Electrocardiographic Results', choices=[(0, 'Type 0'), (1, 'Type 1'), (2, 'Type 2')], widget=forms.Select(attrs={'class': 'form-control'}))
+    arg_thalach = forms.CharField(label='Maximum Heart Rate Achieved', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    arg_exang = forms.ChoiceField(label='Exercise-induced Angina', choices=[(0, 'No'), (1, 'Yes')], widget=forms.Select(attrs={'class': 'form-control'}))
+    arg_oldpeak = forms.CharField(label='ST Depression Induced by Exercise Relative to Rest', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    arg_slope = forms.ChoiceField(label='Slope of the Peak Exercise ST Segment', choices=[(0, 'Type 0'), (1, 'Type 1'), (2, 'Type 2')], widget=forms.Select(attrs={'class': 'form-control'}))
+    arg_ca = forms.CharField(label='Number of Major Vessels Colored by Fluoroscopy', widget=forms.TextInput(attrs={'class': 'form-control'}))
+    arg_thal = forms.ChoiceField(label='Thalassemia Type', choices=[(0, 'Type 0'), (1, 'Type 1'), (2, 'Type 2'), (3, 'Type 3')], widget=forms.Select(attrs={'class': 'form-control'}))
+
+
+
     class Meta:
         model = PatientDetails
+        fields = ['temperature', 'blood_pressure', 'heart_rate', 'respiratory_rate']
 
-        fields = ['temperature', 'blood_pressure', 'heart_rate', 'respiratory_rate', 'age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg', 'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal']
         widgets = {
             'temperature': forms.NumberInput(attrs={'class': 'form-control'}),
             'blood_pressure': forms.NumberInput(attrs={'class': 'form-control'}),
             'heart_rate': forms.NumberInput(attrs={'class': 'form-control'}),
             'respiratory_rate': forms.NumberInput(attrs={'class': 'form-control'}),
-            'age': forms.NumberInput(attrs={'class': 'form-control'}),
-            'sex': forms.Select(attrs={'class': 'form-control'}, choices=((0, 'Female'), (1, 'Male'))),
-            'cp': forms.NumberInput(attrs={'class': 'form-control'}),
-            'trestbps': forms.NumberInput(attrs={'class': 'form-control'}),
-            'chol': forms.NumberInput(attrs={'class': 'form-control'}),
-            'fbs': forms.Select(attrs={'class': 'form-control'}, choices=((0, 'less than 120 mg/dl'), (1, 'more than 120 mg/dl'))),
-            'restecg': forms.NumberInput(attrs={'class': 'form-control'}),
-            'thalach': forms.NumberInput(attrs={'class': 'form-control'}),
-            'exang': forms.Select(attrs={'class': 'form-control'}, choices=((0, 'Absence'), (1, 'Presence'))),
-            'oldpeak': forms.NumberInput(attrs={'class': 'form-control'}),
-            'slope': forms.NumberInput(attrs={'class': 'form-control'}),
-            'ca': forms.NumberInput(attrs={'class': 'form-control'}),
-            'thal': forms.NumberInput(attrs={'class': 'form-control'}),
+            
         }
-    def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            for field in self.fields.values():
-                field.required = True
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.required = True
 
 #     # Set an initial value for the dateModified field
 #  # Set an initial value for the dateModified field

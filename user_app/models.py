@@ -89,7 +89,7 @@ class PatientDetails(models.Model):
     slope = models.IntegerField(null=True, blank=True)
     ca = models.IntegerField(null=True, blank=True)
     thal = models.IntegerField(null=True, blank=True)
-    target = models.BooleanField(null=True, blank=True)
+    target = models.CharField(max_length=1, choices=[('0', 'neg'), ('1', 'pos'), ('U', 'Unknown')], default='U', null=True, blank=True)
     dateModified = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):

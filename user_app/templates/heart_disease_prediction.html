@@ -1,11 +1,28 @@
 
+{% extends 'base.html' %}  <!-- Adjust the base template as needed -->
+{% block title %}
+CV - Detect
+{% endblock %}
+{% block content %}
 
 <!-- Your HTML template code here -->
-<form method="post" action="{% url 'heart_disease_prediction' %}">
+<form method="post" action="{% url 'heart_disease_prediction'  %}">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
+
+<!-- <form method="post" action="{% url 'heart_disease_prediction' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+<form method="POST" action="{% url 'predict_health_records' patient_id=form.instance.patient.id %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-primary" type="submit">Make Prediction</button>
+  </form> -->
 <!-- Prediction Result Section -->
 <!-- heart_disease_prediction.html -->
 
@@ -113,8 +130,5 @@
 {% endif %}
 
 
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-</body>
-</html>
+
+{% endblock %}

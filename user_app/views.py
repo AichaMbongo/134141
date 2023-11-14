@@ -455,46 +455,50 @@ def view_health_records(request, patient_id):
     return render(request, 'view_health_records.html', {'patient_details': patient_details, 'form': form, 'patient_id': patient_id})
 
 
+
 @login_required(login_url='login')    
 def predict_health_records(request, patient_id):
     patient = get_object_or_404(Patient, id=patient_id)
     patient_details = patient.patientdetails
 
     def generate_result_message(data):
-        exang_result = "Present \nIndicates chest discomfort during exercise, potentially requiring attention." if data['exang'] == 1 else "Absent \nPositive sign, suggesting the patient can \nengage in physical activity without \nchest discomfort"
-        oldpeak_result = "No unusual change during exercise, a good sign." if data['oldpeak'] == 0 else "Elevated. \nIndicates some changes, may need \ncloser examination for optimal heart health."
+        exang_result = "Present \nIndicates chest discomfort during exercise, potentially requiring attention." if data['arg_exang'] == 1 else "Absent \nPositive sign, suggesting the patient can \nengage in physical activity without \nchest discomfort"
+        oldpeak_result = "No unusual change during exercise, a good sign." if data['arg_oldpeak'] == 0 else "Elevated. \nIndicates some changes, may need \ncloser examination for optimal heart health."
         slope_result = {
             1: "Upsloping: \nUsually a good sign.",
             2: "Flat: \nMay need further checking.",
             3: "Downsloping: \nMight indicate potential issues, needs careful evaluation for a healthy heart."
-        }.get(data['slope'], "Unknown Slope")
+        }.get(data['arg_slope'], "Unknown Slope")
 
         ca_result = {
             0: "0: \nIndicates potential issues, needs careful \nevaluation for a healthy heart.",
             1: "1: \nIndicates potential issues, needs careful \nevaluation for a healthy heart.",
             2: "1: \nHigh blood vessel count observed, considered \na positive indicator for heart health.",
             3: "1: \nHigh blood vessel count observed, considered \na positive indicator for heart health."
-        }.get(data['ca'], "Unknown CA")
+        }.get(data['arg_ca'], "Unknown CA")
 
         cp_result = {
             1: "1. \nAtypical Angina:\n- What it Means: Different kind of chest pain.\n- What to Know: Might suggest a heart issue, needs checking.",
             2: "2. \nNon-Anginal Pain:\n- What it Means: Chest pain not related to the heart.\n- What to Know: Investigate to find out \nwhy you're feeling discomfort.",
             3: "3. \nAsymptomatic:\n- What it Means: No chest pain.\n- What to Know: Generally good, \nbut it's important to check everything \n just in case."
-        }.get(data['cp'], "Unknown CP")
+        }.get(data['arg_cp'], "Unknown CP")
 
-        trestbps_result = "Higher than 125mm Hg \nblood pressure not within the \nnormal range is associated with \nhigher risks of cardiovascular diseases. \nCheck everything just in case." if data['trestbps'] > 125 else "Within the normal range. \nGood indicator of heart health."
+        # Convert 'arg_trestbps' to an integer
+        trestbps_value = int(data['arg_trestbps'])
 
+        # Compare the integer value
+        trestbps_result = "Higher than 125mm Hg \nblood pressure not within the \nnormal range is associated with \nhigher risks of cardiovascular diseases. \nCheck everything just in case." if trestbps_value > 125 else "Within the normal range. \nGood indicator of heart health."
         chol_result = {
             "Normal": "Within the normal range. \nGood indicator of heart health",
             "Borderline": "Borderline high. \nRisk for heart issues",
             "High": "High. \nRisk for heart issues"
-        }.get(get_chol_category(data['chol']), "Unknown Cholesterol")
+        }.get(get_chol_category(data['arg_chol']), "Unknown Cholesterol")
 
-        fbs_result = "Normal Level. \nIndicator of good heart health" if int(data['fbs']) <= 120 else "Elevated Level. \nIndicates elevated blood sugar. Elevated levels may relate to conditions like diabetes, affecting heart health."
+        fbs_result = "Normal Level. \nIndicator of good heart health" if int(data['arg_fbs']) <= 120 else "Elevated Level. \nIndicates elevated blood sugar. Elevated levels may relate to conditions like diabetes, affecting heart health."
 
-        restecg_result = "Abnormal Results (1 and 2): \nMay signal potential issues" if data['restecg'] in [1, 2] else "Normal Results: \nPositive for heart health"
+        restecg_result = "Abnormal Results (1 and 2): \nMay signal potential issues" if data['arg_restecg'] in [1, 2] else "Normal Results: \nPositive for heart health"
 
-        thalach_result = "More than 140 \nmore likely to have heart disease." if data['thalach'] > 140 else "Healthy range."
+        thalach_result = "More than 140 \nmore likely to have heart disease." if data['arg_thalach'] > 140 else "Healthy range."
 
         target_result = "Low chance of heart attack" if data['target'] == 0 else "High chance of heart attack"
 
@@ -515,7 +519,9 @@ def predict_health_records(request, patient_id):
         return result_message
 
     def get_chol_category(chol_value):
-        if chol_value < 200:
+        # Convert 'chol_value' to an integer
+        chol_value_int = int(chol_value)
+        if chol_value_int < 200:
             return "Normal"
         elif 200 <= chol_value <= 239:
             return "Borderline"
@@ -530,10 +536,10 @@ def predict_health_records(request, patient_id):
             # Extract the features for prediction
             scv = joblib.load('C:/Users/HP/Desktop/test/134141/user_app/saved_model.sav')
             features_for_prediction = [
-                form_data['age'], form_data['sex'], form_data['cp'], form_data['trestbps'], form_data['chol'],
-                form_data['fbs'], form_data['restecg'], form_data['thalach'],
-                form_data['exang'], form_data['oldpeak'], form_data['slope'],
-                form_data['ca'], form_data['thal']
+                form_data['arg_age'], form_data['arg_sex'], form_data['arg_cp'], form_data['arg_trestbps'], form_data['arg_chol'],
+                form_data['arg_fbs'], form_data['arg_restecg'], form_data['arg_thalach'],
+                form_data['arg_exang'], form_data['arg_oldpeak'], form_data['arg_slope'],
+                form_data['arg_ca'], form_data['arg_thal']
             ]
 
             # Check if the StackingCVClassifier is fitted
@@ -543,7 +549,12 @@ def predict_health_records(request, patient_id):
                 scv.fit(X_train, y_train)
 
             # Make the prediction using your model
-            prediction = scv.predict([features_for_prediction])[0]
+            # Convert strings to numeric values
+            features_for_prediction_numeric = [float(feature) for feature in features_for_prediction]
+
+            # Make the prediction using your model
+            prediction = scv.predict([features_for_prediction_numeric])[0]
+            # prediction = scv.predict([features_for_prediction])[0]
 
             # Update the 'target' field with the prediction
             form_data['target'] = prediction
@@ -581,7 +592,6 @@ def predict_health_records(request, patient_id):
         form = PatientDetailsForm(instance=patient_details)
 
     return render(request, 'predict_health_records.html', {'form': form})
-
 
 
 
@@ -789,7 +799,7 @@ def heart_disease_prediction(request, patient_id):
     form = HeartDiseasePredictionForm()
 
     if request.method == 'POST':
-        form = HeartDiseasePredictionForm(request.POST)
+        form = HeartDiseasePredictionForm(request.POST, instance=patient_details)
 
         if form.is_valid():
             # Get form data
@@ -829,10 +839,25 @@ def heart_disease_prediction(request, patient_id):
                 # Fetch the saved instance from the database
                 saved_instance = HeartDiseasePrediction.objects.get(id=prediction_instance.id)
 
-                return render(request, 'heart_disease_prediction.html', {'prediction_instance': saved_instance, 'form': form})
+                return render(
+                        request,
+                        'heart_disease_prediction.html',
+                        { 'prediction_instance': saved_instance, 'form': form}
+                    )            
             else:
                 # Handle API error
                 return render(request, 'heart_disease_prediction.html', {'error': 'API Error', 'form': form})
 
     return render(request, 'heart_disease_prediction.html', {'form': form})
+
+
+
+    #        return render(request, 'patientPrediction.html', {'patient': patient, 'result_message': result_message})
+        
+      
+
+    # else:
+    #     form = PatientDetailsForm(instance=patient_details)
+
+    # return render(request, 'predict_health_records.html', {'form': form})
 
