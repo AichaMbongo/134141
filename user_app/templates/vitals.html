@@ -1,0 +1,38 @@
+{% extends 'base.html' %} 
+
+{% block title %}
+  Patient's Vitals
+{% endblock %}
+
+{% block content %}
+<h3 class=" custom-h1">{{ patient }}</h3>
+<div class="card bg-light">
+  <div class="card-body ">
+    
+    <h3 class="card-title ">Enter {{ patient }}'s Vitals</h3>
+    <!-- Form for filling in patient details -->
+    <form method="POST" action="{% url 'vitals' patient_id=patient_id %}">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+    <!-- Display saved vitals -->
+    {% if patient_vitals %}
+      <div class="mt-3">
+        <h4>Last Recorded Vitals:</h4>
+        <ul>
+          <li>Temperature: {{ patient_vitals.temperature }} °C</li>
+          <li>Blood Pressure: {{ patient_vitals.blood_pressure }} mm Hg</li>
+          <li>Heart Rate: {{ patient_vitals.heart_rate }} bpm</li>
+          <li>Respiratory Rate: {{ patient_vitals.respiratory_rate }} breaths/min</li>
+          <!-- Add more fields as needed -->
+          <li>Date Modified: {{ patient_vitals.dateModified }}</li>
+        </ul>
+      </div>
+    {% else %}
+      <p class="mt-3">No vitals recorded yet.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

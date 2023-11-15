@@ -38,7 +38,7 @@
               {% endif %}
               {% if user.profile.role == 'nurse' %}  <!-- Condition for the nurse -->
               <td>
-                <a href="{% url 'view_health_records' patient.id %}" class="btn btn-primary">Update Health Records</a>
+                <a href="{% url 'vitals' patient.id %}" class="btn btn-primary">Measure Vitals</a>
               </td>
               {% endif %}
             </tr>

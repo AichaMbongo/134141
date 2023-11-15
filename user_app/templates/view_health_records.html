@@ -105,12 +105,7 @@
           No previous records
         </div>
     
-        <!-- Form for filling in patient details -->
-        <form method="POST" action="{% url 'view_health_records' patient_id=patient_id %}">
-          {% csrf_token %}
-          {{ form.as_p }}
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
+   
       {% endif %}
     {% endblock %}
     

@@ -5,7 +5,7 @@ from django.contrib.auth.forms import UserChangeForm
 from django.contrib.auth.models import User
 from django import forms
 from django.forms import ModelForm
-from .models import Patient, Profile, PatientDetails, DoctorPatientRel, Appointment, User, CustomUser
+from .models import Patient, Profile, PatientDetails, DoctorPatientRel, Appointment, User, CustomUser, PatientVitals
 from django.utils import timezone
 from django.contrib.admin.widgets import AdminDateWidget
 from django.core.exceptions import ValidationError
@@ -136,11 +136,47 @@ class PatientForm(ModelForm):
 #     'target': forms.Select(attrs={'class': 'form-control'}, choices=((True, 'True'), (False, 'False'))),
 # }
 
+class VitalsForm(forms.ModelForm):
+    class Meta:
+        model = PatientVitals
+        fields = ['temperature', 'blood_pressure', 'heart_rate', 'respiratory_rate']
+        widgets = {
+            'temperature': forms.NumberInput(attrs={'class': 'form-control'}),
+            'blood_pressure': forms.NumberInput(attrs={'class': 'form-control'}),
+            'heart_rate': forms.NumberInput(attrs={'class': 'form-control'}),
+            'respiratory_rate': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+        
+    def clean_temperature(self):
+        temperature = self.cleaned_data.get('temperature')
+        if temperature is not None and (temperature < 30 or temperature > 42):
+            raise forms.ValidationError("Temperature should be between 30°C and 42°C.")
+        return temperature
+
+    def clean_blood_pressure(self):
+        blood_pressure = self.cleaned_data.get('blood_pressure')
+        if blood_pressure is not None and (not isinstance(blood_pressure, (int, float)) or blood_pressure < 60 or blood_pressure > 220):
+            raise forms.ValidationError("Blood pressure should be a numeric value between 60 mm Hg and 220 mm Hg.")
+        return blood_pressure
+
+    def clean_heart_rate(self):
+        heart_rate = self.cleaned_data.get('heart_rate')
+        if heart_rate is not None and (heart_rate < 40 or heart_rate > 200):
+            raise forms.ValidationError("Heart rate should be between 40 bpm and 200 bpm.")
+        return heart_rate
+
+    def clean_respiratory_rate(self):
+        respiratory_rate = self.cleaned_data.get('respiratory_rate')
+        if respiratory_rate is not None and (respiratory_rate < 10 or respiratory_rate > 40):
+            raise forms.ValidationError("Respiratory rate should be between 10 breaths/min and 40 breaths/min.")
+        return respiratory_rate
+
+
 class PatientDetailsForm(forms.ModelForm):
     class Meta:
         model = PatientDetails
 
-        fields = ['temperature', 'blood_pressure', 'heart_rate', 'respiratory_rate', 'age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg', 'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal']
+        fields = ['age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg', 'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal']
         widgets = {
             'temperature': forms.NumberInput(attrs={'class': 'form-control'}),
             'blood_pressure': forms.NumberInput(attrs={'class': 'form-control'}),

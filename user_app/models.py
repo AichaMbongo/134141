@@ -64,11 +64,7 @@ class PatientDetails(models.Model):
     )
     patient = models.OneToOneField(Patient, on_delete=models.CASCADE)
     age = models.IntegerField(null=True, blank=True)
-    # Vitals measured by the nurse
-    temperature = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    blood_pressure = models.CharField(max_length=10, null=True, blank=True)
-    heart_rate = models.IntegerField(null=True, blank=True)
-    respiratory_rate = models.IntegerField(null=True, blank=True)
+  
 
     # sex = models.BooleanField(null=True, blank=True)
     sex = models.CharField(max_length=1, choices=GENDER_CHOICES,null=True, blank=True)
@@ -92,6 +88,17 @@ class PatientDetails(models.Model):
     target = models.BooleanField(null=True, blank=True)
     dateModified = models.DateTimeField(null=True, blank=True)
 
+    def __str__(self):
+        return f"{self.patient.firstName} {self.patient.lastName} Details"
+
+class PatientVitals(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+  # Vitals measured by the nurse
+    temperature = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    blood_pressure = models.IntegerField(null=True, blank=True)
+    heart_rate = models.IntegerField(null=True, blank=True)
+    respiratory_rate = models.IntegerField(null=True, blank=True)
+    dateModified = models.DateTimeField(null=True, blank=True)
     def __str__(self):
         return f"{self.patient.firstName} {self.patient.lastName} Details"
     
@@ -139,6 +146,7 @@ class Profile(models.Model):
         ('secretary', 'Secretary'),
         ('nurse', 'Nurse'),
         ('doctor', 'Doctor'),
+        ('labTech', 'Lab Technician'),
         ('unassigned', 'Unassigned'),
     ]
     role = models.CharField(max_length=12, choices=ROLE_CHOICES, default= "unassigned")

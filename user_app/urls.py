@@ -25,6 +25,7 @@ urlpatterns = [
     path('view_health_records/<int:patient_id>/', views.view_health_records, name='view_health_records'),
     path('predict_health_records/<int:patient_id>/', views.predict_health_records, name='predict_health_records'),
     path('fill_patient_details/<int:patient_id>/', views.fill_patient_details, name='fill_patient_details'),
+    path('vitals/<int:patient_id>/', views.vitals, name='vitals'),
     path('index/', views.index, name='index'),
     path('result_pdf/', views.result_pdf, name='result_pdf'),
     path('users_csv/', views.users_csv, name='users_csv'),

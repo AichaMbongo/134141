@@ -5,7 +5,7 @@ from django.template import loader
 from .models import Profile, Patient,CustomUser 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
-from .forms import RegisterUserForm, PatientForm, UpdateUserForm, ProfilePicForm, PatientDetailsForm, DoctorPatientRelForm, AppointmentForm
+from .forms import RegisterUserForm, PatientForm, UpdateUserForm, ProfilePicForm, PatientDetailsForm, DoctorPatientRelForm, AppointmentForm, VitalsForm
 from django.http import HttpResponseRedirect
 from django import forms
 from django.contrib.auth.models import User
@@ -22,7 +22,7 @@ from django.utils.safestring import mark_safe
 import joblib
 from django.urls import reverse
 from .forms import TreatmentPlanForm
-from .models import TreatmentPlan, Appointment, PatientDetails, PredictionResult
+from .models import TreatmentPlan, Appointment, PatientDetails, PredictionResult, PatientVitals
 from django.utils.html import linebreaks
 from django.db.models import Count
 from datetime import timedelta
@@ -446,7 +446,32 @@ def view_health_records(request, patient_id):
     return render(request, 'view_health_records.html', {'patient_details': patient_details, 'form':form})
 
 
+@login_required(login_url='login')    
+def vitals(request, patient_id):
+    
+    patient_vitals = PatientVitals(patient_id=patient_id)
+    patient = get_object_or_404(Patient, id=patient_id)
+            # Retrieve the most recent PatientVitals instance or create a new one
+    patient_vitals = PatientVitals.objects.filter(patient_id=patient_id).order_by('-dateModified').first()    
+    if request.method == 'POST':
+        form = VitalsForm(request.POST, instance=patient_vitals)
+        if form.is_valid():
+             # Set the dateModified field to the current time
+            patient_vitals.dateModified = timezone.now()
 
+            # Save the form data to the PatientVitals model
+            form.save()
+           
+            messages.success(request, f"{patient}'s Vital information saved successfully.")
+            
+            return redirect(reverse('vitals', args=[patient_id]))
+        else:
+            messages.error(request, 'Invalid form data. Please check the form.')
+
+    else:
+        form = VitalsForm(instance=patient_vitals)
+
+    return render(request, 'vitals.html', {'patient_vitals': patient_vitals, 'patient':patient, 'form': form, 'patient_id':patient_id})
 
 
 
