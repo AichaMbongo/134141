@@ -1,0 +1,131 @@
+
+{% extends 'base.html' %}  <!-- Adjust the base template as needed -->
+{% block title %}
+  Edit Health Records
+{% endblock %}
+{% block content %}
+
+<h3 class="custom-h1">records for {{ form.instance.patient.id }}</h3>
+<!-- Your HTML template code here -->
+
+<form method="post" action="{% url 'heart_disease_prediction' patient_id %}">
+   
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+<!-- Prediction Result Section -->
+<!-- heart_disease_prediction.html -->
+
+{% if prediction_instance %}
+<div class="col-md-6">
+    <div class="card shadow">
+        <div class="card-header bg-success text-white text-center {% if prediction_instance.prediction == 'pos' %} bg-danger text-white{% elif prediction_instance.prediction == 'neg' %} bg-success text-white{% else %} bg-warning text-dark{% endif %}">
+            <h2 class="mb-0 display-5 font-weight-bold">Prediction Result</h2>
+        </div>
+        <div class="card-body custom-background1">
+            <h3>The patient {{ patient.firstName }} is at {{ prediction_instance.prediction }} heart disease.</h3>
+
+
+            <!-- Display additional details or customize the display as needed -->
+            <!-- <h4>Details:</h4>
+            <p>Age: {{ prediction_instance.age }}</p>
+            <p>Sex: {% if prediction_instance.sex == 0 %}Female{% else %}Male{% endif %}</p>
+            <p>Chest Pain Type: Type {{ prediction_instance.cp }}</p>
+            <p>Resting Blood Pressure: {{ prediction_instance.trestbps }}</p>
+            <p>Serum Cholesterol Level: {{ prediction_instance.chol }}</p>
+            <p>Fasting Blood Sugar: {% if prediction_instance.fbs == 0 %}No{% else %}Yes{% endif %}</p>
+            <p>Resting Electrocardiographic Results: Type {{ prediction_instance.restecg }}</p>
+            <p>Maximum Heart Rate Achieved: {{ prediction_instance.thalach }}</p>
+            <p>Exercise-induced Angina: {% if prediction_instance.exang == 0 %}No{% else %}Yes{% endif %}</p>
+            <p>ST Depression Induced by Exercise Relative to Rest: {{ prediction_instance.oldpeak }}</p>
+            <p>Slope of the Peak Exercise ST Segment: Type {{ prediction_instance.slope }}</p>
+            <p>Number of Major Vessels Colored by Fluoroscopy: {{ prediction_instance.ca }}</p>
+            <p>Thalassemia Type: Type {{ prediction_instance.thal }}</p> -->
+            <!-- ... (other details) -->
+
+            <table class="table table-bordered mt-4">
+                <thead>
+                    <tr>
+                        <th>Test Name</th>
+                        <th>Result</th>
+                        <th>Purpose of the Test</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Exercise-induced Angina</td>
+                        <td>{% if prediction_instance.exang == 1 %}<b>Result:</b> Present <br/><b>What it means:</b>{% else %}<b>Result:</b> Absent <br/><b>What it means:</b>{% endif %}</td>
+                        <td>Tests for Exercise Induced Angina (pain in chest during exercise)</td>
+                    </tr>
+                    <tr>
+                        <td>ST Depression Induced by Exercise Relative to Rest</td>
+                        <td>{% if prediction_instance.oldpeak == 0 %}<b>Result:</b>  No unusual change during exercise, <br/><b>What it means:</b>  a good sign.{% else %}<b>Result:</b> Elevated. <br/><b>What it means:</b> Indicates some changes, may need closer examination for optimal heart health.{% endif %}</td>
+                        <td>Measures how your heart's electrical activity changes during exercise</td>
+                    </tr>
+                    <tr>
+                        <td>Slope of the Peak Exercise ST Segment</td>
+                        <td>{% if prediction_instance.slope == 1 %}<b>Result:</b>  Upsloping <br/><b>What it means:</b>  Usually a good sign.{% elif prediction_instance.slope == 2 %}<b>Result:</b> Flat  <br/><b>What it means:</b>May need further checking.{% elif prediction_instance.slope == 3 %}<b>Result:</b> Downsloping: <br/><b>What it means:</b> Might indicate potential issues, needs careful evaluation for a healthy heart.{% endif %}</td>
+                        <td>Observes the pattern of the heart's electrical activity during exercise</td>
+                    </tr>
+                    <tr>
+                        <td>Number of Major Vessels Colored by Fluoroscopy</td>
+                        <td>{% if prediction_instance.ca == 0 or prediction_instance.ca == 1 %}<b>Result:</b> 0 or 1 <br/><b>What it means:</b>Indicates potential issues, needs careful evaluation for a healthy heart.{% elif prediction_instance.ca > 1 and prediction_instance.ca <= 3 %}<b>Result:</b> High blood vessel count observed <br/><b>What it means:</b>  considered a positive indicator for heart health.{% endif %}</td>
+                        <td>Observes the Number of major vessels (0-3). A higher count for ca is often considered a positive indicator for heart health.</td>
+                    </tr>
+                    <tr>
+                        <td>Chest Pain Type</td>
+                        <td>{% if prediction_instance.cp == 1 %}<b>Result:</b> 1. Atypical Angina: <br/><b>What it means:</b> Different kind of chest pain. <br/> - What to Know: Might suggest a heart issue, needs checking.{% elif prediction_instance.cp == 2 %}<b>Result:</b> 2. Non-Anginal Pain: <br/><b>What it means:</b> Chest pain not related to the heart. <br/> - What to Know: Investigate to find out why you're feeling discomfort.{% elif prediction_instance.cp == 3 %}<b>Result:</b> 3. Asymptomatic: <b>What it means:</b>  No chest pain. <br/>- What to Know: Generally good, but it's important to check everything just in case.{% endif %}</td>
+                        <td>Observes the Chest Pain type (0: Typical angina, 1: Atypical angina, 2: Non-anginal pain, 3: Asymptomatic).</td>
+                    </tr>
+                    <tr>
+                        <td>Resting Blood Pressure</td>
+                        <td>{% if prediction_instance.trestbps > 125 %}<b>Result:</b> Higher than 125mm Hg <br/><b>What it means:</b>  blood pressure not within the normal range is associated with higher risks of cardiovascular diseases. check everything just in case.{% else %}<b>Result:</b> Within the normal range. <br/><b>What it means:</b> Good indicator of heart health.{% endif %}</td>
+                        <td>Observes the blood pressure. A healthy blood pressure reading is typically less than 125 over 80.</td>
+                    </tr>
+                    <tr>
+                        <td>Serum Cholesterol Level</td>
+                        <td>{% if prediction_instance.chol < 200 %}<b>Result:</b> Within the normal range. <br/><b>What it means:</b> Good indicator of heart health.{% elif prediction_instance.chol >= 200 and prediction_instance.chol <= 239 %}<b>Result:</b> Borderline high. <br/><b>What it means:</b> Risk for heart issues.{% else %}<b>Result:</b> High. <br/><b>What it means:</b>Risk for heart issues.{% endif %}</td>
+                        <td>Observes the level of cholesterol in the blood.</td>
+                    </tr>
+                    <tr>
+                        <td>Fasting Blood Sugar</td>
+                        <td>{% if prediction_instance.fbs <= 120 %}<b>Result:</b> Normal Level. <br/><b>What it means:</b>Indicator of good heart health.{% else %}<b>Result:</b> Elevated Level. <br/><b>What it means:</b>Indicates elevated blood sugar. Elevated levels may relate to conditions like diabetes, affecting heart health.{% endif %}</td>
+                        <td>Observes the amount of glucose in your blood after an overnight fast.</td>
+                    </tr>
+                    <tr>
+                        <td>Resting Electrocardiographic Results</td>
+                        <td>{% if prediction_instance.restecg == 0 %}<b>Result:</b> Normal <br/><b>What it means:</b>Positive for heart health.{% else %}<b>Result:</b> Abnormal Results (1 and 2) <br/><b>What it means:</b> May signal potential issues. May relate to conditions like diabetes, affecting heart health.{% endif %}</td>
+                        <td>Checks for abnormalities like ST-T wave (1) or ventricular hypertrophy (2) suggest underlying heart conditions needing further investigation or management.</td>
+                    </tr>
+                    <tr>
+                        <td>Maximum Heart Rate Achieved</td>
+                        <td>{% if prediction_instance.thalach > 140 %}<b>Result:</b> More than 140 <br/><b>What it means:</b> more likely to have heart disease.{% else %}<b>Result:</b> Healthy range.{% endif %}</td>
+                        <td>Checks for maximum heart rate achieved.</td>
+                    </tr>
+                    <tr>
+                        <td>Final Prediction</td>
+                        <td>{% if prediction_instance.prediction == 0 %}<b>Result:</b> Less chance of heart attack.{% else %}<b>Result:</b> More chance of heart attack.{% endif %}</td>
+                        <td>Checks for risk of getting a heart attack.</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            {% if error %}
+            <div class="alert alert-danger mt-4" role="alert">
+                <h2>API Error: {{ error }}</h2>
+            </div>
+        {% endif %}
+    </div>
+</div>
+</div>
+{% endif %}
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>
+
+{% endblock %}

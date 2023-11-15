@@ -97,16 +97,16 @@
             </table>
     
             <!-- Add a button to edit health records -->
-            <a href="{% url 'predict_health_records' patient_details.patient.id %}" class="btn btn-primary">Analyze Health Records</a>
+            <a href="{% url 'heart_disease_prediction' heart_disease_prediction.patient.id %}" class="btn btn-primary">Analyze Health Records</a>
           </div>
         </div>
       {% else %}
         <div class="alert alert-success" role="alert">
-          No previous records
+          No previous records for {{ form.instance.patient.firstName }}
         </div>
     
         <!-- Form for filling in patient details -->
-        <form method="POST" action="{% url 'view_health_records' patient_id=patient_id %}">
+        <form method="POST" action="{% url 'heart_disease_prediction' patient_id=patient_id %}">
           {% csrf_token %}
           {{ form.as_p }}
           <button type="submit" class="btn btn-primary">Submit</button>

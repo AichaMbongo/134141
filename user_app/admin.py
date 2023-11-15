@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User, Group
-from .models import Profile, CustomUser, Patient, PatientDetails, DoctorPatientRel, TreatmentPlan, Appointment, PredictionResult
+from .models import Profile, CustomUser, Patient, DoctorPatientRel, TreatmentPlan, Appointment, PredictionResult, HeartDiseasePrediction
 # from django.contrib.admin import AdminSite
 # from two_factor.admin import AdminSiteOTPRequiredMixin
 
@@ -31,10 +31,13 @@ admin.site.unregister(User)
 # class PatientInline(admin.StackedInline):
 #     model = PatientDetails
 
-class PatientDetailsInline(admin.StackedInline):  # Use TabularInline for a more compact display
-    model = PatientDetails
+# class PatientDetailsInline(admin.StackedInline):  # Use TabularInline for a more compact display
+#     model = PatientDetails
     
-    
+class HeartDiseasePredictionInline(admin.StackedInline):  # Use TabularInline for a more compact display
+    model = HeartDiseasePrediction 
+    list_display = ['id', 'age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg', 'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal', 'prediction', 'interpretation']
+  
 
 
 class TreatmentInline(admin.StackedInline):  # Use TabularInline for a more compact display
@@ -47,7 +50,7 @@ class PredictionInline(admin.StackedInline):  # Use TabularInline for a more com
 
 class PatientAdmin(admin.ModelAdmin):
     model = Patient
-    inlines = [PatientDetailsInline, TreatmentInline, PredictionInline]  # Use the modified inline
+    inlines = [HeartDiseasePredictionInline, TreatmentInline, PredictionInline]  # Use the modified inline
     list_display = ['firstName', 'lastName', 'email', 'phoneNo', 'sex']
     search_fields = ['firstName', 'lastName', 'email']
 

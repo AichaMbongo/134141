@@ -47,53 +47,6 @@ class Patient(models.Model):
         return f"{self.firstName} {self.lastName}"
 
 
-class PatientDetails(models.Model):
-    GENDER_CHOICES = (
-        ('0', 'Male'),
-        ('1', 'Female'),
-    )
-
-    CHOICES = (
-        ('0', '  less than 120 mg/dl'),
-        ('1', '  greater than 120 mg/dl'),
-    )
-
-    EXANG = (
-        ('0', 'Absence'),
-        ('1', 'Presence'),
-    )
-    patient = models.OneToOneField(Patient, on_delete=models.CASCADE)
-    age = models.IntegerField(null=True, blank=True)
-    # Vitals measured by the nurse
-    temperature = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    blood_pressure = models.CharField(max_length=10, null=True, blank=True)
-    heart_rate = models.IntegerField(null=True, blank=True)
-    respiratory_rate = models.IntegerField(null=True, blank=True)
-
-    # sex = models.BooleanField(null=True, blank=True)
-    sex = models.CharField(max_length=1, choices=GENDER_CHOICES,null=True, blank=True)
-
-    def get_sex_display(self):
-        return dict(self.GENDER_CHOICES).get(self.sex, '')
-    cp = models.IntegerField(null=True, blank=True)
-    trestbps = models.IntegerField(null=True, blank=True)
-    chol = models.IntegerField(null=True, blank=True)
-    def get_fbs_display(self):
-        return dict(self.CHOICES).get(self.fbs, '')
-    fbs  = models.CharField(max_length=1, choices=CHOICES,null=True, blank=True)
-    restecg = models.IntegerField(null=True, blank=True)
-    thalach = models.IntegerField(null=True, blank=True)
-    #  exang= models.BooleanField(null=True, blank=True)
-    exang = models.CharField(max_length=1, choices=EXANG,null=True, blank=True)
-    oldpeak = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    slope = models.IntegerField(null=True, blank=True)
-    ca = models.IntegerField(null=True, blank=True)
-    thal = models.IntegerField(null=True, blank=True)
-    target = models.BooleanField(null=True, blank=True)
-    dateModified = models.DateTimeField(null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.patient.firstName} {self.patient.lastName} Details"
     
 class TreatmentPlan(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
@@ -120,7 +73,7 @@ def create_or_update_patient_details(sender, instance, created, **kwargs):
         created: A boolean indicating whether the instance was just created.
     """
     # Get or create the associated PatientDetails instance
-    patient_details, created = PatientDetails.objects.get_or_create(patient=instance)
+    patient_details, created = HeartDiseasePrediction.objects.get_or_create(patient=instance)
 
     # Provide a default value for dob if it's not set
 
@@ -222,3 +175,110 @@ class PredictionResult(models.Model):
     def __str__(self):
         return f"{self.patient.firstName}'s {self.test} Result"
     
+
+class HeartDiseasePrediction(models.Model):
+    GENDER_CHOICES = (
+        (0, 'Male'),
+        (1, 'Female'),
+    )
+
+    CHOICES = (
+        (0, 'less than 120 mg/dl'),
+        (1, 'greater than 120 mg/dl'),
+    )
+
+    EXANG = (
+        (0, 'Absence'),
+        (1, 'Presence'),
+    )
+    # patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    patient = models.OneToOneField(Patient, on_delete=models.CASCADE)
+  
+    age = models.IntegerField(null=True, blank=True)
+    # Vitals measured by the nurse
+    temperature = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    blood_pressure = models.CharField(max_length=10, null=True, blank=True)
+    heart_rate = models.IntegerField(null=True, blank=True)
+    respiratory_rate = models.IntegerField(null=True, blank=True)
+
+    # sex = models.BooleanField(null=True, blank=True)
+    sex = models.IntegerField(max_length=1, choices=GENDER_CHOICES,null=True, blank=True)
+
+    def get_sex_display(self):
+        return dict(self.GENDER_CHOICES).get(self.sex, '')
+    cp = models.IntegerField(null=True, blank=True)
+    trestbps = models.IntegerField(null=True, blank=True)
+    chol = models.IntegerField(null=True, blank=True)
+    def get_fbs_display(self):
+        return dict(self.CHOICES).get(self.fbs, '')
+    fbs  = models.IntegerField(max_length=1, choices=CHOICES,null=True, blank=True)
+    restecg = models.IntegerField(null=True, blank=True)
+    thalach = models.IntegerField(null=True, blank=True)
+    #  exang= models.BooleanField(null=True, blank=True)
+    exang = models.IntegerField(max_length=1, choices=EXANG,null=True, blank=True)
+    oldpeak = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    slope = models.IntegerField(null=True, blank=True)
+    ca = models.IntegerField(null=True, blank=True)
+    thal = models.IntegerField(null=True, blank=True)
+    prediction = models.CharField(max_length=10)
+    interpretation = models.TextField()
+
+    # target = models.BooleanField(null=True, blank=True)
+    dateModified = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+         return f"{self.patient.firstName} {self.patient.lastName} Details"
+                                    
+    
+# class PatientDetails(models.Model):
+#     GENDER_CHOICES = (
+#         ('0', 'Male'),
+#         ('1', 'Female'),
+#     )
+
+#     CHOICES = (
+#         ('0', '  less than 120 mg/dl'),
+#         ('1', '  greater than 120 mg/dl'),
+#     )
+
+#     EXANG = (
+#         ('0', 'Absence'),
+#         ('1', 'Presence'),
+#     )
+
+#     TARGET = (
+#         ('0', 'neg'),
+#         ('1', 'Pos'),
+#     )
+#     patient = models.OneToOneField(Patient, on_delete=models.CASCADE)
+#     age = models.IntegerField(null=True, blank=True)
+#     # Vitals measured by the nurse
+#     temperature = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+#     blood_pressure = models.CharField(max_length=10, null=True, blank=True)
+#     heart_rate = models.IntegerField(null=True, blank=True)
+#     respiratory_rate = models.IntegerField(null=True, blank=True)
+
+#     # sex = models.BooleanField(null=True, blank=True)
+#     sex = models.CharField(max_length=1, choices=GENDER_CHOICES,null=True, blank=True)
+
+#     def get_sex_display(self):
+#         return dict(self.GENDER_CHOICES).get(self.sex, '')
+#     cp = models.IntegerField(null=True, blank=True)
+#     trestbps = models.IntegerField(null=True, blank=True)
+#     chol = models.IntegerField(null=True, blank=True)
+#     def get_fbs_display(self):
+#         return dict(self.CHOICES).get(self.fbs, '')
+#     fbs  = models.CharField(max_length=1, choices=CHOICES,null=True, blank=True)
+#     restecg = models.IntegerField(null=True, blank=True)
+#     thalach = models.IntegerField(null=True, blank=True)
+#     #  exang= models.BooleanField(null=True, blank=True)
+#     exang = models.CharField(max_length=1, choices=EXANG,null=True, blank=True)
+#     oldpeak = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+#     slope = models.IntegerField(null=True, blank=True)
+#     ca = models.IntegerField(null=True, blank=True)
+#     thal = models.IntegerField(null=True, blank=True)
+#     target = models.CharField(max_length=1, choices=TARGET,null=True, blank=True)
+#     dateModified = models.DateTimeField(null=True, blank=True)
+
+#     def __str__(self):
+#         return f"{self.patient.firstName} {self.patient.lastName} Details"

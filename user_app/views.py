@@ -5,7 +5,7 @@ from django.template import loader
 from .models import Profile, Patient,CustomUser 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
-from .forms import RegisterUserForm, PatientForm, UpdateUserForm, ProfilePicForm, PatientDetailsForm, DoctorPatientRelForm, AppointmentForm
+from .forms import RegisterUserForm, PatientForm, UpdateUserForm, ProfilePicForm,  DoctorPatientRelForm, AppointmentForm, HeartDiseasePredictionForm
 from django.http import HttpResponseRedirect
 from django import forms
 from django.contrib.auth.models import User
@@ -22,7 +22,7 @@ from django.utils.safestring import mark_safe
 import joblib
 from django.urls import reverse
 from .forms import TreatmentPlanForm
-from .models import TreatmentPlan, Appointment, PatientDetails, PredictionResult
+from .models import TreatmentPlan, Appointment, PredictionResult, HeartDiseasePrediction
 from django.utils.html import linebreaks
 from django.db.models import Count
 from datetime import timedelta
@@ -37,7 +37,7 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import Paragraph
-
+import requests
 import csv
 
 # ... (other imports)
@@ -452,16 +452,31 @@ def view_health_records(request, patient_id):
 
 @login_required(login_url='login')    
 def view_health_records(request, patient_id):
-    try:
-        patient_details = PatientDetails.objects.get(id=patient_id)
-    except PatientDetails.DoesNotExist:
-        patient_details = None
-        form = PatientDetailsForm()  # Create an instance of the form
+    patient = get_object_or_404(Patient, id=patient_id)
+    heart_disease_prediction = None
+
+    if request.method == 'POST':
+        # Process the form submission
+        try:
+            heart_disease_prediction  = HeartDiseasePrediction.objects.get(patient_id=patient_id)
+            form = HeartDiseasePredictionForm(request.POST, instance=heart_disease_prediction )
+        except HeartDiseasePrediction.DoesNotExist:
+            form = HeartDiseasePredictionForm(request.POST)
+
+        if form.is_valid():
+            prediction_instance = form.save(commit=False)
+            prediction_instance.patient = patient
+            prediction_instance.save()
+            return redirect('view_health_records', patient_id=patient_id)
     else:
-        form = None
+        # Display the form for the first time
+        try:
+            heart_disease_prediction  = HeartDiseasePrediction.objects.get(patient_id=patient_id)
+            form = HeartDiseasePredictionForm(instance=heart_disease_prediction )
+        except HeartDiseasePrediction.DoesNotExist:
+            form = HeartDiseasePredictionForm()
 
-    return render(request, 'view_health_records.html', {'patient_details': patient_details, 'form': form, 'patient_id': patient_id})
-
+    return render(request, 'view_health_records.html', {'heart_disease_prediction ': heart_disease_prediction , 'form': form, 'patient_id': patient_id})
 
 @login_required(login_url='login')    
 def predict_health_records(request, patient_id):
@@ -504,7 +519,7 @@ def predict_health_records(request, patient_id):
 
         thalach_result = "More than 140 \nmore likely to have heart disease." if data['thalach'] > 140 else "Healthy range."
 
-        target_result = "Low chance of heart attack" if data['target'] == 0 else "High chance of heart attack"
+        # target_result = "Low chance of heart attack" if data['target'] == 0 else "High chance of heart attack"
 
         result_message = [
             {'test': 'Exang', 'result': exang_result, 'purpose': 'tests for Exercise Induced Angina (pain \nin chest during exercise)'},
@@ -517,7 +532,7 @@ def predict_health_records(request, patient_id):
             {'test': 'FBS', 'result': fbs_result, 'purpose': 'Observes the amount of glucose in \nyour blood after an overnight fast'},
             {'test': 'Restecg', 'result': restecg_result, 'purpose': 'Checks for Abnormalities like ST-T wave(1) \nor ventricular hypertrophy (2) suggest \nunderlying heart conditions needing further \ninvestigation or management'},
             {'test': 'Thalach', 'result': thalach_result, 'purpose': 'Checks for maximum heart rate achieved'},
-            {'test': 'Prediction Outcome', 'result': target_result, 'purpose': 'Checks chances of getting \na heart attack'},
+            # {'test': 'Prediction Outcome', 'result': target_result, 'purpose': 'Checks chances of getting \na heart attack'},
         ]
 
         return result_message
@@ -531,12 +546,12 @@ def predict_health_records(request, patient_id):
             return "High"
 
     if request.method == 'POST':
-        form = PatientDetailsForm(request.POST, instance=patient_details)
+        form = HeartDiseasePredictionForm(request.POST, instance=patient_details)
         if form.is_valid():
             form_data = form.cleaned_data
+            print(form_data)  
 
             # Extract the features for prediction
-            scv = joblib.load('C:/Users/HP/Desktop/test/134141/user_app/saved_model.sav')
             features_for_prediction = [
                 form_data['age'], form_data['sex'], form_data['cp'], form_data['trestbps'], form_data['chol'],
                 form_data['fbs'], form_data['restecg'], form_data['thalach'],
@@ -544,45 +559,68 @@ def predict_health_records(request, patient_id):
                 form_data['ca'], form_data['thal']
             ]
 
-            # Check if the StackingCVClassifier is fitted
-            if not hasattr(scv, 'is_fitted') or not scv.is_fitted:
-                # Fit the model with appropriate arguments
-                # You may need to modify the fit arguments based on your model
-                scv.fit(X_train, y_train)
 
-            # Make the prediction using your model
-            prediction = scv.predict([features_for_prediction])[0]
+            # Prepare the data for the R API
+            r_api_data = {
+                "arg_age": features_for_prediction[0],
+                "arg_sex": features_for_prediction[1],
+                "arg_cp": features_for_prediction[2],
+                "arg_trestbps": features_for_prediction[3],
+                "arg_chol": features_for_prediction[4],
+                "arg_fbs": features_for_prediction[5],
+                "arg_restecg": features_for_prediction[6],
+                "arg_thalach": features_for_prediction[7],
+                "arg_exang": features_for_prediction[8],
+                "arg_oldpeak": features_for_prediction[9],
+                "arg_slope": features_for_prediction[10],
+                "arg_ca": features_for_prediction[11],
+                "arg_thal": features_for_prediction[12],
+            }
 
-            # Update the 'target' field with the prediction
-            form_data['target'] = prediction
+            # Send a POST request to the R API
+            r_api_url = 'http://127.0.0.1:5022/target'
+            r_response = requests.post(r_api_url, data=r_api_data)
 
-            # Determine the result_message based on the prediction
-            result_message = generate_result_message(form_data)
+            # Process the R API response
+            r_data = r_response.json()
 
-            if prediction == 1:
-                result_messages = f"{patient.firstName} has a high chance of experiencing a heart attack. Treatment should begin immediately."
-                treatment_plan_url = reverse('treatment_plan', args=[patient.id])
-                treatment_button = f'<a href="{treatment_plan_url}" class="btn btn-danger float-right">Fill Treatment Plan</a>'
-                result_messages += f'<br/>{treatment_button}'
-            else:
-                result_message += f"{patient.firstName} has a low chance of experiencing a heart attack.<br/><br/> Ensure a healthy lifestyle is maintained and checkups are done yearly."
-            messages.success(request, mark_safe(f" Prediction Outcome:<br/> {result_messages}"))
-            # Render the result template with the detailed result message
+            # Check the R API response and update the view accordingly
+            # You may need to modify this part based on the structure of the R API response
+            # Check the R API response and update the view accordingly
+            # You may need to modify this part based on the structure of the R API response
+            if 'prediction' in r_data:
+                prediction = r_data['prediction']
+                # Update the 'target' field with the prediction
+                form_data['target'] = prediction
+
+                # Determine the result_message based on the prediction
+                # result_message = "Default result message if the condition is not met"
+                result_message = generate_result_message(form_data)
+
+                if prediction == 1:
+                    result_messages = f"{patient.firstName} has a high chance of experiencing a heart attack. Treatment should begin immediately."
+                    treatment_plan_url = reverse('treatment_plan', args=[patient.id])
+                    treatment_button = f'<a href="{treatment_plan_url}" class="btn btn-danger float-right">Fill Treatment Plan</a>'
+                    result_messages += f'<br/>{treatment_button}'
+                else:
+                    result_messages += f"{patient.firstName} has a low chance of experiencing a heart attack.<br/><br/> Ensure a healthy lifestyle is maintained and checkups are done yearly."
+                messages.success(request, mark_safe(f" Prediction Outcome:<br/> {result_messages}"))
 
             form.save()
              # Save each row of the table data into the PredictionResult model
             # Save each row of the table data into the PredictionResult model
-            for result in result_message:
-                PredictionResult.objects.create(
-                    patient=patient,
-                    test=result['test'],
-                    result=result['result'],
-                    purpose=result['purpose']
-                )
+            # for result in result_message:
+            #     PredictionResult.objects.create(
+            #         patient=patient,
+            #         test=result['test'],
+            #         result=result['result'],
+            #         purpose=result['purpose']
+            #     )
 
           
             return render(request, 'patientPrediction.html', {'patient': patient, 'result_message': result_message})
-        
+            # return render(request, 'patientPrediction.html', {'patient': patient})
+      
       
 
     else:
@@ -652,13 +690,13 @@ def index(request):
     print("Gender Count:", gender_count)
 
     # Age Distribution data
-    age_data = PatientDetails.objects.values_list('age', flat=True).exclude(age=None)
+    age_data = HeartDiseasePrediction.objects.values_list('age', flat=True).exclude(age=None)
     age_labels = list(range(min(age_data), max(age_data) + 1))
     age_values = [age_data.count() for _ in age_labels]
 
 
     # Health Condition Distribution Data
-    health_condition_data = PatientDetails.objects.values('target').annotate(count=Count('target'))
+    health_condition_data = HeartDiseasePrediction.objects.values('target').annotate(count=Count('target'))
     health_condition_labels = ['Healthy', 'Not Healthy']
     health_condition_count = [entry['count'] for entry in health_condition_data]
 
@@ -787,3 +825,60 @@ def appointment_csv(request):
         writer.writerow([patient.patient, patient.doctor, patient.date, patient.time, patient.purpose])
 
     return response  # Move this line outside the for loop
+
+
+def heart_disease_prediction(request, patient_id):
+    form = HeartDiseasePredictionForm()
+    patient = get_object_or_404(Patient, id=patient_id)
+
+    if request.method == 'POST':
+        form = HeartDiseasePredictionForm(request.POST)
+
+        if form.is_valid():
+            # Get form data
+            form_data = form.cleaned_data
+
+            # Set the API endpoint URL
+            api_url = 'http://127.0.0.1:5022/target'
+
+            # Make a GET request to the Plumber API
+            response = requests.get(api_url, params=form_data)
+
+            # Process the response
+            if response.status_code == 200:
+                data = response.json()
+
+                # Create an instance of HeartDiseasePrediction model
+                prediction_instance = HeartDiseasePrediction(
+                    age=form_data['arg_age'],
+                    sex=form_data['arg_sex'],
+                    cp=form_data['arg_cp'],
+                    trestbps=form_data['arg_trestbps'],
+                    chol=form_data['arg_chol'],
+                    fbs=form_data['arg_fbs'],
+                    restecg=form_data['arg_restecg'],
+                    thalach=form_data['arg_thalach'],
+                    exang=form_data['arg_exang'],
+                    oldpeak=form_data['arg_oldpeak'],
+                    slope=form_data['arg_slope'],
+                    ca=form_data['arg_ca'],
+                    thal=form_data['arg_thal'],
+                    prediction=data[0],  # Assuming the prediction is in the first element of data
+                    patient=patient,
+                )
+
+                # Save the instance to the database
+                prediction_instance.save()
+
+                # Fetch the saved instance from the database
+                saved_instance = HeartDiseasePrediction.objects.get(id=prediction_instance.id)
+
+                return render(request, 'heart_disease_prediction.html', {'prediction_instance': saved_instance, 'form': form, 'patient_id': patient_id})
+            else:
+                # Handle API error
+                return render(request, 'heart_disease_prediction.html', {'error': 'API Error', 'form': form, 'patient_id': patient_id})
+
+    return render(request, 'heart_disease_prediction.html', {'form': form})
+
+
+
