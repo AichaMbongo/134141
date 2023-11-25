@@ -58,6 +58,16 @@
 
 
           {% endif %}
+        
+
+          {% if user.profile.role == 'labTech' %}
+
+          <li class="nav-item">
+            <a class="nav-link" href="#">Patients</a>
+       
+
+
+          {% endif %}
 
           
          
@@ -76,6 +86,10 @@
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{% url 'index' %}">Admin Dashboard</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'waiting_approval' %}">Pending approvals</a>
           </li>
 
           {% endif %}

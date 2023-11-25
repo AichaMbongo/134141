@@ -5,12 +5,13 @@ from django.contrib.auth.forms import UserChangeForm
 from django.contrib.auth.models import User
 from django import forms
 from django.forms import ModelForm
-from .models import Patient, Profile, PatientDetails, DoctorPatientRel, Appointment, User, CustomUser, PatientVitals
+from .models import Patient, Profile, PatientDetails, DoctorPatientRel, Appointment, User, CustomUser, PatientVitals, DoctorReport, LabTest
 from django.utils import timezone
 from django.contrib.admin.widgets import AdminDateWidget
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 from datetime import date
+import datetime
 
 
 
@@ -81,41 +82,15 @@ class PatientForm(ModelForm):
         widgets = {
             'firstName': forms.TextInput(attrs={'class':'form-control'}),
             'lastName': forms.TextInput(attrs={'class':'form-control'}),
+            # 'dob': forms.DateInput(attrs={'class': 'form-control', 'placeholder': 'YYYY-MM-DD'}),
             'dob': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            
             'email': forms.EmailInput(attrs={'class':'form-control'}),
             'phoneNo': forms.TextInput(attrs={'class':'form-control'}),
             'sex': forms.Select(attrs={'class':'form-control'}),            
         }
 
-    def clean_dob(self):
-        dob = self.cleaned_data.get('dob')
-        if dob:
-            today = date.today()
-            age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
-            if age < 0:
-                raise forms.ValidationError("Invalid date of birth")
-            return age
 
-    def save(self, commit=True):
-        patient = super().save(commit=False)
-
-        # Calculate age from date of birth
-        dob = self.cleaned_data.get('dob')
-        if dob:
-            today = date.today()
-            age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
-            if age < 0:
-                raise forms.ValidationError("Invalid date of birth")
-
-            # Save age to PatientDetails
-            patient_details, created = PatientDetails.objects.get_or_create(patient=patient)
-            patient_details.age = age
-            patient_details.save()
-
-        if commit:
-            patient.save()
-
-        return patient
 # class PatientDetailsForm(forms.ModelForm):
 #     class Meta:
 #         model = PatientDetails
@@ -172,7 +147,7 @@ class VitalsForm(forms.ModelForm):
         return respiratory_rate
 
 
-class PatientDetailsForm(forms.ModelForm):
+class PredictionVariablesForm(forms.ModelForm):
     class Meta:
         model = PatientDetails
 
@@ -313,3 +288,43 @@ class AppointmentForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # Populate the 'doctor' field with choices from users with the 'Doctor' role
         self.fields['doctor'].queryset = Profile.objects.filter(role='doctor')
+
+
+class DoctorReportForm(forms.ModelForm):
+    class Meta:
+        model = DoctorReport
+        fields = '__all__'
+        widgets = {
+            'report_text': forms.Textarea(attrs={'rows': 4, 'cols': 40}),
+            'exam_date': forms.DateInput(attrs={'type': 'date'}),
+            'patient': forms.HiddenInput(),  # Hide patient field as it is not editable in the report form
+            # Add widgets for other fields as needed
+        }
+
+class LabTestForm(forms.ModelForm):
+    PATIENT_STATUS_CHOICES = [
+        ('awaiting', 'Awaiting Test'),
+        ('completed', 'Test Completed'),
+    ]
+
+    test_type = forms.CharField(
+        label='Test Type',
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+    )
+
+    patient_name = forms.CharField(
+        label='Patient Name',
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+    )
+
+    status = forms.ChoiceField(
+        label='Status',
+        choices=PATIENT_STATUS_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+    )
+
+    # Add other fields as needed
+
+    class Meta:
+        model = LabTest
+        fields = ['test_type', 'patient_name', 'status']  # Add other fields as needed

@@ -36,6 +36,12 @@
                 <!-- Add specific content or links for secretaries if needed -->
                 <a class="btn btn-primary btn-lg" href="{% url 'profile' pk=user.pk %}" role="button">Click here to get started</a>
 
+                {% elif user.profile.role == 'labTech' %}
+                <p>Hello Lab Technician {{ user.username }}!</p>
+                <!-- Add specific content or links for secretaries if needed -->
+                <a class="btn btn-primary btn-lg" href="{% url 'profile' pk=user.pk %}" role="button">Click here to get started</a>
+
+
               {% elif user.profile.role == 'admin' %}
                 <p>Hello Admin {{ user.username }}!</p>
                 <!-- Add specific content or links for secretaries if needed -->

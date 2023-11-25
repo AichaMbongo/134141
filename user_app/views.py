@@ -5,7 +5,7 @@ from django.template import loader
 from .models import Profile, Patient,CustomUser 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
-from .forms import RegisterUserForm, PatientForm, UpdateUserForm, ProfilePicForm, PatientDetailsForm, DoctorPatientRelForm, AppointmentForm, VitalsForm
+from .forms import RegisterUserForm, PatientForm, UpdateUserForm, ProfilePicForm, PredictionVariablesForm, DoctorPatientRelForm, AppointmentForm, VitalsForm
 from django.http import HttpResponseRedirect
 from django import forms
 from django.contrib.auth.models import User
@@ -22,7 +22,7 @@ from django.utils.safestring import mark_safe
 import joblib
 from django.urls import reverse
 from .forms import TreatmentPlanForm
-from .models import TreatmentPlan, Appointment, PatientDetails, PredictionResult, PatientVitals
+from .models import TreatmentPlan, Appointment, PatientDetails, PredictionResult, PatientVitals, LabTest
 from django.utils.html import linebreaks
 from django.db.models import Count
 from datetime import timedelta
@@ -37,6 +37,7 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import Paragraph
+from django.views.generic.edit import FormView
 
 import csv
 
@@ -104,22 +105,27 @@ def profile(request, pk):
     #     return redirect('two_factor:setup')
 
 
+
+    
+
 def login_user(request):
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(request, username=username, password=password)
         if user is not None:
-            login(request, user)
-            messages.success(request, "You Have Been Logged In!")
-            return redirect('home')
+            if user.profile.is_approved:
+                login(request, user)
+                messages.success(request, "You Have Been Logged In!")
+                return redirect('home')
+            else:
+                messages.warning(request, "Your application is under review. Please check back within the next 48 hours.")
+                return redirect('login')
         else:
             messages.error(request, "There was an error logging in. Please Try Again...")
             return redirect('login')
     else:
         return render(request, "login.html", {})
-    
-
 
 
 
@@ -142,16 +148,10 @@ def register_user(request):
     if request.method == "POST":
         form = RegisterUserForm(request.POST)
         if form.is_valid():
-            form.save()
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password1']
-            # first_name = form.cleaned_data['first_name']
-            # second_name = form.cleaned_data['second_name']
-            # email = form.cleaned_data['email']
-            # Log in user
-            user = authenticate(username=username, password=password)
-            login(request, user)
-            messages.success(request, ("You have successfully registered! Welcome!"))
+            user = form.save(commit=False)
+            user.is_approved = False  # Newly registered users are not approved yet
+            user.save()
+            messages.success(request, ("Thank you for registering with CVDetect. We are currently reviewing your application. You will be able to login once approved, check within the next 48 hours. For any questions please contact admin@cvdtect.com. Kind regards, the CVDetect team."))
             return redirect('home')
         else:
             error_messages = []
@@ -437,13 +437,13 @@ def view_assigned_patients(request):
 @login_required(login_url='login')    
 def view_health_records(request, patient_id):
     try:
-        patient_details = PatientDetails.objects.get(id=patient_id)
-    except PatientDetails.DoesNotExist:
-        patient_details = None
+        patient_vitals = PatientVitals.objects.get(id=patient_id)
+    except PatientVitals.DoesNotExist:
+        patient_vitals = None
     else:
-        form = PatientDetailsForm()
+        form = VitalsForm()
 
-    return render(request, 'view_health_records.html', {'patient_details': patient_details, 'form':form})
+    return render(request, 'view_health_records.html', {'patient_vitals': patient_vitals, 'form':form})
 
 
 @login_required(login_url='login')    
@@ -472,6 +472,36 @@ def vitals(request, patient_id):
         form = VitalsForm(instance=patient_vitals)
 
     return render(request, 'vitals.html', {'patient_vitals': patient_vitals, 'patient':patient, 'form': form, 'patient_id':patient_id})
+
+
+
+@login_required(login_url='login')    
+def PredictionVariables(request, patient_id):
+    
+    patient_PredictionVariables = PatientDetails(patient_id=patient_id)
+    patient = get_object_or_404(Patient, id=patient_id)
+            # Retrieve the most recent PatientPredictionVariables instance or create a new one
+    patient_PredictionVariables = PatientDetails.objects.filter(patient_id=patient_id).order_by('-dateModified').first()    
+    if request.method == 'POST':
+        form = PredictionVariablesForm(request.POST, instance=patient_PredictionVariables)
+        if form.is_valid():
+             # Set the dateModified field to the current time
+            patient_PredictionVariables.dateModified = timezone.now()
+
+            # Save the form data to the PatientPredictionVariables model
+            form.save()
+           
+            messages.success(request, f"{patient}'s Vital information saved successfully.")
+            
+            return redirect(reverse('PredictionVariables', args=[patient_id]))
+        else:
+            messages.error(request, 'Invalid form data. Please check the form.')
+
+    else:
+        form = PredictionVariablesForm(instance=patient_PredictionVariables)
+
+    return render(request, 'PredictionVariables.html', {'patient_PredictionVariables': patient_PredictionVariables, 'patient':patient, 'form': form, 'patient_id':patient_id})
+
 
 
 
@@ -812,3 +842,66 @@ def appointment_csv(request):
         writer.writerow([patient.patient, patient.doctor, patient.date, patient.time, patient.purpose])
 
     return response  # Move this line outside the for loop
+
+
+# @login_required(login_url='login')  
+# def lab_technician_dashboard(request):
+#     # Retrieve the list of patients awaiting lab tests
+#     patients_awaiting_tests = LabTest.objects.filter(status='awaiting')
+
+#     # Check if the form is submitted
+#     if request.method == 'POST':
+#         prediction_form = PredictionVariablesForm(request.POST)
+
+#         # Validate the form
+#         if prediction_form.is_valid():
+#             # Process the form data and update the patient status
+#             patient_id = request.POST.get('patient_id')
+#             # Perform actions based on the submitted data
+#             # (e.g., save prediction, update status, etc.)
+            
+#             # Redirect to avoid form resubmission
+#             return redirect('lab_technician_dashboard')
+#     else:
+#         # If not a form submission, initialize an empty form
+#         prediction_form = PredictionVariablesForm()
+
+#     context = {
+#         'patients_awaiting_tests': patients_awaiting_tests,
+#         'prediction_form': prediction_form,
+#     }
+
+#     return render(request, 'lab_technician_dashboard.html', context)
+
+
+@login_required(login_url='login')  
+ 
+class lab_technician_dashboard(FormView):
+    template_name = 'lab_technician_dashboard.html'
+    form_class = PredictionVariablesForm
+    success_url = '/lab_technician_dashboard/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['patients_awaiting_tests'] = LabTest.objects.filter(status='awaiting')
+        return context
+
+    def form_valid(self, form):
+        # Process the form data and update the patient status
+        patient_id = form.cleaned_data['patient_id']
+        # Perform actions based on the submitted data
+        # (e.g., save prediction, update status, etc.)
+        
+        # Redirect to avoid form resubmission
+        return super().form_valid(form)
+    
+
+
+def waiting_approval_view(request):
+    # Retrieve users waiting for approval based on the Profile model
+    pending_users = CustomUser.objects.filter(profile__is_approved=False)
+
+    # You can add more context data if needed
+    context = {'pending_users': pending_users}
+
+    return render(request, 'admin/waiting_approval.html', context)

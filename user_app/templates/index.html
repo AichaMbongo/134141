@@ -84,7 +84,7 @@
         var roleDistributionChart = new Chart(roleDistributionCtx, {
             type: 'bar',
             data: {
-                labels: ['Admin', 'Doctor', 'Nurse', 'Secretary'],
+                labels: ['Admin', 'Doctor', 'Lab Technician', 'Secretary','Nurse' ],
                 datasets: [{
                     label: 'Role Distribution',
                     data: {{ role_data|safe }},

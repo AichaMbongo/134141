@@ -150,7 +150,8 @@ class Profile(models.Model):
         ('unassigned', 'Unassigned'),
     ]
     role = models.CharField(max_length=12, choices=ROLE_CHOICES, default= "unassigned")
-    
+    is_approved = models.BooleanField(default=True)
+
     
     phone_number = models.CharField(max_length=13, blank=True)
     specialization = models.CharField(max_length=100, blank=True, null=True)
@@ -230,3 +231,30 @@ class PredictionResult(models.Model):
     def __str__(self):
         return f"{self.patient.firstName}'s {self.test} Result"
     
+
+class DoctorReport(models.Model):
+    doctor = models.ForeignKey(User, on_delete=models.CASCADE)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    report_date = models.DateField(auto_now_add=True)
+    symptoms = models.TextField()
+    diagnosis = models.TextField()
+    # Add other fields for the doctor's report
+
+
+class LabTest(models.Model):
+    PATIENT_STATUS_CHOICES = [
+        ('awaiting', 'Awaiting Test'),
+        ('completed', 'Test Completed'),
+    ]
+
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    test_type = models.CharField(max_length=255)
+    test_date = models.DateField(auto_now_add=True)
+    patient_name = models.CharField(max_length=100)
+    # other fields...
+
+    status = models.CharField(
+        max_length=20,
+        choices=PATIENT_STATUS_CHOICES,
+        default='awaiting',
+    )

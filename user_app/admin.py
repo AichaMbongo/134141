@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User, Group
+from django.urls import path
 from .models import Profile, CustomUser, Patient, PatientDetails, DoctorPatientRel, TreatmentPlan, Appointment, PredictionResult, PatientVitals
 # from django.contrib.admin import AdminSite
 # from two_factor.admin import AdminSiteOTPRequiredMixin
@@ -52,7 +53,7 @@ class PatientAdmin(admin.ModelAdmin):
     list_display = ['firstName', 'lastName', 'email', 'phoneNo', 'sex']
     search_fields = ['firstName', 'lastName', 'email']
 
-    
+
 
 
 admin.site.register(Patient, PatientAdmin)
@@ -63,14 +64,20 @@ class ProfileInline(admin.StackedInline):
 class CustomUserAdmin(BaseUserAdmin):
     model = CustomUser
     inlines = [ProfileInline]
-    list_display = ('username', 'email', 'first_name', 'last_name', 'get_role_display', 'is_active')
+    list_display = ('username', 'email', 'first_name', 'last_name', 'get_role_display', 'is_active',  'get_is_approved')
 
     def get_role_display(self, obj):
         if hasattr(obj, 'profile') and obj.profile:
             return obj.profile.get_role_display()
         return None
 
+    def get_is_approved(self, obj):
+        if hasattr(obj, 'profile') and obj.profile:
+              return obj.profile.is_approved
+        return None
+
     get_role_display.short_description = 'Role'
+    get_is_approved.short_description = 'Is Approved'
 
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
@@ -79,9 +86,23 @@ class CustomUserAdmin(BaseUserAdmin):
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
 
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('waiting_approval/', self.waiting_approval_view, name='waiting_approval'),
+        ]
+        return custom_urls + urls
+
+    def waiting_approval_view(self, request):
+        pending_users = CustomUser.objects.filter(is_approved=False)
+        context = {'pending_users': pending_users}
+        return render(request, 'admin/waiting_approval.html', context) 
+
+
+
 # Register the CustomUserAdmin
-admin.site.register(User, CustomUserAdmin)
-     
+admin.site.register(User, CustomUserAdmin)     
 
 admin.site.register(DoctorPatientRel)
 
