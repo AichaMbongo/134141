@@ -5,7 +5,7 @@ from django.template import loader
 from .models import Profile, Patient,CustomUser 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
-from .forms import RegisterUserForm, PatientForm, UpdateUserForm, ProfilePicForm, PredictionVariablesForm, DoctorPatientRelForm, AppointmentForm, VitalsForm
+from .forms import RegisterUserForm, PatientForm, UpdateUserForm, ProfilePicForm, PredictionVariablesForm, DoctorPatientRelForm, AppointmentForm, VitalsForm, CommentsForm
 from django.http import HttpResponseRedirect
 from django import forms
 from django.contrib.auth.models import User
@@ -439,6 +439,7 @@ def view_assigned_patients(request):
         # Handle the case where the user is not a doctor
         return render(request, 'access_denied.html')
     
+   
 @login_required(login_url='login')    
 def view_health_records(request, patient_id):
     try:
@@ -451,12 +452,24 @@ def view_health_records(request, patient_id):
 
     except PatientVitals.DoesNotExist:
         most_recent_vitals = None
-        form = VitalsForm()
-        messages.warning(request, f"No health records found for patient with ID {patient_id}.")
+        comments_form = CommentsForm()
+        # messages.warning(request, f"No health records found for patient with ID PK{patient_id}AKUH.")
     else:
-        form = VitalsForm()
+        comments_form = CommentsForm()
 
-    return render(request, 'view_health_records.html', {'patient_vitals': most_recent_vitals, 'form': form})
+    if request.method == 'POST':
+            form = CommentsForm(request.POST)
+            if form.is_valid():
+                doctor_comments = form.cleaned_data['doctor_comments']
+
+                # Save the comments to the database
+                DoctorComments.objects.create(
+                    patient_vitals=most_recent_vitals,
+                    doctor=request.user,
+                    comments=doctor_comments
+                )
+
+    return render(request, 'view_health_records.html', {'patient_vitals': most_recent_vitals, 'comments_form': comments_form})
 
 @login_required(login_url='login')    
 def vitals(request, patient_id):

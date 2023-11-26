@@ -7,21 +7,46 @@
 {% endblock %}
 
 {% block content %}
-  <h2>Health Records</h2>
+  <div class="container mt-4">
+    <h2 class="mb-4">Health Records</h2>
 
-  {% if patient_vitals %}
-    <p>Patient ID: {{ patient_vitals.patient.id }}</p>
-    <p>Patient Name: {{ patient_vitals.patient.firstName }} {{ patient_vitals.patient.lastName }}</p>
-    <p>Date Recorded: {{ patient_vitals.dateModified }}</p>
+    {% if patient_vitals %}
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Patient ID: {{ patient_vitals.patient.id }}</h5>
+          <p class="card-text">Patient Name: {{ patient_vitals.patient.firstName }} {{ patient_vitals.patient.lastName }}</p>
+          <p class="card-text">Date Recorded: {{ patient_vitals.dateModified }}</p>
 
-    <h3>Vitals Information</h3>
-    <p>Temperature: {{ patient_vitals.temperature }} &#8451;</p>
-    <p>Blood Pressure: {{ patient_vitals.blood_pressure }} mmHg</p>
-    <p>Heart Rate: {{ patient_vitals.heart_rate }} bpm</p>
-    <p>Respiratory Rate: {{ patient_vitals.respiratory_rate }} breaths per minute</p>
+          <h3 class="mt-4">Vitals Information</h3>
+          <ul class="list-group">
+            <li class="list-group-item">Temperature: {{ patient_vitals.temperature }} &#8451;</li>
+            <li class="list-group-item">Blood Pressure: {{ patient_vitals.blood_pressure }} mmHg</li>
+            <li class="list-group-item">Heart Rate: {{ patient_vitals.heart_rate }} bpm</li>
+            <li class="list-group-item">Respiratory Rate: {{ patient_vitals.respiratory_rate }} breaths per minute</li>
+            <!-- Add more fields as needed -->
+          </ul>
 
-    <!-- Add more fields as needed -->
-  {% else %}
-    <p>No health records found for the specified patient.</p>
-  {% endif %}
+
+          
+          <div class="container mt-4">
+            <h3>Doctor's Comments</h3>
+            <form method="post" action="{% url 'view_health_records' patient_vitals.id %}" class="mb-4">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label for="{{ comments_form.doctor_comments.id_for_label }}">Doctor's Comments</label>
+                {{ comments_form.doctor_comments }}
+              </div>
+              <button type="submit" class="btn btn-primary">Save Comments</button>
+            </form>
+          </div>
+                    <!-- Button to Send to Lab Technicians -->
+          <a href="" class="btn btn-success mt-3">Send to Lab</a>
+        </div>
+      </div>
+    {% else %}
+      <div class="alert alert-warning mt-4" role="alert">
+        No health records found for the specified patient. Debug: {{ patient_vitals }}
+      </div>
+    {% endif %}
+  </div>
 {% endblock %}

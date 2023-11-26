@@ -148,6 +148,11 @@ class VitalsForm(forms.ModelForm):
         return respiratory_rate
 
 
+
+class CommentsForm(forms.Form):
+    doctor_comments = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control'}), label="Doctor's Comments")
+
+
 class PredictionVariablesForm(forms.ModelForm):
     class Meta:
         model = PatientDetails
