@@ -143,6 +143,7 @@ def register_user(request):
     form = RegisterUserForm()
   
 
+ 
 def register_user(request):
     form = RegisterUserForm()
     if request.method == "POST":
@@ -899,7 +900,7 @@ class lab_technician_dashboard(FormView):
 
 def waiting_approval_view(request):
     # Retrieve users waiting for approval based on the Profile model
-    pending_users = CustomUser.objects.filter(profile__is_approved=False)
+    pending_users = User.objects.filter(profile__is_approved=False)
 
     # You can add more context data if needed
     context = {'pending_users': pending_users}

@@ -150,7 +150,7 @@ class Profile(models.Model):
         ('unassigned', 'Unassigned'),
     ]
     role = models.CharField(max_length=12, choices=ROLE_CHOICES, default= "unassigned")
-    is_approved = models.BooleanField(default=True)
+    is_approved = models.BooleanField(default=False)
 
     
     phone_number = models.CharField(max_length=13, blank=True)

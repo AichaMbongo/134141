@@ -1,0 +1,29 @@
+{% extends 'admin/base_site.html' %}
+
+{% block content %}
+    <h2>Users Waiting for Approval</h2>
+    {% if pending_users %}
+        <div class="table-responsive col-12">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in pending_users %}
+                        <tr>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td><a class="btn btn-primary" href="{% url 'admin:auth_user_change' user.id %}">View Details</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>No users are currently awaiting approval.</p>
+    {% endif %}
+{% endblock %}

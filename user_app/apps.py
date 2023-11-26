@@ -5,7 +5,15 @@ class UserAppConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'user_app'
 
+    def ready(self):
+        import user_app.signals
+
 
 class AdminInterfaceConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'admin_interface'
+
+
+
+
+   

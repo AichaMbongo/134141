@@ -73,8 +73,9 @@ class RegisterUserForm(UserCreationForm):
             # Add more checks as needed
 
         return password2
-
-#create patient form
+    
+    
+    #create patient form
 class PatientForm(ModelForm):
     class Meta:
         model = Patient
