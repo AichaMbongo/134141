@@ -1,0 +1,18 @@
+<!-- handle_prediction_form.html -->
+{% extends 'base.html' %}
+
+{% block title %}
+    Prediction Form
+{% endblock %}
+
+{% block content %}
+    <h2>Prediction Form for {{ patient.firstName }} {{ patient.lastName }}</h2>
+
+    <!-- Add any additional patient information you want to display -->
+
+    <form method="post" action="{% url 'handle_prediction_form' patient_id=patient.id %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Submit</button>
+    </form>
+{% endblock %}

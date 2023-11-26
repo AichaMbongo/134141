@@ -946,26 +946,25 @@ def appointment_csv(request):
 #     return render(request, 'lab_technician_dashboard.html', context)
 
 
-@login_required(login_url='login')  
- 
-class lab_technician_dashboard(FormView):
-    template_name = 'lab_technician_dashboard.html'
-    form_class = PredictionVariablesForm
-    success_url = '/lab_technician_dashboard/'
+# @login_required(login_url='login')   
+# class lab_technician_dashboard(FormView):
+#     template_name = 'lab_technician_dashboard.html'
+#     form_class = PredictionVariablesForm
+#     success_url = '/lab_technician_dashboard/'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['patients_awaiting_tests'] = LabTest.objects.filter(status='awaiting')
-        return context
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['patients_awaiting_tests'] = LabTest.objects.filter(status='awaiting')
+#         return context
 
-    def form_valid(self, form):
-        # Process the form data and update the patient status
-        patient_id = form.cleaned_data['patient_id']
-        # Perform actions based on the submitted data
-        # (e.g., save prediction, update status, etc.)
+#     def form_valid(self, form):
+#         # Process the form data and update the patient status
+#         patient_id = form.cleaned_data['patient_id']
+#         # Perform actions based on the submitted data
+#         # (e.g., save prediction, update status, etc.)
         
-        # Redirect to avoid form resubmission
-        return super().form_valid(form)
+#         # Redirect to avoid form resubmission
+#         return super().form_valid(form)
     
 
 
@@ -977,3 +976,26 @@ def waiting_approval_view(request):
     context = {'pending_users': pending_users}
 
     return render(request, 'admin/waiting_approval.html', context)
+
+
+def lab_technician_dashboard(request):
+    awaiting_tests = LabTest.objects.filter(status='awaiting')
+    return render(request, 'lab_technician_dashboard.html', {'awaiting_tests': awaiting_tests})
+
+
+
+
+
+def handle_prediction_form(request, patient_id):
+    patient = get_object_or_404(Patient, id=patient_id)
+    lab_test = LabTest.objects.filter(patient=patient).first()
+
+    if request.method == 'POST':
+        form = PredictionVariablesForm(request.POST, instance=patient.patientdetails)
+        if form.is_valid():
+            form.save()
+            # Add any success message if needed
+    else:
+        form = PredictionVariablesForm(instance=patient.patientdetails)
+
+    return render(request, 'handle_prediction_form.html', {'form': form, 'patient': patient, 'lab_test': lab_test})

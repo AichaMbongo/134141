@@ -36,6 +36,8 @@ class DoctorCommentsInline(admin.StackedInline):
 
 class LabTestInline(admin.StackedInline):
     model = LabTest
+    extra = 0  # This ensures no extra empty forms are displayed by default
+
 
 class PatientDetailsInline(admin.StackedInline):  # Use TabularInline for a more compact display
     model = PatientDetails

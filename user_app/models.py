@@ -250,9 +250,9 @@ class LabTest(models.Model):
     ]
 
     TEST_TYPE_CHOICES = [
-        ('typeA', 'Type A'),
-        ('typeB', 'Type B'),
-        ('typeC', 'Type C'),
+        ('typeA', 'CVD prediction'),
+        ('typeB', 'Vitals'),
+        ('typeC', 'X-ray'),
         # Add more test types as needed
     ]
 

@@ -1,0 +1,66 @@
+{% extends 'base.html' %} 
+{% load static %}
+
+{% block title %}
+  CV - Detect
+{% endblock %}
+{{message}}
+
+{% block content %}
+
+<!-- ... (your existing HTML code) ... -->
+
+<!-- Display a list of patients awaiting lab tests -->
+<h1 class="custom-h1">Patients Awaiting Tests</h1>
+
+{% if awaiting_tests %}
+  <div class="card mt-4">
+    
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th scope="col">Patient Name</th>
+          <th scope="col">Test Type</th>
+          <th scope="col">Test Date</th>
+          <th scope="col">Test Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for test in awaiting_tests %}
+          <tr>
+            <td>{{ test.patient_name }}</td>
+            <td>
+              {% if test.test_type == 'typeA' %}
+              <a href="{% url 'handle_prediction_form' patient_id=test.patient.id %}">CVD Prediction</a>
+              {% elif test.test_type == 'typeB' %}
+                Vitals
+              {% elif test.test_type == 'typeC' %}
+                X-ray
+              {% else %}
+                Unknown Test Type
+              {% endif %}
+            </td>
+            <td>{{ test.test_date }}</td>
+            <td>
+                
+                {% if test.status == 'awaiting' %}
+                  Pending...
+                {% else %}
+                  Default Status
+                {% endif %}
+              </td>
+              
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="alert alert-info mt-4" role="alert">
+    No patients are currently awaiting tests.
+  </div>
+{% endif %}
+
+
+
+
+{% endblock %}
