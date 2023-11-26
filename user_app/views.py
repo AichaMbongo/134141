@@ -65,7 +65,11 @@ def home(request):
 
 def profile_list(request):
    if request.user.is_authenticated:
+        # Exclude the currently logged-in user
     profiles = Profile.objects.exclude(user=request.user)
+        # Filter only approved profiles
+    profiles = profiles.filter(is_approved=True)
+
 
     return render(request, 'profile_list.html', {"profiles":profiles}) 
    else:
