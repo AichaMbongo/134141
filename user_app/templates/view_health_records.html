@@ -1,111 +1,27 @@
-{% extends 'base.html' %}  <!-- Adjust the base template as needed %}
-    {% block title %}
-      Health Records for {{ patient_details.patient.firstName }} {{ patient_details.patient.lastName }}
-    {% endblock %}
-    {% block content %}
-      {% if patient_details %}
-        <h1 class="custom-h1">Health Records</h1>
-    
-        <div class="card shadow">
-          <div class="card-body">
-            <h2 class="card-title">{{ patient_details.patient.firstName }} {{ patient_details.patient.lastName }}</h2>
-    
-            <!-- Display health record details in a table -->
-            <table class="table">
-              <tbody>
-                <tr>
-                  <th scope="row">Body Temperature:</th>
-                  <td>{{ patient_details.temperature }}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Blood Pressure:</th>
-                  <td>{{ patient_details.blood_pressure }}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Heart Rate:</th>
-                  <td>{{ patient_details.heart_rate }}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Respiratory Rate:</th>
-                  <td>{{ patient_details.respiratory_rate}}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Date of Birth:</th>
-                  <td>{{ patient_details.dob }}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Age:</th>
-                  <td>{{ patient_details.age }}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Sex:</th>
-                  <td>{{ patient_details.get_sex_display }}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Chest Pain Type:</th>
-                  <td>{{ patient_details.cp }}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Resting Blood Pressure:</th>
-                  <td>{{ patient_details.trestbps }}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Serum Cholesterol:</th>
-                  <td>{{ patient_details.chol }}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Fasting Blood Sugar:</th>
-                  <td>{{ patient_details.get_fbs_display }}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Resting Electrocardiographic Results:</th>
-                  <td>{{ patient_details.restecg }}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Maximum Heart Rate Achieved:</th>
-                  <td>{{ patient_details.thalach }}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Exercise Induced Angina:</th>
-                  <td>{{ patient_details.get_exang_display }}</td>
-                </tr>
-                <tr>
-                  <th scope="row">ST Depression Induced by Exercise Relative to Rest:</th>
-                  <td>{{ patient_details.oldpeak }}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Slope of the Peak Exercise ST Segment:</th>
-                  <td>{{ patient_details.slope }}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Number of Major Vessels Colored by Fluoroscopy:</th>
-                  <td>{{ patient_details.ca }}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Thalassemia:</th>
-                  <td>{{ patient_details.thal }}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Target:</th>
-                  <td>{{ patient_details.target }}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Date Modified:</th>
-                  <td>{{ patient_details.dateModified }}</td>
-                </tr>
-              </tbody>
-            </table>
-    
-            <!-- Add a button to edit health records -->
-            <a href="{% url 'predict_health_records' patient_details.patient.id %}" class="btn btn-primary">Analyze Health Records</a>
-          </div>
-        </div>
-      {% else %}
-        <div class="alert alert-success" role="alert">
-          No previous records
-        </div>
-    
-   
-      {% endif %}
-    {% endblock %}
-    
+<!-- view_health_records.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}
+  Health Records
+{% endblock %}
+
+{% block content %}
+  <h2>Health Records</h2>
+
+  {% if patient_vitals %}
+    <p>Patient ID: {{ patient_vitals.patient.id }}</p>
+    <p>Patient Name: {{ patient_vitals.patient.firstName }} {{ patient_vitals.patient.lastName }}</p>
+    <p>Date Recorded: {{ patient_vitals.dateModified }}</p>
+
+    <h3>Vitals Information</h3>
+    <p>Temperature: {{ patient_vitals.temperature }} &#8451;</p>
+    <p>Blood Pressure: {{ patient_vitals.blood_pressure }} mmHg</p>
+    <p>Heart Rate: {{ patient_vitals.heart_rate }} bpm</p>
+    <p>Respiratory Rate: {{ patient_vitals.respiratory_rate }} breaths per minute</p>
+
+    <!-- Add more fields as needed -->
+  {% else %}
+    <p>No health records found for the specified patient.</p>
+  {% endif %}
+{% endblock %}

@@ -442,14 +442,21 @@ def view_assigned_patients(request):
 @login_required(login_url='login')    
 def view_health_records(request, patient_id):
     try:
-        patient_vitals = PatientVitals.objects.get(id=patient_id)
+        # Retrieve the most recent PatientVitals based on the dateModified field
+        most_recent_vitals = PatientVitals.objects.filter(patient__id=patient_id).order_by('-dateModified').first()
+
+        # Check if any vitals were found
+        if most_recent_vitals is None:
+            raise PatientVitals.DoesNotExist
+
     except PatientVitals.DoesNotExist:
-        patient_vitals = None
+        most_recent_vitals = None
+        form = VitalsForm()
+        messages.warning(request, f"No health records found for patient with ID {patient_id}.")
     else:
         form = VitalsForm()
 
-    return render(request, 'view_health_records.html', {'patient_vitals': patient_vitals, 'form':form})
-
+    return render(request, 'view_health_records.html', {'patient_vitals': most_recent_vitals, 'form': form})
 
 @login_required(login_url='login')    
 def vitals(request, patient_id):
@@ -510,17 +517,17 @@ def PredictionVariables(request, patient_id):
 
 
 
-@login_required(login_url='login')    
-def view_health_records(request, patient_id):
-    try:
-        patient_details = PatientDetails.objects.get(id=patient_id)
-    except PatientDetails.DoesNotExist:
-        patient_details = None
-        form = PatientDetailsForm()  # Create an instance of the form
-    else:
-        form = None
+# @login_required(login_url='login')    
+# def view_health_records(request, patient_id):
+#     try:
+#         patient_details = PatientDetails.objects.get(id=patient_id)
+#     except PatientDetails.DoesNotExist:
+#         patient_details = None
+#         form = PatientDetailsForm()  # Create an instance of the form
+#     else:
+#         form = None
 
-    return render(request, 'view_health_records.html', {'patient_details': patient_details, 'form': form, 'patient_id': patient_id})
+#     return render(request, 'view_health_records.html', {'patient_details': patient_details, 'form': form, 'patient_id': patient_id})
 
 
 @login_required(login_url='login')    
