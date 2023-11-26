@@ -5,7 +5,7 @@ from django.template import loader
 from .models import Profile, Patient,CustomUser 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
-from .forms import RegisterUserForm, PatientForm, UpdateUserForm, ProfilePicForm, PredictionVariablesForm, DoctorPatientRelForm, AppointmentForm, VitalsForm, CommentsForm
+from .forms import RegisterUserForm, PatientForm, UpdateUserForm, ProfilePicForm, PredictionVariablesForm, DoctorPatientRelForm, AppointmentForm, VitalsForm, CommentsForm, LabTestForm
 from django.http import HttpResponseRedirect
 from django import forms
 from django.contrib.auth.models import User
@@ -22,7 +22,7 @@ from django.utils.safestring import mark_safe
 import joblib
 from django.urls import reverse
 from .forms import TreatmentPlanForm
-from .models import TreatmentPlan, Appointment, PatientDetails, PredictionResult, PatientVitals, LabTest
+from .models import TreatmentPlan, Appointment, PatientDetails, PredictionResult, PatientVitals, LabTest, DoctorComments
 from django.utils.html import linebreaks
 from django.db.models import Count
 from datetime import timedelta
@@ -440,8 +440,13 @@ def view_assigned_patients(request):
         return render(request, 'access_denied.html')
     
    
-@login_required(login_url='login')    
+@login_required(login_url='login')
 def view_health_records(request, patient_id):
+    most_recent_vitals = None
+    lab_test = None
+    comments_form = CommentsForm()
+    lab_test_form = LabTestForm()
+
     try:
         # Retrieve the most recent PatientVitals based on the dateModified field
         most_recent_vitals = PatientVitals.objects.filter(patient__id=patient_id).order_by('-dateModified').first()
@@ -450,26 +455,68 @@ def view_health_records(request, patient_id):
         if most_recent_vitals is None:
             raise PatientVitals.DoesNotExist
 
+        # Assuming you have a LabTest instance related to the patient
+        lab_test = LabTest.objects.filter(patient__id=patient_id).first()
+
     except PatientVitals.DoesNotExist:
-        most_recent_vitals = None
-        comments_form = CommentsForm()
         # messages.warning(request, f"No health records found for patient with ID PK{patient_id}AKUH.")
-    else:
-        comments_form = CommentsForm()
+        pass
 
     if request.method == 'POST':
+        if 'comments_form' in request.POST:
             form = CommentsForm(request.POST)
             if form.is_valid():
                 doctor_comments = form.cleaned_data['doctor_comments']
 
-                # Save the comments to the database
-                DoctorComments.objects.create(
-                    patient_vitals=most_recent_vitals,
-                    doctor=request.user,
-                    comments=doctor_comments
-                )
+                # Save the comments to the database only if most_recent_vitals is not None
+                if most_recent_vitals:
+                    DoctorComments.objects.create(
+                        patient_vitals=most_recent_vitals,
+                        doctor=request.user,
+                        comments=doctor_comments
+                    )
 
-    return render(request, 'view_health_records.html', {'patient_vitals': most_recent_vitals, 'comments_form': comments_form})
+        elif 'lab_test_form' in request.POST:
+            lab_test_form = LabTestForm(request.POST)
+            if lab_test_form.is_valid():
+                lab_test = lab_test_form.save(commit=False)
+                lab_test.patient = most_recent_vitals.patient
+                lab_test.status = 'awaiting'  # Assuming you want to set the status to 'awaiting'
+                lab_test.save()
+
+    return render(request, 'view_health_records.html', {'patient_vitals': most_recent_vitals, 'comments_form': comments_form, 'lab_test': lab_test, 'lab_test_form': lab_test_form})
+
+@login_required(login_url='login') 
+def send_to_lab(request, lab_test_id, patient_id):
+    # Retrieve the associated Patient instance
+    patient = get_object_or_404(Patient, pk=patient_id)  # Replace with the actual patient ID
+    
+    # Try to get an existing LabTest instance, or create a new one if not found
+    lab_test, created = LabTest.objects.get_or_create(
+        pk=lab_test_id,
+        defaults={
+            'test_type': 'typeA',
+            'status': 'noNeed',
+            'patient': patient,
+        }
+    )
+    
+    if request.method == 'POST':
+        # Update the status to 'awaiting' when the form is submitted
+        lab_test.status = 'awaiting'
+        lab_test.save()
+        # Add a success message
+        messages.success(request, 'Patient Details have been sent to the Lab.')
+
+        # Add any additional logic for processing the form data or redirect as needed
+
+        # return redirect('view_health_records', patient_id=lab_test.patient.id)
+        return redirect('view_health_records', patient_id=patient_id)
+
+
+    # Handle GET request if needed
+
+    return render(request, 'view_health_records.html', {'lab_test': lab_test, 'created': created})
 
 @login_required(login_url='login')    
 def vitals(request, patient_id):

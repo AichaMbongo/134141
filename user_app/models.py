@@ -93,6 +93,7 @@ class PatientDetails(models.Model):
 
 class PatientVitals(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    
   # Vitals measured by the nurse
     temperature = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     blood_pressure = models.IntegerField(null=True, blank=True)
@@ -245,10 +246,18 @@ class LabTest(models.Model):
     PATIENT_STATUS_CHOICES = [
         ('awaiting', 'Awaiting Test'),
         ('completed', 'Test Completed'),
+        ('noNeed', 'No need for test'),
+    ]
+
+    TEST_TYPE_CHOICES = [
+        ('typeA', 'Type A'),
+        ('typeB', 'Type B'),
+        ('typeC', 'Type C'),
+        # Add more test types as needed
     ]
 
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    test_type = models.CharField(max_length=255)
+    test_type = models.CharField(max_length=20, choices=TEST_TYPE_CHOICES, default='typeA')
     test_date = models.DateField(auto_now_add=True)
     patient_name = models.CharField(max_length=100)
     # other fields...
@@ -256,5 +265,26 @@ class LabTest(models.Model):
     status = models.CharField(
         max_length=20,
         choices=PATIENT_STATUS_CHOICES,
-        default='awaiting',
+        default='noNeed',
     )
+
+@receiver(post_save, sender=Patient)
+def create_lab_test(sender, instance, created, **kwargs):
+    if created:
+        LabTest.objects.create(
+            patient=instance,
+            test_type='typeA',  # Adjust this as needed
+            patient_name=f'{instance.firstName} {instance.lastName}',
+            status='noNeed'
+        )
+
+class DoctorComments(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, null=True)
+
+    patient_vitals = models.ForeignKey(PatientVitals, on_delete=models.CASCADE, related_name='comments')
+    doctor = models.ForeignKey(User, on_delete=models.CASCADE)  # Assuming a one-to-one relationship with the doctor
+    comments = models.TextField(null=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Comments for {self.patient_vitals.patient} by {self.doctor.username}"

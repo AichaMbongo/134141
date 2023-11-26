@@ -45,6 +45,7 @@ urlpatterns = [
     path('users_csv/', views.users_csv, name='users_csv'),
     path('appointment_csv/', views.appointment_csv, name='appointment_csv'),
     path('waiting_approval/', views.waiting_approval_view, name='waiting_approval'),
+    path('send_to_lab/<int:lab_test_id>/<int:patient_id>/', views.send_to_lab, name='send_to_lab'),
     # path('add-lab-test/<int:patient_id>/', views.add_lab_test, name='add_lab_test'),
     # path('start-test/<int:lab_test_id>/', views.start_test, name='start_test'),
 

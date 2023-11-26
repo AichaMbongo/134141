@@ -308,14 +308,23 @@ class DoctorReportForm(forms.ModelForm):
         }
 
 class LabTestForm(forms.ModelForm):
+    TEST_TYPE_CHOICES = [
+        ('typeA', 'Type A'),
+        ('typeB', 'Type B'),
+        ('typeC', 'Type C'),
+        # Add more test types as needed
+    ]
+
     PATIENT_STATUS_CHOICES = [
         ('awaiting', 'Awaiting Test'),
         ('completed', 'Test Completed'),
+        ('noNeed', 'No need for test'),
     ]
 
-    test_type = forms.CharField(
+    test_type = forms.ChoiceField(
         label='Test Type',
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        choices=TEST_TYPE_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'}),
     )
 
     patient_name = forms.CharField(

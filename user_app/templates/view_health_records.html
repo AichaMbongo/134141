@@ -26,26 +26,29 @@
             <!-- Add more fields as needed -->
           </ul>
 
-
-          
           <div class="container mt-4">
             <h3>Doctor's Comments</h3>
-            <form method="post" action="{% url 'view_health_records' patient_vitals.id %}" class="mb-4">
+            <form method="post" action="{% url 'view_health_records' patient_id=patient_vitals.patient.id %}">
               {% csrf_token %}
-              <div class="mb-3">
-                <label for="{{ comments_form.doctor_comments.id_for_label }}">Doctor's Comments</label>
-                {{ comments_form.doctor_comments }}
-              </div>
-              <button type="submit" class="btn btn-primary">Save Comments</button>
+              {{ comments_form.as_p }}
+              <button class="btn btn-success mt-3" type="submit">Save Comments</button>
             </form>
           </div>
-                    <!-- Button to Send to Lab Technicians -->
-          <a href="" class="btn btn-success mt-3">Send to Lab</a>
+            <!-- Form for specifying test type and sending to lab -->
+              <div class="container mt-4">
+                <h3>Send to Lab</h3>
+                <form method="post" action="{% url 'send_to_lab' lab_test_id=patient_vitals.id patient_id=patient_vitals.patient.id %}">
+                  {% csrf_token %}
+                  <label for="id_test_type">Test Type:</label>
+                  {{ lab_test_form.test_type }}
+                  <button class="btn btn-success mt-3" type="submit">Send to Lab</button>
+                </form>
+              </div>
         </div>
       </div>
     {% else %}
       <div class="alert alert-warning mt-4" role="alert">
-        No health records found for the specified patient. Debug: {{ patient_vitals }}
+        No health records found for the specified patient. 
       </div>
     {% endif %}
   </div>
