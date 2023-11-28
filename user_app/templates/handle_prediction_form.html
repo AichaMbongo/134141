@@ -6,13 +6,13 @@
 {% endblock %}
 
 {% block content %}
-    <h2>Prediction Form for {{ patient.firstName }} {{ patient.lastName }}</h2>
+    <h2>Lab Tests Form for {{ patient.firstName }} {{ patient.lastName }}</h2>
 
     <!-- Add any additional patient information you want to display -->
 
     <form method="post" action="{% url 'handle_prediction_form' patient_id=patient.id %}">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Submit</button>
+        <button class="btn btn-primary" type="submit">Submit Test Results</button>
     </form>
 {% endblock %}

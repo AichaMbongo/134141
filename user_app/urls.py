@@ -48,6 +48,7 @@ urlpatterns = [
     path('send_to_lab/<int:lab_test_id>/<int:patient_id>/', views.send_to_lab, name='send_to_lab'),
     path('lab_technician_dashboard/', views.lab_technician_dashboard, name='lab_technician_dashboard'),
     path('handle_prediction_form/<int:patient_id>/', views.handle_prediction_form, name='handle_prediction_form'),
+    path('update_status/<int:lab_test_id>/', views.update_status, name='update_status'),
     # path('add-lab-test/<int:patient_id>/', views.add_lab_test, name='add_lab_test'),
     # path('start-test/<int:lab_test_id>/', views.start_test, name='start_test'),
 

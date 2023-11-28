@@ -990,12 +990,27 @@ def handle_prediction_form(request, patient_id):
     patient = get_object_or_404(Patient, id=patient_id)
     lab_test = LabTest.objects.filter(patient=patient).first()
 
-    if request.method == 'POST':
-        form = PredictionVariablesForm(request.POST, instance=patient.patientdetails)
-        if form.is_valid():
-            form.save()
-            # Add any success message if needed
+    try:
+        if request.method == 'POST':
+            form = PredictionVariablesForm(request.POST, instance=patient.patientdetails)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Test results updated successfully.')
+
+    except Exception:
+        messages.error(request, 'Failed to update Test results. Please try again.')
+
     else:
         form = PredictionVariablesForm(instance=patient.patientdetails)
 
     return render(request, 'handle_prediction_form.html', {'form': form, 'patient': patient, 'lab_test': lab_test})
+
+
+def update_status(request, lab_test_id):
+    lab_test = get_object_or_404(LabTest, id=lab_test_id)
+
+    if lab_test.status == 'awaiting':
+        lab_test.status = 'completed'
+        lab_test.save()
+
+    return redirect('lab_technician_dashboard')  # Redirect to the page where you displayed the LabTest table
