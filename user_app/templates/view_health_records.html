@@ -5,8 +5,11 @@
 {% endblock %}
 
 {% block content %}
+
   <div class="container mt-4">
+    {% if patient_vitals %}
     <h2 class="mb-4 custom-h1">{{ patient_vitals.patient.firstName }}'s Health Records</h2>
+    {% endif %}
 
     {% if patient_vitals %}
       <div class="card">
@@ -57,9 +60,12 @@
 
 
 <!-- view_health_records.html -->
-<a href="{% url 'view_first_13_predictions' patient_id=patient_vitals.patient.id %}" class="btn btn-primary mt-3">
-  View First 13 Predictions
-</a>
+{% if patient_vitals %}
+  <a href="{% url 'view_first_13_predictions' patient_id=patient_vitals.patient.id %}" class="btn btn-primary mt-3">
+    View First 13 Predictions
+  </a>
+{% endif %}
+
   
     <!-- ... existing content ... -->
 

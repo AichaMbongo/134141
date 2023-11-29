@@ -13,6 +13,12 @@
     
     
     <table class="table mt-4 table-hover">
+                    {% if predictions %}
+                <!-- Button to download results as PDF -->
+                <a href="{% url 'result_pdf' patient_id=patient.id %}?pdf=1" class="btn btn-primary mt-3" role="button" target="_blank">
+                    Download PDF
+                </a>
+            {% endif %}
       <thead>
         <tr>
           <th scope="col">Test</th>

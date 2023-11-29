@@ -41,7 +41,7 @@ urlpatterns = [
     path('lab_technician_dashboard/', views.lab_technician_dashboard,
          name='lab_technician_dashboard'),
     path('index/', views.index, name='index'),
-    path('result_pdf/', views.result_pdf, name='result_pdf'),
+    path('result_pdf/<int:patient_id>/', views.result_pdf, name='result_pdf'),
     path('users_csv/', views.users_csv, name='users_csv'),
     path('appointment_csv/', views.appointment_csv, name='appointment_csv'),
     path('waiting_approval/', views.waiting_approval_view, name='waiting_approval'),

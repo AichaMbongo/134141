@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import HttpResponse
-
+from io import BytesIO
 from django.template import loader
 from .models import Profile, Patient,CustomUser 
 from django.contrib.auth import authenticate, login, logout
@@ -442,6 +442,7 @@ def view_assigned_patients(request):
     
    
 @login_required(login_url='login')
+
 def view_health_records(request, patient_id):
     most_recent_vitals = None
     lab_test = None
@@ -460,7 +461,8 @@ def view_health_records(request, patient_id):
         lab_test = LabTest.objects.filter(patient__id=patient_id).first()
 
     except PatientVitals.DoesNotExist:
-        # messages.warning(request, f"No health records found for patient with ID PK{patient_id}AKUH.")
+        patient = get_object_or_404(Patient, id=patient_id)
+        messages.warning(request, f"No patient vitals found for {patient.firstName} {patient.lastName}.")
         pass
 
     if request.method == 'POST':
@@ -824,72 +826,53 @@ def index(request):
         'doctor_specialization_data': doctor_specialization_count,
         'doctor_specialization_labels': doctor_specialization_labels,
         })
-def result_pdf(request):
-    # Create a byte stream buffer
-    buf = io.BytesIO()
 
-    # Create a PDF document with the buffer
-    pdf = SimpleDocTemplate(buf, pagesize=letter)
+def result_pdf(request, patient_id):
+    # Fetch the patient information
+    patient = get_object_or_404(Patient, id=patient_id)
 
-    # Designate the model
-    results = PredictionResult.objects.all()[:11] 
- 
+    # Create the HttpResponse object with the appropriate PDF headers.
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'filename="{patient.firstName}_{patient.lastName}_lab_results.pdf"'
 
-    # Define styles for header, table, and text
-    styles = getSampleStyleSheet()
-    header_style = styles['Title']
-    table_style = styles['BodyText']
-    text_style = styles['Normal']
+    # Create the PDF object
+    doc = SimpleDocTemplate(response, pagesize=letter)
 
-    # Generate header content
-    patient_name = results.first().patient.firstName if results.exists() else "Unknown Patient"
-    header_lines = [
-        f"{patient_name}'s Prediction Results",
-        f"Date: {results.first().date.strftime('%Y-%m-%d %H:%M:%S')}" if results.exists() else "No Date",
-    ]
+    # PDF content
+    story = []
 
-    # Generate table data
+    # Add lab results header
+    lab_results_header = Paragraph(f"Lab Results for {patient.firstName} {patient.lastName}", getSampleStyleSheet()['Heading1'])
+    story.append(lab_results_header)
+
+    # Lab results data
     table_data = [['Test', 'Result', 'Purpose']]
-    table_data.extend([
-        [result_instance.test, result_instance.result, result_instance.purpose]
-        for result_instance in results
-    ])
+
+    predictions = PredictionResult.objects.filter(patient_id=patient_id)[:11]
+
+    for prediction in predictions:
+        table_data.append([prediction.test, prediction.result, prediction.purpose])
 
     # Create a table with appropriate styling
     table = Table(table_data, colWidths=[1.5 * inch, 2.9 * inch, 2.9 * inch])
     table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-       ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
         ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
         ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Add inner borders
     ]))
 
-    # Build elements
-    elements = []
+    # Add the table to the story
+    story.append(table)
 
-    # Add header lines to the story
-    for line in header_lines:
-        elements.append(Paragraph(line, header_style))
+    # Build PDF
+    doc.build(story)
 
-    # Add an empty line before the table
-    elements.append(Paragraph("<br/><br/>", text_style))
-
-    # Add table to the story
-    elements.append(table)
-
-    # Build PDF document
-    pdf.build(elements)
-
-    # Reset buffer position
-    buf.seek(0)
-
-
-    return FileResponse(buf, as_attachment=True, filename='result_pdf.pdf')
-
-
+    return response    
+    
 def users_csv(request):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=users.csv'
@@ -1103,7 +1086,12 @@ def view_first_13_predictions(request, patient_id):
     # Fetch the patient information
     patient = get_object_or_404(Patient, id=patient_id)
 
-    # Fetch the first 13 predictions for the patient
-    predictions = PredictionResult.objects.filter(patient_id=patient_id)[:13]
+    # Fetch the first 13 predictions for the current patient
+    predictions = PredictionResult.objects.filter(patient_id=patient_id)[:11]
+
+    # Check if the request is for a PDF download
+    if 'pdf' in request.GET:
+        # Generate the PDF and directly return it as part of the HttpResponse
+        return generate_pdf(patient, predictions)
 
     return render(request, 'view_first_13_predictions.html', {'patient': patient, 'predictions': predictions})
