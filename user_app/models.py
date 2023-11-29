@@ -102,6 +102,12 @@ class PatientVitals(models.Model):
     dateModified = models.DateTimeField(null=True, blank=True)
     def __str__(self):
         return f"{self.patient.firstName} {self.patient.lastName} Details"
+
+
+
+
+
+
     
 class TreatmentPlan(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)

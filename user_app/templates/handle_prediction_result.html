@@ -1,0 +1,41 @@
+<!-- handle_prediction_result.html -->
+{% extends 'base.html' %}
+
+{% block title %}
+    Prediction Outcome
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2  class="mt-4 custom-h1">Prediction Outcome</h2>
+
+        <table class="table mt-4">
+            <thead>
+                <tr class="{% if test_result.result == 'Positive' %}table-success{% elif test_result.result == 'Negative' %}table-danger{% endif %}">
+                    <th scope="col">Test</th>
+                    <th scope="col">Result</th>
+                    <th scope="col">Purpose</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for test_result in result_message %}
+                    <tr class="{% if test_result.result == 'Positive' %}table-success{% elif test_result.result == 'Negative' %}table-danger{% endif %}">
+                        <td>{{ test_result.test }}</td>
+                        <td>{{ test_result.result }}</td>
+                        <td>{{ test_result.purpose }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- <p class="lead mt-4">{{ result_message|last }}</p> -->
+    </div>
+
+    {# Include Bootstrap CSS (ensure you have the correct Bootstrap version installed) #}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    {# Optional: Include Bootstrap JS and Popper.js for Bootstrap features #}
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% endblock %}

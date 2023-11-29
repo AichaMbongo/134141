@@ -49,6 +49,9 @@ urlpatterns = [
     path('lab_technician_dashboard/', views.lab_technician_dashboard, name='lab_technician_dashboard'),
     path('handle_prediction_form/<int:patient_id>/', views.handle_prediction_form, name='handle_prediction_form'),
     path('update_status/<int:lab_test_id>/', views.update_status, name='update_status'),
+    path('view_test_results/<int:patient_id>/', views.view_test_results, name='view_test_results'),
+    path('handle_prediction_result/<int:patient_id>/', views.handle_prediction_form, name='handle_prediction_result'),
+    path('view_first_13_predictions/<int:patient_id>/', views.view_first_13_predictions, name='view_first_13_predictions'),
     # path('add-lab-test/<int:patient_id>/', views.add_lab_test, name='add_lab_test'),
     # path('start-test/<int:lab_test_id>/', views.start_test, name='start_test'),
 

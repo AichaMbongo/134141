@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import HttpResponse
+
 from django.template import loader
 from .models import Profile, Patient,CustomUser 
 from django.contrib.auth import authenticate, login, logout
@@ -720,6 +721,7 @@ def predict_health_records(request, patient_id):
 
 
 
+
 def fill_patient_details(request, patient_id):
     try:
         patient_details = PatientDetails.objects.get(id=patient_id)
@@ -916,55 +918,6 @@ def appointment_csv(request):
     return response  # Move this line outside the for loop
 
 
-# @login_required(login_url='login')  
-# def lab_technician_dashboard(request):
-#     # Retrieve the list of patients awaiting lab tests
-#     patients_awaiting_tests = LabTest.objects.filter(status='awaiting')
-
-#     # Check if the form is submitted
-#     if request.method == 'POST':
-#         prediction_form = PredictionVariablesForm(request.POST)
-
-#         # Validate the form
-#         if prediction_form.is_valid():
-#             # Process the form data and update the patient status
-#             patient_id = request.POST.get('patient_id')
-#             # Perform actions based on the submitted data
-#             # (e.g., save prediction, update status, etc.)
-            
-#             # Redirect to avoid form resubmission
-#             return redirect('lab_technician_dashboard')
-#     else:
-#         # If not a form submission, initialize an empty form
-#         prediction_form = PredictionVariablesForm()
-
-#     context = {
-#         'patients_awaiting_tests': patients_awaiting_tests,
-#         'prediction_form': prediction_form,
-#     }
-
-#     return render(request, 'lab_technician_dashboard.html', context)
-
-
-# @login_required(login_url='login')   
-# class lab_technician_dashboard(FormView):
-#     template_name = 'lab_technician_dashboard.html'
-#     form_class = PredictionVariablesForm
-#     success_url = '/lab_technician_dashboard/'
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['patients_awaiting_tests'] = LabTest.objects.filter(status='awaiting')
-#         return context
-
-#     def form_valid(self, form):
-#         # Process the form data and update the patient status
-#         patient_id = form.cleaned_data['patient_id']
-#         # Perform actions based on the submitted data
-#         # (e.g., save prediction, update status, etc.)
-        
-#         # Redirect to avoid form resubmission
-#         return super().form_valid(form)
     
 
 
@@ -986,24 +939,135 @@ def lab_technician_dashboard(request):
 
 
 
+@login_required(login_url='login')
 def handle_prediction_form(request, patient_id):
     patient = get_object_or_404(Patient, id=patient_id)
     lab_test = LabTest.objects.filter(patient=patient).first()
 
-    try:
-        if request.method == 'POST':
-            form = PredictionVariablesForm(request.POST, instance=patient.patientdetails)
-            if form.is_valid():
-                form.save()
-                messages.success(request, 'Test results updated successfully.')
+    def generate_result_message(data):
+        exang_result = "Present \nIndicates chest discomfort during exercise, potentially requiring attention." if data['exang'] == 1 else "Absent \nPositive sign, suggesting the patient can \nengage in physical activity without \nchest discomfort"
+        oldpeak_result = "No unusual change during exercise, a good sign." if data['oldpeak'] == 0 else "Elevated. \nIndicates some changes, may need \ncloser examination for optimal heart health."
+        slope_result = {
+            1: "Upsloping: \nUsually a good sign.",
+            2: "Flat: \nMay need further checking.",
+            3: "Downsloping: \nMight indicate potential issues, needs careful evaluation for a healthy heart."
+        }.get(data['slope'], "Unknown Slope")
 
-    except Exception:
-        messages.error(request, 'Failed to update Test results. Please try again.')
+        ca_result = {
+            0: "0: \nIndicates potential issues, needs careful \nevaluation for a healthy heart.",
+            1: "1: \nIndicates potential issues, needs careful \nevaluation for a healthy heart.",
+            2: "1: \nHigh blood vessel count observed, considered \na positive indicator for heart health.",
+            3: "1: \nHigh blood vessel count observed, considered \na positive indicator for heart health."
+        }.get(data['ca'], "Unknown CA")
+
+        cp_result = {
+            1: "1. \nAtypical Angina:\n- What it Means: Different kind of chest pain.\n- What to Know: Might suggest a heart issue, needs checking.",
+            2: "2. \nNon-Anginal Pain:\n- What it Means: Chest pain not related to the heart.\n- What to Know: Investigate to find out \nwhy you're feeling discomfort.",
+            3: "3. \nAsymptomatic:\n- What it Means: No chest pain.\n- What to Know: Generally good, \nbut it's important to check everything \n just in case."
+        }.get(data['cp'], "Unknown CP")
+
+        trestbps_result = "Higher than 125mm Hg \nblood pressure not within the \nnormal range is associated with \nhigher risks of cardiovascular diseases. \nCheck everything just in case." if data['trestbps'] > 125 else "Within the normal range. \nGood indicator of heart health."
+
+        chol_result = {
+            "Normal": "Within the normal range. \nGood indicator of heart health",
+            "Borderline": "Borderline high. \nRisk for heart issues",
+            "High": "High. \nRisk for heart issues"
+        }.get(get_chol_category(data['chol']), "Unknown Cholesterol")
+
+        fbs_result = "Normal Level. \nIndicator of good heart health" if int(data['fbs']) <= 120 else "Elevated Level. \nIndicates elevated blood sugar. Elevated levels may relate to conditions like diabetes, affecting heart health."
+
+        restecg_result = "Abnormal Results (1 and 2): \nMay signal potential issues" if data['restecg'] in [1, 2] else "Normal Results: \nPositive for heart health"
+
+        thalach_result = "More than 140 \nmore likely to have heart disease." if data['thalach'] > 140 else "Healthy range."
+
+        target_result = "Low chance of heart attack" if data['target'] == 0 else "High chance of heart attack"
+
+        result_message = [
+            {'test': 'Exang', 'result': exang_result, 'purpose': 'tests for Exercise Induced Angina (pain \nin chest during exercise)'},
+            {'test': 'Oldpeak', 'result': oldpeak_result, 'purpose': 'Measures how your heart\'s electrical \nactivity changes during exercise'},
+            {'test': 'Slope', 'result': slope_result, 'purpose': 'Observes the pattern of the heart\'s \nelectrical activity during exercise'},
+            {'test': 'CA', 'result': ca_result, 'purpose': 'Observes the Number of major vessels\n (0-3).  higher count for ca is \noften considered a positive indicator \nfor heart health'},
+            {'test': 'CP', 'result': cp_result, 'purpose': 'Observes the Chest Pain type (0: \nTypical angina, 1: Atypical angina, \n2: Non-anginal pain, 3: Asymptomatic)'},
+            {'test': 'Trestbps', 'result': trestbps_result, 'purpose': 'Observes the blood pressure. \nA healthy blood pressure reading is \ntypically less than 125 over 80'},
+            {'test': 'Chol', 'result': chol_result, 'purpose': 'Observes the level of cholesterol in \nthe blood'},
+            {'test': 'FBS', 'result': fbs_result, 'purpose': 'Observes the amount of glucose in \nyour blood after an overnight fast'},
+            {'test': 'Restecg', 'result': restecg_result, 'purpose': 'Checks for Abnormalities like ST-T wave(1) \nor ventricular hypertrophy (2) suggest \nunderlying heart conditions needing further \ninvestigation or management'},
+            {'test': 'Thalach', 'result': thalach_result, 'purpose': 'Checks for maximum heart rate achieved'},
+            {'test': 'Prediction Outcome', 'result': target_result, 'purpose': 'Checks chances of getting \na heart attack'},
+        ]
+
+        return result_message
+
+    def get_chol_category(chol_value):
+        if chol_value < 200:
+            return "Normal"
+        elif 200 <= chol_value <= 239:
+            return "Borderline"
+        else:
+            return "High"
+
+   
+    if request.method == 'POST':
+        form = PredictionVariablesForm(request.POST, instance=patient.patientdetails)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Test results updated successfully.')
+
+            # Extract the features for prediction
+            scv = joblib.load('C:/Users/HP/Desktop/test/134141/user_app/saved_model.sav')
+
+            # Use form.cleaned_data instead of form_data
+            features_for_prediction = [
+                form.cleaned_data['age'], form.cleaned_data['sex'], form.cleaned_data['cp'],
+                form.cleaned_data['trestbps'], form.cleaned_data['chol'], form.cleaned_data['fbs'],
+                form.cleaned_data['restecg'], form.cleaned_data['thalach'], form.cleaned_data['exang'],
+                form.cleaned_data['oldpeak'], form.cleaned_data['slope'], form.cleaned_data['ca'],
+                form.cleaned_data['thal']
+            ]
+
+            # Check if the StackingCVClassifier is fitted
+            if not hasattr(scv, 'is_fitted') or not scv.is_fitted:
+                # Fit the model with appropriate arguments
+                # You may need to modify the fit arguments based on your model
+                scv.fit(X_train, y_train)
+
+            # Make the prediction using your model
+            prediction = scv.predict([features_for_prediction])[0]
+
+            # Update the 'target' field with the prediction
+            form.cleaned_data['target'] = prediction
+
+            # Determine the result_message based on the prediction
+            result_message = generate_result_message(form.cleaned_data)
+
+            if prediction == 1:
+                result_messages = f"{patient.firstName} has a high chance of experiencing a heart attack. Treatment should begin immediately."
+                treatment_plan_url = reverse('treatment_plan', args=[patient.id])
+                treatment_button = f'<a href="{treatment_plan_url}" class="btn btn-danger float-right">Fill Treatment Plan</a>'
+                result_messages += f'<br/>{treatment_button}'
+            else:
+                result_messages = f"{patient.firstName} has a low chance of experiencing a heart attack.<br/><br/> Ensure a healthy lifestyle is maintained and checkups are done yearly."
+            messages.success(request, mark_safe(f" Prediction Outcome:<br/> {result_messages}"))
+
+            # Render the result template with the detailed result message
+            form.save()
+
+            # Save each row of the table data into the PredictionResult model
+            for result in result_message:
+                PredictionResult.objects.create(
+                    patient=patient,
+                    test=result['test'],
+                    result=result['result'],
+                    purpose=result['purpose']
+                )
+
+            return render(request, 'handle_prediction_result.html', {'patient': patient, 'result_message': result_message})
 
     else:
         form = PredictionVariablesForm(instance=patient.patientdetails)
 
-    return render(request, 'handle_prediction_form.html', {'form': form, 'patient': patient, 'lab_test': lab_test})
+        return render(request, 'handle_prediction_form.html', {'form': form, 'patient': patient})
+# return render(request, 'handle_prediction_form.html', {'form': form, 'patient': patient, 'lab_test': lab_test})
 
 
 def update_status(request, lab_test_id):
@@ -1014,3 +1078,32 @@ def update_status(request, lab_test_id):
         lab_test.save()
 
     return redirect('lab_technician_dashboard')  # Redirect to the page where you displayed the LabTest table
+
+
+
+
+
+
+
+def view_test_results(request, patient_id):
+    print("Patient ID:", patient_id)  # Print patient_id to the console
+
+    # Retrieve the patient details based on the patient_id
+    patient_details = get_object_or_404(PatientDetails, patient__id=patient_id)
+
+    return render(request, 'test_results.html', {'patient_details': patient_details})
+
+
+def handle_prediction_result(request, patient_id):
+    # Your view logic goes here
+    return render(request, 'handle_prediction_result.html', {'patient_id': patient_id})
+
+
+def view_first_13_predictions(request, patient_id):
+    # Fetch the patient information
+    patient = get_object_or_404(Patient, id=patient_id)
+
+    # Fetch the first 13 predictions for the patient
+    predictions = PredictionResult.objects.filter(patient_id=patient_id)[:13]
+
+    return render(request, 'view_first_13_predictions.html', {'patient': patient, 'predictions': predictions})

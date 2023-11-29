@@ -1,5 +1,3 @@
-<!-- view_health_records.html -->
-
 {% extends 'base.html' %}
 
 {% block title %}
@@ -8,7 +6,7 @@
 
 {% block content %}
   <div class="container mt-4">
-    <h2 class="mb-4">Health Records</h2>
+    <h2 class="mb-4 custom-h1">{{ patient_vitals.patient.firstName }}'s Health Records</h2>
 
     {% if patient_vitals %}
       <div class="card">
@@ -23,7 +21,7 @@
             <li class="list-group-item">Blood Pressure: {{ patient_vitals.blood_pressure }} mmHg</li>
             <li class="list-group-item">Heart Rate: {{ patient_vitals.heart_rate }} bpm</li>
             <li class="list-group-item">Respiratory Rate: {{ patient_vitals.respiratory_rate }} breaths per minute</li>
-            <!-- Add more fields as needed -->
+            
           </ul>
 
           <div class="container mt-4">
@@ -34,22 +32,47 @@
               <button class="btn btn-success mt-3" type="submit">Save Comments</button>
             </form>
           </div>
-            <!-- Form for specifying test type and sending to lab -->
-              <div class="container mt-4">
-                <h3>Send to Lab</h3>
-                <form method="post" action="{% url 'send_to_lab' lab_test_id=patient_vitals.id patient_id=patient_vitals.patient.id %}">
-                  {% csrf_token %}
-                  <label for="id_test_type">Test Type:</label>
-                  {{ lab_test_form.test_type }}
-                  <button class="btn btn-success mt-3" type="submit">Send to Lab</button>
-                </form>
+
+          <!-- Form for specifying test type and sending to lab -->
+          <div class="container mt-4">
+            <h3>Send to Lab</h3>
+            <ul class="list-group mt-4">
+              <li class="list-group-item">Lab Test Status: {{ lab_test.status }}</li>
+              <!-- Add more list items as needed -->
+            </ul>
+
+            <form method="post" action="{% url 'send_to_lab' lab_test_id=patient_vitals.id patient_id=patient_vitals.patient.id %}">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label for="id_test_type" class="form-label">Test Type:</label>
+                {{ lab_test_form.test_type }}
               </div>
+              <button class="btn btn-success mt-3" type="submit">Send to Lab</button>
+            </form>
+         
+
+
+    
+          {% endif %}
+
+
+<!-- view_health_records.html -->
+<a href="{% url 'view_first_13_predictions' patient_id=patient_vitals.patient.id %}" class="btn btn-primary mt-3">
+  View First 13 Predictions
+</a>
+  
+    <!-- ... existing content ... -->
+
         </div>
       </div>
-    {% else %}
-      <div class="alert alert-warning mt-4" role="alert">
-        No health records found for the specified patient. 
-      </div>
-    {% endif %}
+    </div>
+
   </div>
+</div>
 {% endblock %}
+
+
+
+
+
+

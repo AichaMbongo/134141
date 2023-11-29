@@ -190,6 +190,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # settings.py
 
 # AUTH_USER_MODEL = 'user_app.User'
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 100000  # Adjust the value as needed
 
 
 # Define the URL prefix for static files
@@ -217,3 +218,4 @@ ADMIN_INTERFACE_DEVELOPMENT_MODE = True  # Set this to False in production
 # ADMIN_INTERFACE_MENU = True
 # ADMIN_INTERFACE_THEME = 'flat'
 # ADMIN_INTERFACE_INDEX = 'dashboard'
+

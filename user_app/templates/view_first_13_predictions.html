@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  Health Records
+{% endblock %}
+
+{% block content %}
+
+<!-- view_first_13_predictions.html -->
+
+<div class="container mt-4">
+    <h2 class="mb-4 custom-h1">Lab Results for {{ patient.firstName }} {{ patient.lastName }} ({{ predictions.0.date|date:"F d, Y" }})</h2>
+    
+    
+    <table class="table mt-4 table-hover">
+      <thead>
+        <tr>
+          <th scope="col">Test</th>
+          <th scope="col">Result</th>
+          <th scope="col">Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for prediction in predictions %}
+          <tr>
+            <td>{{ prediction.test }}</td>
+            <td>{{ prediction.result }}</td>
+            <td>{{ prediction.purpose }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endblock %}

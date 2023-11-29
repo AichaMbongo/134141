@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-    <h2>Lab Tests Form for {{ patient.firstName }} {{ patient.lastName }}</h2>
+    <h2 class="custom-h1">Lab Tests Form for {{ patient.firstName }} {{ patient.lastName }}</h2>
 
     <!-- Add any additional patient information you want to display -->
 
@@ -15,4 +15,11 @@
         {{ form.as_p }}
         <button class="btn btn-primary" type="submit">Submit Test Results</button>
     </form>
+
+    {% if result_message %}
+        <hr>
+        <h3>Prediction Outcome</h3>
+        <p>{{ result_message }}</p>
+        <!-- Display other details from the result_message as needed -->
+    {% endif %}
 {% endblock %}
