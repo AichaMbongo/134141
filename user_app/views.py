@@ -492,8 +492,8 @@ def view_health_records(request, patient_id):
 @login_required(login_url='login') 
 def send_to_lab(request, lab_test_id, patient_id):
     # Retrieve the associated Patient instance
-    patient = get_object_or_404(Patient, pk=patient_id)  # Replace with the actual patient ID
-    
+    patient = get_object_or_404(Patient, pk=patient_id)
+
     # Try to get an existing LabTest instance, or create a new one if not found
     lab_test, created = LabTest.objects.get_or_create(
         pk=lab_test_id,
@@ -503,50 +503,55 @@ def send_to_lab(request, lab_test_id, patient_id):
             'patient': patient,
         }
     )
-    
+
     if request.method == 'POST':
         # Update the status to 'awaiting' when the form is submitted
         lab_test.status = 'awaiting'
+        
+        # Set the patient_name field to the patient's full name
+        lab_test.patient_name = f"{patient.firstName} {patient.lastName}"
+        
         lab_test.save()
+        
         # Add a success message
         messages.success(request, 'Patient Details have been sent to the Lab.')
 
-        # Add any additional logic for processing the form data or redirect as needed
-
-        # return redirect('view_health_records', patient_id=lab_test.patient.id)
+        # Redirect to the view_health_records page for the patient
         return redirect('view_health_records', patient_id=patient_id)
 
-
-    # Handle GET request if needed
-
-    return render(request, 'view_health_records.html', {'lab_test': lab_test, 'created': created})
+    return render(request, 'send_to_lab.html', {'lab_test': lab_test, 'patient': patient})
 
 @login_required(login_url='login')    
 def vitals(request, patient_id):
-    
-    patient_vitals = PatientVitals(patient_id=patient_id)
+    # Retrieve the patient
     patient = get_object_or_404(Patient, id=patient_id)
-            # Retrieve the most recent PatientVitals instance or create a new one
-    patient_vitals = PatientVitals.objects.filter(patient_id=patient_id).order_by('-dateModified').first()    
+
+    # Retrieve the most recent PatientVitals instance or create a new one
+    patient_vitals, created = PatientVitals.objects.get_or_create(patient_id=patient_id)
+
     if request.method == 'POST':
         form = VitalsForm(request.POST, instance=patient_vitals)
         if form.is_valid():
-             # Set the dateModified field to the current time
+            # Set the dateModified field to the current time
             patient_vitals.dateModified = timezone.now()
+
+            # Set the patient_id, first name, and last name fields
+            patient_vitals.patient_id = patient_id
+            patient_vitals.first_name = patient.firstName
+            patient_vitals.last_name = patient.lastName
 
             # Save the form data to the PatientVitals model
             form.save()
-           
+
             messages.success(request, f"{patient}'s Vital information saved successfully.")
-            
+
             return redirect(reverse('vitals', args=[patient_id]))
         else:
             messages.error(request, 'Invalid form data. Please check the form.')
-
     else:
         form = VitalsForm(instance=patient_vitals)
 
-    return render(request, 'vitals.html', {'patient_vitals': patient_vitals, 'patient':patient, 'form': form, 'patient_id':patient_id})
+    return render(request, 'vitals.html', {'patient_vitals': patient_vitals, 'patient': patient, 'form': form, 'patient_id': patient_id})
 
 
 

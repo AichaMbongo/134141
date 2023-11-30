@@ -32,13 +32,13 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    
+
     'django_otp',
     'django_otp.plugins.otp_static',
     'django_otp.plugins.otp_totp',
     'two_factor',
     'admin_interface',
-    'flat_responsive', 
+    'flat_responsive',
     'colorfield',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -51,17 +51,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
-   
+
+
     'user_app.apps.UserAppConfig',
-    
+
     # For TOTP support
-    
+
 ]
 
 AUTHENTICATION_BACKENDS = [
     # ...
-     # Needed to login by username in Django admin, regardless of `allauth`
+    # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
 
     # `allauth` specific authentication methods, such as login by email
@@ -79,14 +79,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
 
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
+
     # Add the allauth account middleware:
     "allauth.account.middleware.AccountMiddleware",
 ]
 
 SITE_ID = 1
-
-
 
 
 # # Provider specific settings
@@ -108,14 +106,10 @@ LOGIN_URL = 'two_factor:login'
 LOGIN_REDIRECT_URL = '/admin'  # Redirect admin dashboard
 
 
-
-
-
-
 ROOT_URLCONF = 'cvDetect.urls'
 
 TEMPLATES = [
-    
+
     {
 
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -211,11 +205,11 @@ STATICFILES_DIRS = [
 # ... (other settings)
 
 # Custom settings for the Django admin interface
-ADMIN_INTERFACE_COLOR = 'blue'  # 'blue', 'green', 'red', 'yellow', 'purple', 'aero', 'black', 'white'
+# 'blue', 'green', 'red', 'yellow', 'purple', 'aero', 'black', 'white'
+ADMIN_INTERFACE_COLOR = 'blue'
 ADMIN_INTERFACE_DEVELOPMENT_MODE = True  # Set this to False in production
 
 # # ... (other settings)
 # ADMIN_INTERFACE_MENU = True
 # ADMIN_INTERFACE_THEME = 'flat'
 # ADMIN_INTERFACE_INDEX = 'dashboard'
-
