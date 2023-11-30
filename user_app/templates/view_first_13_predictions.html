@@ -10,31 +10,34 @@
 
 <div class="container mt-4">
     <h2 class="mb-4 custom-h1">Lab Results for {{ patient.firstName }} {{ patient.lastName }} ({{ predictions.0.date|date:"F d, Y" }})</h2>
-    
-    
+
     <table class="table mt-4 table-hover">
-                    {% if predictions %}
-                <!-- Button to download results as PDF -->
-                <a href="{% url 'result_pdf' patient_id=patient.id %}?pdf=1" class="btn btn-primary mt-3" role="button" target="_blank">
-                    Download PDF
-                </a>
+        {% if predictions %}
+            <thead>
+                <tr>
+                    <th scope="col">Test</th>
+                    <th scope="col">Result</th>
+                    <th scope="col">Purpose</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prediction in predictions %}
+                    <tr>
+                        <td>{{ prediction.test }}</td>
+                        <td>{{ prediction.result }}</td>
+                        <td>{{ prediction.purpose }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+
+            <a href="{% url 'result_pdf' patient_id=patient.id %}?pdf=1" class="btn btn-primary mt-3" role="button" target="_blank">
+                Download PDF
+            </a>
+
+            {% if treatment_button %}
+                {{ treatment_button|safe }}
             {% endif %}
-      <thead>
-        <tr>
-          <th scope="col">Test</th>
-          <th scope="col">Result</th>
-          <th scope="col">Purpose</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for prediction in predictions %}
-          <tr>
-            <td>{{ prediction.test }}</td>
-            <td>{{ prediction.result }}</td>
-            <td>{{ prediction.purpose }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
+        {% endif %}
     </table>
-  </div>
-  {% endblock %}
+</div>
+{% endblock %}

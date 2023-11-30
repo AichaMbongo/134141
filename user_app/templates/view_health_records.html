@@ -40,9 +40,16 @@
           <div class="container mt-4">
             <h3>Send to Lab</h3>
             <ul class="list-group mt-4">
-              <li class="list-group-item">Lab Test Status: {{ lab_test.status }}</li>
-              <!-- Add more list items as needed -->
-            </ul>
+              <li class="list-group-item">
+                  Lab Test Status: {{ lab_test.status }}
+                  <!-- Add more list items as needed -->
+                  {% if lab_test.status == 'completed' and patient_vitals %}
+                      <a href="{% url 'view_first_13_predictions' patient_id=patient_vitals.patient.id %}" class="btn btn-primary mt-3">
+                          View Test Results
+                      </a>
+                  {% endif %}
+              </li>
+          </ul>
 
             <form method="post" action="{% url 'send_to_lab' lab_test_id=patient_vitals.id patient_id=patient_vitals.patient.id %}">
               {% csrf_token %}
@@ -59,12 +66,6 @@
           {% endif %}
 
 
-<!-- view_health_records.html -->
-{% if patient_vitals %}
-  <a href="{% url 'view_first_13_predictions' patient_id=patient_vitals.patient.id %}" class="btn btn-primary mt-3">
-    View First 13 Predictions
-  </a>
-{% endif %}
 
   
     <!-- ... existing content ... -->

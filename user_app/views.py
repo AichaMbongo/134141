@@ -1025,9 +1025,9 @@ def handle_prediction_form(request, patient_id):
 
             if prediction == 1:
                 result_messages = f"{patient.firstName} has a high chance of experiencing a heart attack. Treatment should begin immediately."
-                treatment_plan_url = reverse('treatment_plan', args=[patient.id])
-                treatment_button = f'<a href="{treatment_plan_url}" class="btn btn-danger float-right">Fill Treatment Plan</a>'
-                result_messages += f'<br/>{treatment_button}'
+                # treatment_plan_url = reverse('treatment_plan', args=[patient.id])
+                # treatment_button = f'<a href="{treatment_plan_url}" class="btn btn-danger float-right">Fill Treatment Plan</a>'
+                # result_messages += f'<br/>{treatment_button}'
             else:
                 result_messages = f"{patient.firstName} has a low chance of experiencing a heart attack.<br/><br/> Ensure a healthy lifestyle is maintained and checkups are done yearly."
             messages.success(request, mark_safe(f" Prediction Outcome:<br/> {result_messages}"))
@@ -1089,9 +1089,13 @@ def view_first_13_predictions(request, patient_id):
     # Fetch the first 13 predictions for the current patient
     predictions = PredictionResult.objects.filter(patient_id=patient_id)[:11]
 
+    # In your view function
+    treatment_plan_url = reverse('treatment_plan', args=[patient.id])
+    treatment_button = f'<a href="{treatment_plan_url}" class="btn btn-danger float-right">Fill Treatment Plan</a>'
+
     # Check if the request is for a PDF download
     if 'pdf' in request.GET:
         # Generate the PDF and directly return it as part of the HttpResponse
         return generate_pdf(patient, predictions)
 
-    return render(request, 'view_first_13_predictions.html', {'patient': patient, 'predictions': predictions})
+    return render(request, 'view_first_13_predictions.html', {'patient': patient, 'predictions': predictions, 'treatment_button': treatment_button})
