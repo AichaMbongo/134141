@@ -5,7 +5,7 @@ from django.contrib.auth.forms import UserChangeForm
 from django.contrib.auth.models import User
 from django import forms
 from django.forms import ModelForm
-from .models import Patient, Profile, PatientDetails, DoctorPatientRel, Appointment, User, CustomUser, PatientVitals, DoctorReport, LabTest
+from .models import Patient, Profile, PatientDetails, DoctorPatientRel, Appointment, User, CustomUser, PatientVitals, DoctorReport, LabTest, TreatmentPlan
 from django.utils import timezone
 from django.contrib.admin.widgets import AdminDateWidget
 from django.core.exceptions import ValidationError
@@ -92,25 +92,6 @@ class PatientForm(ModelForm):
         }
 
 
-# class PatientDetailsForm(forms.ModelForm):
-#     class Meta:
-#         model = PatientDetails
-#         fields = ['dob', 'cp', 'trestbps', 'chol', 'fps', 'restech', 'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal', 'target', 'dateModified' ]
-#     widgets = {
-#     'dob': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-#     'cp': forms.NumberInput(attrs={'class': 'form-control'}),
-#     'trestbps': forms.NumberInput(attrs={'class': 'form-control'}),
-#     'chol': forms.NumberInput(attrs={'class': 'form-control'}),
-#     'fps': forms.Select(attrs={'class': 'form-control'}, choices=((True, 'True'), (False, 'False'))),
-#     'restech': forms.NumberInput(attrs={'class': 'form-control'}),
-#     'thalach': forms.NumberInput(attrs={'class': 'form-control'}),
-#     'exang': forms.Select(attrs={'class': 'form-control'}, choices=((True, 'True'), (False, 'False'))),
-#     'oldpeak': forms.NumberInput(attrs={'class': 'form-control'}),
-#     'slope': forms.NumberInput(attrs={'class': 'form-control'}),
-#     'ca': forms.NumberInput(attrs={'class': 'form-control'}),
-#     'thal': forms.NumberInput(attrs={'class': 'form-control'}),
-#     'target': forms.Select(attrs={'class': 'form-control'}, choices=((True, 'True'), (False, 'False'))),
-# }
 
 class VitalsForm(forms.ModelForm):
     class Meta:
@@ -276,9 +257,14 @@ class DoctorPatientRelForm(forms.ModelForm):
 class TreatmentPlanForm(forms.Form):
     medications = forms.CharField(label='Medications', widget=forms.Textarea)
     lifestyle_changes = forms.CharField(label='Lifestyle Changes', widget=forms.Textarea)
-    follow_up_date = forms.DateField(label='Follow-up Date')
+    follow_up_date = forms.DateField(label='Follow-up Date', widget=forms.DateInput(attrs={'type': 'date'}))
     additional_notes = forms.CharField(label='Additional Notes', widget=forms.Textarea)
+    pdf_file = forms.FileField(label='Upload PDF File', required=False)
 
+    class Meta:
+        model = TreatmentPlan
+        fields = ['medications', 'lifestyle_changes', 'follow_up_date', 'additional_notes', 'pdf_file']
+        
 class AppointmentForm(forms.ModelForm):
     class Meta:
         model = Appointment

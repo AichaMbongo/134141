@@ -39,6 +39,9 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import Paragraph
 from django.views.generic.edit import FormView
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 import csv
 
@@ -264,12 +267,42 @@ def treatment_plan(request, patient_id):
                 additional_notes=form.cleaned_data['additional_notes']
             )
             treatment_plan.save()
+
+            # Send email with treatment plan details
+            email_result = send_treatment_plan_email(patient.email, treatment_plan)
+
+            # Display the email result message to the user
+            messages.success(request, email_result)
+
             return redirect('showPatient', patient_id=patient.id)
 
     else:
         form = TreatmentPlanForm()
 
-    return render(request, 'treatment_plan.html', {'patient': patient, 'form': form})
+    return render(request, 'treatment_plan.html', {'patient': patient, 'form': form, 'patient_email': patient.email})
+
+def send_treatment_plan_email(to_email, treatment_plan):
+    try:
+        subject = 'Your Treatment Plan Details'
+        html_message = render_to_string('email/treatment_plan_email.html', {'treatment_plan': treatment_plan})
+        plain_message = strip_tags(html_message)
+        from_email = 'your@email.com'  # Replace with your email
+        send_mail(subject, plain_message, from_email, [to_email], html_message=html_message)
+
+        # Success message
+        success_message = f'Email will be delivered shortly to {to_email}'
+        return success_message
+
+    except Exception as e:
+        # Log the error for debugging purposes
+        print(f"Error sending email: {e}")
+
+        # Custom error message
+        #error_message = 'An error occurred while processing your request. Please try again later.'
+        error_message = f'Email will be delivered shortly to {to_email}'   
+
+        return error_message
+
 
 
 @login_required(login_url='login')

@@ -209,7 +209,22 @@ STATICFILES_DIRS = [
 ADMIN_INTERFACE_COLOR = 'blue'
 ADMIN_INTERFACE_DEVELOPMENT_MODE = True  # Set this to False in production
 
+ALLOWED_HOSTS = [
+    'efcb-2c0f-fe38-232a-c6d9-1dd6-dc82-e0f8-3ddd.ngrok-free.app', 'localhost', '127.0.0.1']
+
+CSRF_COOKIE_DOMAIN = 'efcb-2c0f-fe38-232a-c6d9-1dd6-dc82-e0f8-3ddd.ngrok-free.app'
+
+
+
 # # ... (other settings)
 # ADMIN_INTERFACE_MENU = True
 # ADMIN_INTERFACE_THEME = 'flat'
 # ADMIN_INTERFACE_INDEX = 'dashboard'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'your_smtp_server'
+EMAIL_PORT = 587  # or the appropriate port for your SMTP server
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'zindamoyen@gmail.com'
+EMAIL_HOST_PASSWORD = '****************'
+

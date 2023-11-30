@@ -52,6 +52,7 @@ urlpatterns = [
     path('view_test_results/<int:patient_id>/', views.view_test_results, name='view_test_results'),
     path('handle_prediction_result/<int:patient_id>/', views.handle_prediction_form, name='handle_prediction_result'),
     path('view_first_13_predictions/<int:patient_id>/', views.view_first_13_predictions, name='view_first_13_predictions'),
+    path('send_treatment_plan_email/<int:patient_id>/', views.send_treatment_plan_email, name='send_treatment_plan_email'),
     # path('add-lab-test/<int:patient_id>/', views.add_lab_test, name='add_lab_test'),
     # path('start-test/<int:lab_test_id>/', views.start_test, name='start_test'),
 

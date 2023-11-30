@@ -111,15 +111,15 @@ class PatientVitals(models.Model):
     
 class TreatmentPlan(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    # patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
     medications = models.TextField()
     lifestyle_changes = models.TextField()
     follow_up_date = models.DateField()
     additional_notes = models.TextField()
+    pdf_file = models.FileField(upload_to='pdf_files/', blank=True, null=True)
 
     def __str__(self):
-        return f"Treatment Plan for {self.patient.firstName} {self.patient.lastName} "
-    
+        return f"Treatment Plan for {self.patient.firstName} {self.patient.lastName}"
+
     class Meta:
         ordering = ['-id']
 

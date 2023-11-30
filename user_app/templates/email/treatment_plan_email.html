@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+  CV - detect
+{% endblock %}
+
+{% block content %}
+
+
+<h2>Treatment Plan Details</h2>
+
+    <p><strong>Medications:</strong> {{ treatment_plan.medications }}</p>
+    <p><strong>Lifestyle Changes:</strong> {{ treatment_plan.lifestyle_changes }}</p>
+    <p><strong>Follow-up Date:</strong> {{ treatment_plan.follow_up_date }}</p>
+    <p><strong>Additional Notes:</strong> {{ treatment_plan.additional_notes }}</p>
+
+    <p>Thank you for using our treatment plan system!</p>
+
+    {% endblock %}
